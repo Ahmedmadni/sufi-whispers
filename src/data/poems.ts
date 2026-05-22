@@ -2,7 +2,14 @@ export interface Verse {
   id: number;
   sadr: string;   // صدر البيت
   ajuz?: string;  // عجز البيت
+  text: string;   // البيت كاملاً
 }
+
+type RawVerse = Omit<Verse, "text"> & { text?: string };
+type RawPoem = Omit<Poem, "verses"> & { verses: RawVerse[] };
+
+
+
 
 export interface Poem {
   id: number;
@@ -20,7 +27,7 @@ export const bookMeta = {
   pages: 432,
 };
 
-export const poems: Poem[] = [
+const rawPoems: RawPoem[] = [
   {
     id: 1,
     title: "آتَانِي زَمَانِي بِمَا أَرْضِي",
@@ -105,4 +112,21 @@ export const poems: Poem[] = [
       { id: 7, sadr: "وَيَا مُؤْمِنُ هَبْ لِي الْأَمَانَ مِنَ الْعَنَا", ajuz: "مُهَيْمِنُ مَنْ جَمَّلَ بِالْمَعَانِي نُفُوسَنَا" },
       { id: 8, sadr: "عَزِيزٌ هَبْ لِي مِنْكَ عِزًّا وَقُوَّةً", ajuz: "وَبِالْجَبْرِ أَيْ جَبَّارُ بَدِّدْ عَدُوَّنَا" },
       { id: 9, sadr: "وَيَا بَارِئُ احْفَظْنِي مِنَ النَّفْسِ وَالْهَوَى", ajuz: "بِفَضْلِكَ وَارْفَعْ يَا مُصَوِّرُ ذِكْرَنَا" },
-      { id: 10, sadr: "وَيَا غَفَّارُ فَاغْفِرْ يَا إِلَهِي ذُنُوبَنَا", ajuz
+      { id: 10, sadr: "وَيَا غَفَّارُ فَاغْفِرْ يَا إِلَهِي ذُنُوبَنَا", ajuz: "وَيَا قَهَّارُ اقْهَرْ بِالرِّضَا أَهْوَاءَنَا" },
+      { id: 11, sadr: "وَصَلِّ عَلَى الْمُخْتَارِ يَا رَبِّ دَائِمًا", ajuz: "صَلَاةً تَدُومُ مَا تَعَاقَبَ فَجْرُنَا" },
+    ],
+  },
+];
+
+export const poems: Poem[] = rawPoems.map((p) => ({
+  ...p,
+  verses: p.verses.map((v) => ({
+    ...v,
+    text: v.text ?? (v.ajuz ? `${v.sadr} ... ${v.ajuz}` : v.sadr),
+  })),
+}));
+
+export const categories: string[] = Array.from(
+  new Set(poems.map((p) => p.category))
+);
+
