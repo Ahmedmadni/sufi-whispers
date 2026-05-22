@@ -23,7 +23,7 @@ export const bookMeta = {
   pages: 432,
 };
 
-export const poems: Poem[] = [
+const rawPoems: Poem[] = [
   {
     id: 1,
     title: "آتَانِي زَمَانِي بِمَا أَرْضِي",
