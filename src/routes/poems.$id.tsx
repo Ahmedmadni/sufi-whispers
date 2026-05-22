@@ -4,7 +4,7 @@ import { ArrowRight, ArrowLeft, Copy, Heart, Minus, Plus, Share2 } from "lucide-
 import { useEffect, useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Ornament } from "@/components/Decorations";
-import { poems } from "@/data/poems";
+import { poems, type Poem } from "@/data/poems";
 import { useFavorites } from "@/hooks/use-favorites";
 
 export const Route = createFileRoute("/poems/$id")({
