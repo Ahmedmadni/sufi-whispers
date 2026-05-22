@@ -2,8 +2,12 @@ export interface Verse {
   id: number;
   sadr: string;   // صدر البيت
   ajuz?: string;  // عجز البيت
-  text?: string;  // البيت كاملاً (مُولَّد تلقائياً)
+  text: string;   // البيت كاملاً
 }
+
+type RawVerse = Omit<Verse, "text"> & { text?: string };
+type RawPoem = Omit<Poem, "verses"> & { verses: RawVerse[] };
+
 
 
 
