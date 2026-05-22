@@ -2,7 +2,9 @@ export interface Verse {
   id: number;
   sadr: string;   // صدر البيت
   ajuz?: string;  // عجز البيت
+  text: string;   // البيت كاملاً
 }
+
 
 export interface Poem {
   id: number;
