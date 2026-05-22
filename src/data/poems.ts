@@ -113,3 +113,16 @@ const rawPoems: Poem[] = [
     ],
   },
 ];
+
+export const poems: Poem[] = rawPoems.map((p) => ({
+  ...p,
+  verses: p.verses.map((v) => ({
+    ...v,
+    text: v.text ?? (v.ajuz ? `${v.sadr} ... ${v.ajuz}` : v.sadr),
+  })),
+}));
+
+export const categories: string[] = Array.from(
+  new Set(poems.map((p) => p.category))
+);
+
