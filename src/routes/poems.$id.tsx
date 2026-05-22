@@ -30,7 +30,7 @@ export const Route = createFileRoute("/poems/$id")({
 });
 
 function PoemReader() {
-  const poem = Route.useLoaderData();
+  const poem = Route.useLoaderData() as Poem;
   const { isFav, toggle } = useFavorites();
   const [fontSize, setFontSize] = useState(20);
   const [progress, setProgress] = useState(0);
