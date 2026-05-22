@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PoemsIndexRouteImport } from './routes/poems.index'
+import { Route as PoemsIdRouteImport } from './routes/poems.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const PoemsIndexRoute = PoemsIndexRouteImport.update({
   path: '/poems/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PoemsIdRoute = PoemsIdRouteImport.update({
+  id: '/poems/$id',
+  path: '/poems/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/poems/$id': typeof PoemsIdRoute
   '/poems/': typeof PoemsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/poems/$id': typeof PoemsIdRoute
   '/poems': typeof PoemsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/poems/$id': typeof PoemsIdRoute
   '/poems/': typeof PoemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/poems/'
+  fullPaths: '/' | '/poems/$id' | '/poems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/poems'
-  id: '__root__' | '/' | '/poems/'
+  to: '/' | '/poems/$id' | '/poems'
+  id: '__root__' | '/' | '/poems/$id' | '/poems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PoemsIdRoute: typeof PoemsIdRoute
   PoemsIndexRoute: typeof PoemsIndexRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PoemsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/poems/$id': {
+      id: '/poems/$id'
+      path: '/poems/$id'
+      fullPath: '/poems/$id'
+      preLoaderRoute: typeof PoemsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PoemsIdRoute: PoemsIdRoute,
   PoemsIndexRoute: PoemsIndexRoute,
 }
 export const routeTree = rootRouteImport
