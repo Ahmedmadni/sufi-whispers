@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { BookOpen, Home, Heart, Info, Search } from "lucide-react";
+import { BookOpen, Home, Heart, Info, Search, BookMarked } from "lucide-react";
 import { useState } from "react";
 import { SearchModal } from "./SearchModal";
 
@@ -10,9 +10,11 @@ export function SiteHeader() {
   const links = [
     { to: "/", label: "الرئيسية", icon: Home },
     { to: "/poems", label: "الديوان", icon: BookOpen },
+    { to: "/book", label: "الكتاب", icon: BookMarked },
     { to: "/favorites", label: "المفضّلة", icon: Heart },
     { to: "/about", label: "عن الكتاب", icon: Info },
   ] as const;
+
 
   return (
     <>

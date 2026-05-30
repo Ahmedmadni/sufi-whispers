@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FavoritesRouteImport } from './routes/favorites'
+import { Route as BookRouteImport } from './routes/book'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PoemsIndexRouteImport } from './routes/poems.index'
@@ -18,6 +19,11 @@ import { Route as PoemsIdRouteImport } from './routes/poems.$id'
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -44,6 +50,7 @@ const PoemsIdRoute = PoemsIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/book': typeof BookRoute
   '/favorites': typeof FavoritesRoute
   '/poems/$id': typeof PoemsIdRoute
   '/poems/': typeof PoemsIndexRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/book': typeof BookRoute
   '/favorites': typeof FavoritesRoute
   '/poems/$id': typeof PoemsIdRoute
   '/poems': typeof PoemsIndexRoute
@@ -59,21 +67,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/book': typeof BookRoute
   '/favorites': typeof FavoritesRoute
   '/poems/$id': typeof PoemsIdRoute
   '/poems/': typeof PoemsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/favorites' | '/poems/$id' | '/poems/'
+  fullPaths: '/' | '/about' | '/book' | '/favorites' | '/poems/$id' | '/poems/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/favorites' | '/poems/$id' | '/poems'
-  id: '__root__' | '/' | '/about' | '/favorites' | '/poems/$id' | '/poems/'
+  to: '/' | '/about' | '/book' | '/favorites' | '/poems/$id' | '/poems'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/book'
+    | '/favorites'
+    | '/poems/$id'
+    | '/poems/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BookRoute: typeof BookRoute
   FavoritesRoute: typeof FavoritesRoute
   PoemsIdRoute: typeof PoemsIdRoute
   PoemsIndexRoute: typeof PoemsIndexRoute
@@ -86,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/favorites'
       fullPath: '/favorites'
       preLoaderRoute: typeof FavoritesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BookRoute: BookRoute,
   FavoritesRoute: FavoritesRoute,
   PoemsIdRoute: PoemsIdRoute,
   PoemsIndexRoute: PoemsIndexRoute,
