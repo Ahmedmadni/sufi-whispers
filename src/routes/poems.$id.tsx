@@ -118,28 +118,31 @@ function PoemReader() {
                 <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
                   {v.id}.
                 </span>
-                <p
-                  className="verse-line flex-1 text-foreground/95"
-                  style={{ fontSize: `${fontSize}px` }}
+                <div
+                  className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
+                  style={{ fontSize: `${Math.max(12, fontSize - 4)}px` }}
                 >
-                  {v.text}
-                </p>
+                  <p className="text-right pl-2 sm:pl-3 border-l border-gold/15">{v.sadr}</p>
+                  <p className="text-right">{v.ajuz ?? ""}</p>
+                </div>
+
                 <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
-                    onClick={() => copyVerse(v.text)}
+                    onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
                     className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
                     aria-label="نسخ"
                   >
                     <Copy className="w-3.5 h-3.5" />
                   </button>
                   <button
-                    onClick={() => shareVerse(v.text)}
+                    onClick={() => shareVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
                     className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
                     aria-label="مشاركة"
                   >
                     <Share2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
+
               </motion.div>
             ))}
           </div>
