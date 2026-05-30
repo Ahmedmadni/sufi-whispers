@@ -1,9 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
-import { ChevronRight, ChevronLeft, Search, Download, Maximize2 } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Search,
+  Maximize2,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 
-const TOTAL_PAGES = 432;
+// Use CDN worker matching the installed pdfjs version (avoids bundler issues).
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+
+const PDF_URL = "/book.pdf";
 
 export const Route = createFileRoute("/book")({
   head: () => ({
@@ -12,31 +26,50 @@ export const Route = createFileRoute("/book")({
       {
         name: "description",
         content:
-          "تصفّح كتاب جامع النفحات في مدح سيد السادات ﷺ صفحةً صفحةً، مع البحث عبر رقم الصفحة في الفهرس.",
-      },
-      { property: "og:title", content: "استعراض الكتاب — جامع النفحات" },
-      {
-        property: "og:description",
-        content: "نسخة رقمية كاملة من الكتاب مع بحث عبر رقم الصفحة.",
+          "تصفّح كتاب جامع النفحات في مدح سيد السادات ﷺ صفحةً صفحةً مع البحث برقم الصفحة.",
       },
     ],
   }),
   component: BookViewer,
 });
 
+const pdfOptions = {
+  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapPacked: true,
+  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+};
+
 function BookViewer() {
+  const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [scale, setScale] = useState(1);
+  const [pageWidth, setPageWidth] = useState(800);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setInput(String(page));
   }, [page]);
 
-  const goTo = (p: number) => {
-    const clamped = Math.max(1, Math.min(TOTAL_PAGES, p));
-    setPage(clamped);
-  };
+  useEffect(() => {
+    const update = () => {
+      if (containerRef.current) {
+        const w = containerRef.current.clientWidth - 24;
+        setPageWidth(Math.min(900, Math.max(280, w)));
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const goTo = useCallback(
+    (p: number) => {
+      const clamped = Math.max(1, Math.min(numPages || 1, p));
+      setPage(clamped);
+    },
+    [numPages]
+  );
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +78,8 @@ function BookViewer() {
   };
 
   const fullscreen = () => {
-    iframeRef.current?.requestFullscreen?.();
+    containerRef.current?.requestFullscreen?.();
   };
-
-  const pdfSrc = `/book.pdf#page=${page}&view=FitH&toolbar=0&navpanes=0`;
 
   return (
     <div className="min-h-screen">
@@ -63,16 +94,13 @@ function BookViewer() {
             استعراض الكتاب
           </h1>
           <p className="mt-3 text-sm text-muted-foreground font-body">
-            ابدأ من الفهرس، ثم أدخل رقم الصفحة الظاهر أمام كل قصيدة للانتقال إليها مباشرة.
+            تصفّح الكتاب أو أدخل رقم الصفحة الظاهر في الفهرس للانتقال إليها مباشرة.
           </p>
         </header>
 
         {/* Controls */}
         <div className="glass rounded-2xl p-4 sm:p-5 mb-5 flex flex-wrap items-center gap-3 justify-between">
           <form onSubmit={onSubmit} className="flex items-center gap-2">
-            <label className="text-xs font-body text-muted-foreground hidden sm:block">
-              رقم الصفحة:
-            </label>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none" />
               <input
@@ -80,8 +108,8 @@ function BookViewer() {
                 onChange={(e) => setInput(e.target.value)}
                 type="text"
                 inputMode="numeric"
-                className="w-32 bg-velvet/40 border border-gold/20 rounded-lg pr-9 pl-3 py-2 text-sm font-body text-gold-soft focus:outline-none focus:border-gold/60"
-                placeholder="مثال: ٢٥"
+                className="w-28 bg-velvet/40 border border-gold/20 rounded-lg pr-9 pl-3 py-2 text-sm font-body text-gold-soft focus:outline-none focus:border-gold/60"
+                placeholder="صفحة"
                 aria-label="ابحث برقم الصفحة"
               />
             </div>
@@ -91,28 +119,48 @@ function BookViewer() {
             >
               انتقل
             </button>
-            <span className="text-xs text-muted-foreground font-body hidden sm:inline">
-              من أصل {TOTAL_PAGES}
-            </span>
+            {numPages > 0 && (
+              <span className="text-xs text-muted-foreground font-body hidden sm:inline">
+                من أصل {numPages}
+              </span>
+            )}
           </form>
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setScale((s) => Math.max(0.5, +(s - 0.15).toFixed(2)))}
+              className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
+              aria-label="تصغير"
+            >
+              <ZoomOut className="w-4 h-4" />
+            </button>
+            <span className="text-xs font-body text-gold-soft min-w-[3rem] text-center">
+              {Math.round(scale * 100)}%
+            </span>
+            <button
+              onClick={() => setScale((s) => Math.min(2.5, +(s + 0.15).toFixed(2)))}
+              className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
+              aria-label="تكبير"
+            >
+              <ZoomIn className="w-4 h-4" />
+            </button>
+            <div className="w-px h-6 bg-gold/20 mx-1" />
+            <button
               onClick={() => goTo(page - 1)}
               disabled={page <= 1}
-              className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 disabled:cursor-not-allowed text-gold-soft"
-              aria-label="الصفحة السابقة"
+              className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 text-gold-soft"
+              aria-label="السابق"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <span className="text-sm font-display text-gold-soft min-w-[3rem] text-center">
-              {page}
+            <span className="text-sm font-display text-gold-soft min-w-[3.5rem] text-center">
+              {page}{numPages ? ` / ${numPages}` : ""}
             </span>
             <button
               onClick={() => goTo(page + 1)}
-              disabled={page >= TOTAL_PAGES}
-              className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 disabled:cursor-not-allowed text-gold-soft"
-              aria-label="الصفحة التالية"
+              disabled={!numPages || page >= numPages}
+              className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 text-gold-soft"
+              aria-label="التالي"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -124,63 +172,54 @@ function BookViewer() {
             >
               <Maximize2 className="w-4 h-4" />
             </button>
-            <a
-              href="/book.pdf"
-              download
-              className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
-              aria-label="تحميل الكتاب"
-            >
-              <Download className="w-4 h-4" />
-            </a>
           </div>
         </div>
 
-        {/* Quick index shortcuts */}
-        <div className="flex flex-wrap items-center gap-2 mb-5 text-xs font-body">
-          <span className="text-muted-foreground">انتقال سريع:</span>
-          {[
-            { label: "الغلاف", p: 1 },
-            { label: "الفهرس", p: 5 },
-            { label: "بداية القصائد", p: 25 },
-            { label: "المنتصف", p: Math.floor(TOTAL_PAGES / 2) },
-            { label: "النهاية", p: TOTAL_PAGES },
-          ].map((s) => (
-            <button
-              key={s.label}
-              onClick={() => goTo(s.p)}
-              className="px-3 py-1.5 rounded-full border border-gold/20 text-gold-soft hover:bg-gold/10 hover:border-gold/50 transition-colors"
-            >
-              {s.label} <span className="text-gold/50">({s.p})</span>
-            </button>
-          ))}
-        </div>
-
         {/* Viewer */}
-        <div className="glass rounded-2xl p-2 sm:p-3 relative overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none opacity-20"
-            style={{
-              background:
-                "radial-gradient(ellipse at top, oklch(0.78 0.12 80 / 0.25), transparent 60%)",
-            }}
-          />
-          <iframe
-            ref={iframeRef}
-            key={page}
-            src={pdfSrc}
-            title={`الكتاب — صفحة ${page}`}
-            className="relative w-full rounded-xl bg-white"
-            style={{ height: "min(85vh, 1000px)", minHeight: "500px" }}
-          />
+        <div
+          ref={containerRef}
+          className="glass rounded-2xl p-3 flex justify-center items-center min-h-[60vh] bg-velvet/30"
+        >
+          <Document
+            file={PDF_URL}
+            onLoadSuccess={({ numPages: n }) => setNumPages(n)}
+            options={pdfOptions}
+            loading={
+              <div className="flex flex-col items-center gap-3 py-16 text-gold-soft">
+                <Loader2 className="w-8 h-8 animate-spin" />
+                <p className="text-sm font-body">جارٍ تحميل الكتاب…</p>
+              </div>
+            }
+            error={
+              <div className="text-center py-12">
+                <p className="text-sm text-muted-foreground font-body mb-3">
+                  تعذّر تحميل الكتاب.
+                </p>
+                <a
+                  href={PDF_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-gold-soft underline text-sm"
+                >
+                  فتحه في نافذة جديدة
+                </a>
+              </div>
+            }
+          >
+            <Page
+              pageNumber={page}
+              width={pageWidth * scale}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              loading={
+                <div className="flex items-center justify-center py-16 text-gold-soft">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                </div>
+              }
+              className="shadow-xl rounded-lg overflow-hidden"
+            />
+          </Document>
         </div>
-
-        <p className="mt-4 text-center text-xs text-muted-foreground font-body">
-          إن لم يظهر الكتاب أعلاه، يمكنك{" "}
-          <a href="/book.pdf" target="_blank" rel="noreferrer" className="text-gold-soft underline">
-            فتحه في نافذة جديدة
-          </a>
-          .
-        </p>
       </section>
     </div>
   );
