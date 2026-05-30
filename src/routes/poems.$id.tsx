@@ -119,12 +119,13 @@ function PoemReader() {
                   {v.id}.
                 </span>
                 <div
-                  className="verse-line flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-foreground/95"
-                  style={{ fontSize: `${fontSize}px` }}
+                  className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
+                  style={{ fontSize: `${Math.max(12, fontSize - 4)}px` }}
                 >
-                  <p className="text-right sm:pl-3 sm:border-l border-gold/15">{v.sadr}</p>
-                  {v.ajuz && <p className="text-right sm:text-left">{v.ajuz}</p>}
+                  <p className="text-right pl-2 sm:pl-3 border-l border-gold/15">{v.sadr}</p>
+                  <p className="text-right">{v.ajuz ?? ""}</p>
                 </div>
+
                 <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
