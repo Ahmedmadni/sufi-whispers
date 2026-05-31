@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -8,11 +8,11 @@ import {
   ChevronLeft,
   Search,
   Maximize2,
-  Loader2,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Use CDN worker matching the installed pdfjs version (avoids bundler issues).
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
