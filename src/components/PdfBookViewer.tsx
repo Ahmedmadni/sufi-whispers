@@ -73,8 +73,39 @@ export default function PdfBookViewer() {
     return Array.from(set);
   }, [page, numPages]);
 
+  const bookmarks = useMemo(
+    () => [
+      { label: "الغلاف", page: 1 },
+      { label: "الفهرس", page: 5 },
+      { label: "البداية", page: 15 },
+      { label: "المنتصف", page: Math.max(1, Math.round((numPages || 432) / 2)) },
+      { label: "النهاية", page: numPages || 432 },
+    ],
+    [numPages]
+  );
+
   return (
     <>
+      {/* Bookmarks */}
+      <div className="glass rounded-2xl p-3 sm:p-4 mb-3 flex flex-wrap items-center gap-2">
+        <span className="text-xs font-body text-gold-soft/70 px-1">إشارات مرجعية:</span>
+        {bookmarks.map((b) => (
+          <button
+            key={b.label}
+            onClick={() => goTo(b.page)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-body transition-all ${
+              page === b.page
+                ? "glass-gold text-gold-soft glow-gold"
+                : "glass text-gold-soft/80 hover:text-gold-soft hover:scale-105"
+            }`}
+            aria-label={`الانتقال إلى ${b.label}`}
+          >
+            {b.label}
+            <span className="opacity-50 mr-1">({b.page})</span>
+          </button>
+        ))}
+      </div>
+
       {/* Controls */}
       <div className="glass rounded-2xl p-4 sm:p-5 mb-5 flex flex-wrap items-center gap-3 justify-between">
         <form onSubmit={onSubmit} className="flex items-center gap-2">
