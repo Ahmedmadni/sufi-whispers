@@ -185,9 +185,9 @@ function BookViewer() {
             onLoadSuccess={({ numPages: n }) => setNumPages(n)}
             options={pdfOptions}
             loading={
-              <div className="flex flex-col items-center gap-3 py-16 text-gold-soft">
-                <Loader2 className="w-8 h-8 animate-spin" />
-                <p className="text-sm font-body">جارٍ تحميل الكتاب…</p>
+              <div className="flex flex-col items-center gap-3 py-8 w-full">
+                <Skeleton className="w-full max-w-[800px] aspect-[1/1.4] rounded-lg" />
+                <p className="text-sm font-body text-gold-soft/80">جارٍ تحميل الكتاب…</p>
               </div>
             }
             error={
@@ -207,17 +207,43 @@ function BookViewer() {
             }
           >
             <Page
+              key={page}
               pageNumber={page}
               width={pageWidth * scale}
               renderTextLayer={false}
               renderAnnotationLayer={false}
               loading={
-                <div className="flex items-center justify-center py-16 text-gold-soft">
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                </div>
+                <Skeleton
+                  className="rounded-lg"
+                  style={{
+                    width: pageWidth * scale,
+                    height: pageWidth * scale * 1.4,
+                  }}
+                />
               }
               className="shadow-xl rounded-lg overflow-hidden"
             />
+            <div
+              aria-hidden
+              style={{
+                position: "absolute",
+                width: 0,
+                height: 0,
+                overflow: "hidden",
+                opacity: 0,
+                pointerEvents: "none",
+              }}
+            >
+              {neighbors.map((p) => (
+                <Page
+                  key={`pre-${p}`}
+                  pageNumber={p}
+                  width={pageWidth * scale}
+                  renderTextLayer={false}
+                  renderAnnotationLayer={false}
+                />
+              ))}
+            </div>
           </Document>
         </div>
       </section>
