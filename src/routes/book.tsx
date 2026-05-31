@@ -81,6 +81,15 @@ function BookViewer() {
     containerRef.current?.requestFullscreen?.();
   };
 
+  const neighbors = useMemo<number[]>(() => {
+    if (!numPages) return [];
+    const set = new Set<number>();
+    [page - 1, page + 1, page - 2, page + 2].forEach((p) => {
+      if (p >= 1 && p <= numPages && p !== page) set.add(p);
+    });
+    return Array.from(set);
+  }, [page, numPages]);
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
