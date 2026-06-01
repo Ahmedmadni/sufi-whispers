@@ -39,9 +39,9 @@
   --color-velvet: var(--velvet);
   --color-beige: var(--beige);
 
-  --font-display: "Reem Kufi", "Amiri", serif;
-  --font-quran: "Amiri Quran", "Amiri", serif;
-  --font-body: "Cairo", "IBM Plex Sans Arabic", sans-serif;
+  --font-display: "Alexandria", "Cairo", system-ui, sans-serif;
+  --font-quran: "Alexandria", "Cairo", system-ui, sans-serif;
+  --font-body: "Cairo", "Alexandria", system-ui, sans-serif;
 }
 
 :root {
@@ -190,6 +190,21 @@
     font-family: var(--font-quran);
     line-height: 2.4;
     letter-spacing: 0.01em;
+  }
+
+  /* Hemistich (شطر) — no word breaks across lines, justified like printed diwan */
+  .hemistich {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  }
+  .hemistich-fit {
+    display: block;
+    width: 100%;
   }
 
   @keyframes float-slow {
