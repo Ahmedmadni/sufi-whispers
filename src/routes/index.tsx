@@ -6,6 +6,7 @@ import { Particles } from "@/components/Particles";
 import { MosqueSilhouette, Ornament, IslamicPattern } from "@/components/Decorations";
 import { bookMeta, poems } from "@/data/poems";
 import { useEffect, useState } from "react";
+import greenDome from "@/assets/green-dome.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -42,12 +43,23 @@ function Home() {
 
       {/* HERO */}
       <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
+        {/* Green Dome backdrop — Al-Masjid An-Nabawi */}
+        <div className="absolute inset-0">
+          <img
+            src={greenDome}
+            alt="القبة الخضراء — المسجد النبوي الشريف"
+            width={1920}
+            height={1080}
+            className="w-full h-full object-cover object-center opacity-55"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/70 to-background" />
+        </div>
         {/* aura */}
-        <div className="absolute inset-0 [background:radial-gradient(ellipse_60%_50%_at_50%_30%,oklch(0.42_0.08_160/0.6),transparent_70%)]" />
+        <div className="absolute inset-0 [background:radial-gradient(ellipse_60%_50%_at_50%_30%,oklch(0.42_0.08_160/0.45),transparent_70%)]" />
         {/* islamic pattern */}
-        <IslamicPattern className="absolute inset-0 w-full h-full text-gold/30 opacity-40" />
+        <IslamicPattern className="absolute inset-0 w-full h-full text-gold/30 opacity-30" />
         {/* mosque silhouette */}
-        <MosqueSilhouette className="absolute bottom-0 left-0 right-0 w-full h-64 text-emerald-deep/70" />
+        <MosqueSilhouette className="absolute bottom-0 left-0 right-0 w-full h-64 text-emerald-deep/60" />
         {/* particles */}
         <Particles count={30} />
 
