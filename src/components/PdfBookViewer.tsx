@@ -76,9 +76,9 @@ export default function PdfBookViewer() {
   const bookmarks = useMemo(
     () => [
       { label: "الغلاف", page: 1 },
-      { label: "الفهرس", page: 5 },
-      { label: "البداية", page: 15 },
-      { label: "المنتصف", page: Math.max(1, Math.round((numPages || 432) / 2)) },
+      { label: "المقدمة", page: 6 },
+      { label: "بداية القصائد", page: 20 },
+      { label: "الفهرس", page: 425 },
       { label: "النهاية", page: numPages || 432 },
     ],
     [numPages]
