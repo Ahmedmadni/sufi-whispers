@@ -209,3 +209,49 @@ function PoemReader() {
     </div>
   );
 }
+
+function Hemistich({ text, className = "" }: { text: string; className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const span = spanRef.current;
+    if (!container || !span) return;
+
+    const fit = () => {
+      span.style.transform = "scale(1)";
+      const available = container.clientWidth;
+      const natural = span.scrollWidth;
+      if (natural <= 0 || available <= 0) return;
+      const next = Math.min(1, available / natural);
+      setScale(next);
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(container);
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [text]);
+
+  return (
+    <div ref={containerRef} className={`hemistich ${className}`} style={{ fontSize: "var(--verse-base, 20px)" }}>
+      <span
+        ref={spanRef}
+        style={{
+          display: "inline-block",
+          whiteSpace: "nowrap",
+          transform: `scale(${scale})`,
+          transformOrigin: "right center",
+        }}
+      >
+        {text}
+      </span>
+    </div>
+  );
+}
