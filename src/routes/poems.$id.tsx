@@ -240,14 +240,19 @@ function Hemistich({ text, align = "right", className = "" }: { text: string; al
   }, [text]);
 
   return (
-    <div ref={containerRef} className={`hemistich ${className}`} style={{ fontSize: "var(--verse-base, 20px)" }}>
+    <div
+      ref={containerRef}
+      className={`hemistich ${className}`}
+      style={{ fontSize: "var(--verse-base, 20px)", textAlign: align }}
+      dir="rtl"
+    >
       <span
         ref={spanRef}
         style={{
           display: "inline-block",
           whiteSpace: "nowrap",
           transform: `scale(${scale})`,
-          transformOrigin: "right center",
+          transformOrigin: `${align} center`,
         }}
       >
         {text}
