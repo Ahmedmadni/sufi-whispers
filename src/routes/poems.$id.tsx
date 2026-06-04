@@ -105,7 +105,7 @@ function PoemReader() {
                 "radial-gradient(ellipse at top, oklch(0.78 0.12 80 / 0.3), transparent 60%)",
             }}
           />
-          <div className="relative space-y-2">
+          <div className="relative" dir="rtl">
             {poem.verses.map((v, i) => (
               <motion.div
                 key={v.id}
@@ -113,17 +113,17 @@ function PoemReader() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: Math.min(i * 0.06, 0.4) }}
-                className="group flex items-start gap-3 py-3 border-b border-gold/10 last:border-0"
+                className="group flex items-center gap-2 py-1.5 sm:py-2"
               >
-                <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
-                  {v.id}.
+                <span className="text-gold/50 font-display text-xs sm:text-sm w-7 sm:w-9 text-center shrink-0 tabular-nums">
+                  {v.id}
                 </span>
                 <div
-                  className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
+                  className="verse-line flex-1 grid grid-cols-2 text-foreground/95"
                   style={{ ["--verse-base" as any]: `${fontSize}px` }}
                 >
-                  <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
-                  <Hemistich text={v.ajuz ?? ""} />
+                  <Hemistich text={v.sadr} align="right" className="pl-3 sm:pl-6 border-l border-gold/20" />
+                  <Hemistich text={v.ajuz ?? ""} align="left" className="pr-3 sm:pr-6" />
                 </div>
 
                 <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -210,7 +210,7 @@ function PoemReader() {
   );
 }
 
-function Hemistich({ text, className = "" }: { text: string; className?: string }) {
+function Hemistich({ text, align = "right", className = "" }: { text: string; align?: "right" | "left"; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const spanRef = useRef<HTMLSpanElement>(null);
   const [scale, setScale] = useState(1);
@@ -240,14 +240,19 @@ function Hemistich({ text, className = "" }: { text: string; className?: string 
   }, [text]);
 
   return (
-    <div ref={containerRef} className={`hemistich ${className}`} style={{ fontSize: "var(--verse-base, 20px)" }}>
+    <div
+      ref={containerRef}
+      className={`hemistich ${className}`}
+      style={{ fontSize: "var(--verse-base, 20px)", textAlign: align }}
+      dir="rtl"
+    >
       <span
         ref={spanRef}
         style={{
           display: "inline-block",
           whiteSpace: "nowrap",
           transform: `scale(${scale})`,
-          transformOrigin: "right center",
+          transformOrigin: `${align} center`,
         }}
       >
         {text}
