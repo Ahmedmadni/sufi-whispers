@@ -210,7 +210,7 @@ function PoemReader() {
   );
 }
 
-function Hemistich({ text, className = "" }: { text: string; className?: string }) {
+function Hemistich({ text, align = "right", className = "" }: { text: string; align?: "right" | "left"; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const spanRef = useRef<HTMLSpanElement>(null);
   const [scale, setScale] = useState(1);
