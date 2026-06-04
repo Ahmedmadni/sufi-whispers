@@ -188,11 +188,11 @@
 
   .verse-line {
     font-family: var(--font-quran);
-    line-height: 2.4;
-    letter-spacing: 0.01em;
+    line-height: 1.9;
+    letter-spacing: 0.005em;
   }
 
-  /* Hemistich (شطر) — keep on one line, auto-shrink to fit container width */
+  /* Hemistich (شطر) — printed-diwan style: one line, auto-shrink to fit */
   .hemistich {
     white-space: nowrap;
     overflow: hidden;
@@ -201,7 +201,7 @@
     font-family: "Calibri", var(--font-quran);
     display: block;
     width: 100%;
-    line-height: 2.2;
+    line-height: 1.9;
   }
   .hemistich-fit {
     display: block;
