@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowLeft, Copy, Heart, Minus, Plus, Share2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Ornament } from "@/components/Decorations";
 import { poems, type Poem } from "@/data/poems";
@@ -120,10 +120,10 @@ function PoemReader() {
                 </span>
                 <div
                   className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
-                  style={{ fontSize: `clamp(11px, ${Math.max(12, fontSize - 4)}px, 4.2vw)` }}
+                  style={{ ["--verse-base" as any]: `${fontSize}px` }}
                 >
-                  <p className="hemistich pl-2 sm:pl-3 border-l border-gold/15">{v.sadr}</p>
-                  <p className="hemistich">{v.ajuz ?? ""}</p>
+                  <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
+                  <Hemistich text={v.ajuz ?? ""} />
                 </div>
 
                 <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -206,6 +206,52 @@ function PoemReader() {
           <Heart className={`w-4 h-4 ${isFav(poem.id) ? "fill-gold text-gold" : "text-gold-soft"}`} />
         </button>
       </div>
+    </div>
+  );
+}
+
+function Hemistich({ text, className = "" }: { text: string; className?: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const span = spanRef.current;
+    if (!container || !span) return;
+
+    const fit = () => {
+      span.style.transform = "scale(1)";
+      const available = container.clientWidth;
+      const natural = span.scrollWidth;
+      if (natural <= 0 || available <= 0) return;
+      const next = Math.min(1, available / natural);
+      setScale(next);
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(container);
+    window.addEventListener("resize", fit);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+  }, [text]);
+
+  return (
+    <div ref={containerRef} className={`hemistich ${className}`} style={{ fontSize: "var(--verse-base, 20px)" }}>
+      <span
+        ref={spanRef}
+        style={{
+          display: "inline-block",
+          whiteSpace: "nowrap",
+          transform: `scale(${scale})`,
+          transformOrigin: "right center",
+        }}
+      >
+        {text}
+      </span>
     </div>
   );
 }

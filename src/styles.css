@@ -192,15 +192,16 @@
     letter-spacing: 0.01em;
   }
 
-  /* Hemistich (شطر) — no word breaks across lines, justified like printed diwan */
+  /* Hemistich (شطر) — keep on one line, auto-shrink to fit container width */
   .hemistich {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;
-    text-align: justify;
-    text-align-last: justify;
-    text-justify: inter-word;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    font-family: "Calibri", var(--font-quran);
+    display: block;
+    width: 100%;
+    line-height: 2.2;
   }
   .hemistich-fit {
     display: block;
