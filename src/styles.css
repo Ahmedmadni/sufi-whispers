@@ -192,20 +192,25 @@
     letter-spacing: 0.01em;
   }
 
-  /* Hemistich (شطر) — keep on one line, auto-shrink to fit container width */
+  /* Hemistich (شطر) — justify to fill the column; auto-shrink as fallback */
   .hemistich {
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: clip;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
     font-family: "Calibri", var(--font-quran);
     display: block;
     width: 100%;
     line-height: 2.2;
+    text-align: justify;
+    text-align-last: justify;
+    text-justify: inter-word;
   }
   .hemistich-fit {
     display: block;
     width: 100%;
+  }
+  .hemistich-tail {
+    text-align: center;
+    text-align-last: center;
   }
 
   @keyframes float-slow {
