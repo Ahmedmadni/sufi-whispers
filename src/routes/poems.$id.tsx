@@ -1,11 +1,17 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowLeft, Copy, Heart, Minus, Plus, Share2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, ClipboardCopy, Copy, Heart, Minus, Plus, Share2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Ornament } from "@/components/Decorations";
 import { poems, type Poem } from "@/data/poems";
 import { useFavorites } from "@/hooks/use-favorites";
+import {
+  buildPoemPlainText,
+  groupPoemVerses,
+  type Stanza,
+} from "@/lib/poem-layout";
 
 export const Route = createFileRoute("/poems/$id")({
   loader: ({ params }) => {
@@ -35,6 +41,8 @@ function PoemReader() {
   const [fontSize, setFontSize] = useState(20);
   const [progress, setProgress] = useState(0);
 
+  const layout = useMemo(() => groupPoemVerses(poem), [poem]);
+
   const { prev, next } = useMemo(() => {
     const idx = poems.findIndex((p) => p.id === poem.id);
     return { prev: poems[idx - 1], next: poems[idx + 1] };
@@ -52,7 +60,7 @@ function PoemReader() {
   }, []);
 
   const copyVerse = async (text: string) => {
-    try { await navigator.clipboard.writeText(text); } catch {}
+    try { await navigator.clipboard.writeText(text); toast.success("تم النسخ"); } catch {}
   };
 
   const shareVerse = async (text: string) => {
@@ -60,6 +68,16 @@ function PoemReader() {
       try { await navigator.share({ title: poem.title, text }); } catch {}
     } else {
       copyVerse(text);
+    }
+  };
+
+  const copyAll = async () => {
+    const text = buildPoemPlainText(poem, layout);
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("تم نسخ القصيدة كاملة");
+    } catch {
+      toast.error("تعذّر النسخ");
     }
   };
 
@@ -106,45 +124,55 @@ function PoemReader() {
             }}
           />
           <div className="relative space-y-2">
-            {poem.verses.map((v, i) => (
-              <motion.div
-                key={v.id}
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.6, delay: Math.min(i * 0.06, 0.4) }}
-                className="group flex items-start gap-3 py-3 border-b border-gold/10 last:border-0"
-              >
-                <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
-                  {v.id}.
-                </span>
-                <div
-                  className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
-                  style={{ ["--verse-base" as any]: `${fontSize}px` }}
-                >
-                  <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
-                  <Hemistich text={v.ajuz ?? ""} />
-                </div>
-
-                <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
-                    className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
-                    aria-label="نسخ"
+            {layout.kind === "couplets"
+              ? layout.verses.map((v, i) => (
+                  <motion.div
+                    key={v.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-50px" }}
+                    transition={{ duration: 0.6, delay: Math.min(i * 0.06, 0.4) }}
+                    className="group flex items-start gap-3 py-3 border-b border-gold/10 last:border-0"
                   >
-                    <Copy className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => shareVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
-                    className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
-                    aria-label="مشاركة"
-                  >
-                    <Share2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                    <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
+                      {v.id}.
+                    </span>
+                    <div
+                      className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
+                      style={{ ["--verse-base" as any]: `${fontSize}px` }}
+                    >
+                      <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
+                      <Hemistich text={v.ajuz ?? ""} />
+                    </div>
 
-              </motion.div>
-            ))}
+                    <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
+                        className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+                        aria-label="نسخ"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => shareVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
+                        className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+                        aria-label="مشاركة"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))
+              : layout.stanzas.map((stanza, i) => (
+                  <StanzaBlock
+                    key={i}
+                    index={i}
+                    stanza={stanza}
+                    fontSize={fontSize}
+                    onCopy={copyVerse}
+                    onShare={shareVerse}
+                  />
+                ))}
           </div>
           <Ornament className="w-32 mx-auto mt-10 text-gold/40" />
         </div>
@@ -199,6 +227,14 @@ function PoemReader() {
         </button>
         <div className="w-px h-5 bg-gold/30 mx-1" />
         <button
+          onClick={copyAll}
+          className="p-2 rounded-full hover:bg-gold/15 text-gold-soft"
+          aria-label="نسخ القصيدة كاملة"
+          title="نسخ القصيدة كاملة"
+        >
+          <ClipboardCopy className="w-4 h-4" />
+        </button>
+        <button
           onClick={() => toggle(poem.id)}
           className="p-2 rounded-full hover:bg-gold/15"
           aria-label="مفضلة"
@@ -210,23 +246,100 @@ function PoemReader() {
   );
 }
 
+function StanzaBlock({
+  index,
+  stanza,
+  fontSize,
+  onCopy,
+  onShare,
+}: {
+  index: number;
+  stanza: Stanza;
+  fontSize: number;
+  onCopy: (t: string) => void;
+  onShare: (t: string) => void;
+}) {
+  const stanzaText =
+    `${stanza.pairs[0][0].text}  ―  ${stanza.pairs[0][1].text}\n` +
+    `${stanza.pairs[1][0].text}  ―  ${stanza.pairs[1][1].text}\n` +
+    `${stanza.tail.text}`;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, delay: Math.min(index * 0.06, 0.4) }}
+      className="group flex items-start gap-3 py-4 border-b border-gold/10 last:border-0"
+    >
+      <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
+        {index + 1}.
+      </span>
+      <div
+        className="verse-line flex-1 text-foreground/95 space-y-1"
+        style={{ ["--verse-base" as any]: `${fontSize}px` }}
+      >
+        <div className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+          <Hemistich text={stanza.pairs[0][0].text} className="pl-2 sm:pl-3 border-l border-gold/15" />
+          <Hemistich text={stanza.pairs[0][1].text} />
+        </div>
+        <div className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+          <Hemistich text={stanza.pairs[1][0].text} className="pl-2 sm:pl-3 border-l border-gold/15" />
+          <Hemistich text={stanza.pairs[1][1].text} />
+        </div>
+        <Hemistich text={stanza.tail.text} className="hemistich-tail text-gold-soft pt-1" />
+      </div>
+
+      <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => onCopy(stanzaText)}
+          className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+          aria-label="نسخ المقطع"
+        >
+          <Copy className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => onShare(stanzaText)}
+          className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+          aria-label="مشاركة المقطع"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
 function Hemistich({ text, className = "" }: { text: string; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const spanRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLSpanElement>(null);
   const [scale, setScale] = useState(1);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
-    const span = spanRef.current;
-    if (!container || !span) return;
+    const inner = innerRef.current;
+    if (!container || !inner) return;
 
     const fit = () => {
-      span.style.transform = "scale(1)";
-      const available = container.clientWidth;
-      const natural = span.scrollWidth;
-      if (natural <= 0 || available <= 0) return;
-      const next = Math.min(1, available / natural);
-      setScale(next);
+      // Reset before measuring
+      inner.style.transform = "scale(1)";
+      inner.style.width = "100%";
+      const cs = window.getComputedStyle(container);
+      const lineHeight = parseFloat(cs.lineHeight) || 0;
+      const fontSize = parseFloat(cs.fontSize) || 16;
+      const oneLine = lineHeight || fontSize * 1.3;
+      // If the justified text wraps to >1 line, shrink until it fits one line.
+      let s = 1;
+      // Use container scrollHeight to detect wrap.
+      let guard = 0;
+      while (container.scrollHeight > oneLine * 1.4 && s > 0.55 && guard < 40) {
+        s -= 0.05;
+        inner.style.transform = `scale(${s})`;
+        inner.style.transformOrigin = "right center";
+        inner.style.width = `${100 / s}%`;
+        guard += 1;
+      }
+      setScale(s);
     };
 
     fit();
@@ -240,14 +353,18 @@ function Hemistich({ text, className = "" }: { text: string; className?: string 
   }, [text]);
 
   return (
-    <div ref={containerRef} className={`hemistich ${className}`} style={{ fontSize: "var(--verse-base, 20px)" }}>
+    <div
+      ref={containerRef}
+      className={`hemistich ${className}`}
+      style={{ fontSize: "var(--verse-base, 20px)" }}
+    >
       <span
-        ref={spanRef}
+        ref={innerRef}
         style={{
-          display: "inline-block",
-          whiteSpace: "nowrap",
+          display: "block",
           transform: `scale(${scale})`,
           transformOrigin: "right center",
+          width: scale < 1 ? `${100 / scale}%` : "100%",
         }}
       >
         {text}
