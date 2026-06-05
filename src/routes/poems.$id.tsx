@@ -312,8 +312,13 @@ function StanzaBlock({
 
 function Hemistich({ text, className = "" }: { text: string; className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+
+  const words = useMemo(
+    () => (text ?? "").trim().split(/\s+/).filter(Boolean),
+    [text],
+  );
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -321,24 +326,21 @@ function Hemistich({ text, className = "" }: { text: string; className?: string 
     if (!container || !inner) return;
 
     const fit = () => {
-      // Reset before measuring
       inner.style.transform = "scale(1)";
       inner.style.width = "100%";
-      const cs = window.getComputedStyle(container);
-      const lineHeight = parseFloat(cs.lineHeight) || 0;
-      const fontSize = parseFloat(cs.fontSize) || 16;
-      const oneLine = lineHeight || fontSize * 1.3;
-      // If the justified text wraps to >1 line, shrink until it fits one line.
-      let s = 1;
-      // Use container scrollHeight to detect wrap.
-      let guard = 0;
-      while (container.scrollHeight > oneLine * 1.4 && s > 0.55 && guard < 40) {
-        s -= 0.05;
-        inner.style.transform = `scale(${s})`;
-        inner.style.transformOrigin = "right center";
-        inner.style.width = `${100 / s}%`;
-        guard += 1;
+      const cw = container.clientWidth;
+      // natural width without justification: temporarily collapse flex
+      inner.style.justifyContent = "flex-end";
+      const natural = inner.scrollWidth;
+      // restore (CSS class handles default)
+      inner.style.justifyContent = "";
+      if (natural <= cw || cw === 0) {
+        setScale(1);
+        return;
       }
+      const s = Math.max(0.55, cw / natural);
+      inner.style.transform = `scale(${s})`;
+      inner.style.width = `${100 / s}%`;
       setScale(s);
     };
 
@@ -358,17 +360,19 @@ function Hemistich({ text, className = "" }: { text: string; className?: string 
       className={`hemistich ${className}`}
       style={{ fontSize: "var(--verse-base, 20px)" }}
     >
-      <span
+      <div
         ref={innerRef}
+        className={`hemistich-inner ${words.length <= 1 ? "single" : ""}`}
         style={{
-          display: "block",
           transform: `scale(${scale})`,
-          transformOrigin: "right center",
           width: scale < 1 ? `${100 / scale}%` : "100%",
         }}
       >
-        {text}
-      </span>
+        {words.map((w, i) => (
+          <span key={i}>{w}</span>
+        ))}
+      </div>
     </div>
   );
 }
+
