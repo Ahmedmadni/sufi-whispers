@@ -124,55 +124,98 @@ function PoemReader() {
             }}
           />
           <div className="relative space-y-2">
-            {layout.kind === "couplets"
-              ? layout.verses.map((v, i) => (
-                  <motion.div
-                    key={v.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.6, delay: Math.min(i * 0.06, 0.4) }}
-                    className="group flex items-start gap-3 py-3 border-b border-gold/10 last:border-0"
+            {layout.kind === "couplets" &&
+              layout.verses.map((v, i) => (
+                <motion.div
+                  key={v.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.6, delay: Math.min(i * 0.06, 0.4) }}
+                  className="group flex items-start gap-3 py-3 border-b border-gold/10 last:border-0"
+                >
+                  <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
+                    {v.id}.
+                  </span>
+                  <div
+                    className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
+                    style={{ ["--verse-base" as any]: `${fontSize}px` }}
                   >
-                    <span className="text-gold/40 font-display text-sm w-8 mt-2 shrink-0">
-                      {v.id}.
-                    </span>
-                    <div
-                      className="verse-line flex-1 grid grid-cols-2 gap-x-3 sm:gap-x-6 text-foreground/95"
-                      style={{ ["--verse-base" as any]: `${fontSize}px` }}
-                    >
-                      <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
-                      <Hemistich text={v.ajuz ?? ""} />
-                    </div>
+                    <Hemistich text={v.sadr} className="pl-2 sm:pl-3 border-l border-gold/15" />
+                    <Hemistich text={v.ajuz ?? ""} />
+                  </div>
 
-                    <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button
-                        onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
-                        className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
-                        aria-label="نسخ"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => shareVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
-                        className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
-                        aria-label="مشاركة"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
-                      </button>
+                  <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => copyVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
+                      className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+                      aria-label="نسخ"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => shareVerse(`${v.sadr}${v.ajuz ? "  ―  " + v.ajuz : ""}`)}
+                      className="p-1.5 rounded hover:bg-gold/10 text-muted-foreground hover:text-gold"
+                      aria-label="مشاركة"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+
+            {layout.kind === "mukhammas" &&
+              layout.stanzas.map((stanza, i) => (
+                <StanzaBlock
+                  key={i}
+                  index={i}
+                  stanza={stanza}
+                  fontSize={fontSize}
+                  onCopy={copyVerse}
+                  onShare={shareVerse}
+                />
+              ))}
+
+            {layout.kind === "stream" && (
+              <div
+                className="verse-line text-foreground/95 space-y-2"
+                style={{ ["--verse-base" as any]: `${fontSize}px` }}
+              >
+                {layout.rows.map((row, i) => {
+                  if (row.type === "refrain") {
+                    return (
+                      <Hemistich
+                        key={i}
+                        text={row.text.text}
+                        className="hemistich-tail text-gold-soft py-1"
+                      />
+                    );
+                  }
+                  if (row.type === "pair") {
+                    return (
+                      <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+                        <Hemistich
+                          text={row.a.text}
+                          className="pl-2 sm:pl-3 border-l border-gold/15"
+                        />
+                        <Hemistich text={row.b.text} />
+                      </div>
+                    );
+                  }
+                  // single (orphan line — render in right column only)
+                  return (
+                    <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+                      <Hemistich
+                        text={row.a.text}
+                        className="pl-2 sm:pl-3 border-l border-gold/15"
+                      />
+                      <span />
                     </div>
-                  </motion.div>
-                ))
-              : layout.stanzas.map((stanza, i) => (
-                  <StanzaBlock
-                    key={i}
-                    index={i}
-                    stanza={stanza}
-                    fontSize={fontSize}
-                    onCopy={copyVerse}
-                    onShare={shareVerse}
-                  />
-                ))}
+                  );
+                })}
+              </div>
+            )}
+
           </div>
           <Ornament className="w-32 mx-auto mt-10 text-gold/40" />
         </div>
