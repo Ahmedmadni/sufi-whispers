@@ -28,6 +28,54 @@ function normalize(s: string): string {
   return s.replace(/\s+/g, " ").trim();
 }
 
+function wordCount(s: string | undefined | null): number {
+  return normalize(s ?? "").split(/\s+/).filter(Boolean).length;
+}
+
+function withText(v: Omit<Verse, "text"> & { text?: string }): Verse {
+  return {
+    ...v,
+    text: v.text ?? (v.ajuz ? `${v.sadr} ... ${v.ajuz}` : v.sadr),
+  };
+}
+
+function mergeWrappedCouplets(verses: Verse[]): Verse[] {
+  const merged: Verse[] = [];
+
+  for (let i = 0; i < verses.length; i += 1) {
+    let current = verses[i];
+    const next = verses[i + 1];
+
+    while (
+      next &&
+      current.ajuz &&
+      next.ajuz &&
+      !isJunk(next.sadr) &&
+      !isJunk(next.ajuz) &&
+      !isRefrain(current.sadr) &&
+      !isRefrain(current.ajuz) &&
+      !isRefrain(next.sadr) &&
+      !isRefrain(next.ajuz) &&
+      wordCount(current.sadr) >= 3 &&
+      wordCount(current.ajuz) >= 3 &&
+      wordCount(next.sadr) <= 2 &&
+      wordCount(next.ajuz) <= 2
+    ) {
+      current = withText({
+        ...current,
+        sadr: normalize(`${current.sadr} ${next.sadr}`),
+        ajuz: normalize(`${current.ajuz} ${next.ajuz}`),
+      });
+      i += 1;
+      break;
+    }
+
+    merged.push(current);
+  }
+
+  return merged;
+}
+
 /** A "refrain" line is one that contains an obvious repeated marker like
  * "الله .. الله .. الله .." which marks the 5th line of a stanza. */
 function isRefrain(s: string): boolean {
@@ -67,7 +115,7 @@ export function groupPoemVerses(poem: Poem): PoemLayout {
   }
 
   if (!isMukhammas) {
-    return { kind: "couplets", verses: poem.verses };
+    return { kind: "couplets", verses: mergeWrappedCouplets(poem.verses) };
   }
 
   // Anchor stanza boundaries on refrain positions: refrain is index 4 of stanza.
