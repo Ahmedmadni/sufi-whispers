@@ -204,12 +204,13 @@
   }
   .hemistich-inner {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: space-between;
     align-items: baseline;
     white-space: nowrap;
     width: 100%;
     transform-origin: right center;
+    direction: rtl;
   }
   .hemistich-inner > span { white-space: nowrap; }
   .hemistich-inner.single { justify-content: flex-end; }
