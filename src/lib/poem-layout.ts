@@ -79,56 +79,69 @@ function buildStream(lines: FlatLine[]): StreamRow[] {
 }
 
 function buildMukhammas(poem: Poem): Stanza[] | null {
-  // Column-major reconstruction: sadr column and ajuz column are separate
-  // streams. The refrain only appears in the sadr column; ajuz cells that
-  // sit next to a junk sadr (e.g. sadr="ج", ajuz="الممات") are merged
-  // back into the previous ajuz as a wrapped continuation.
-  const sadrs: FlatLine[] = [];
-  const ajuzs: FlatLine[] = [];
-  let refrains = 0;
+  // Stanza-aware reconstruction. The data is split by refrain rows; for each
+  // stanza we collect non-refrain sadrs and ajuz between consecutive
+  // refrains, and the refrain row's own ajuz (e.g. "ووجهها سبيل الناجيات")
+  // is carried over to become the FIRST ajuz of the next stanza so that
+  // pairs line up correctly (e.g. "إليك يدي فخذها" with "ووجهها سبيل").
+  const REFRAIN_TEXT = "الله .. الله .. الله .. الله .. الله";
+  const stanzas: Stanza[] = [];
+  let curSadrs: FlatLine[] = [];
+  let curAjuz: FlatLine[] = [];
+  let pendingAjuz: FlatLine | null = null;
+  let sawRefrain = false;
+
+  const flushStanza = () => {
+    const ajuzList = pendingAjuz ? [pendingAjuz, ...curAjuz] : [...curAjuz];
+    const a1 = curSadrs[0];
+    const a2 = ajuzList[0];
+    const b1 = curSadrs[1];
+    const b2 = ajuzList[1];
+    if (a1 && a2 && b1 && b2) {
+      stanzas.push({
+        pairs: [[a1, a2], [b1, b2]],
+        tail: { text: REFRAIN_TEXT, sourceVerseId: 0 },
+      });
+    }
+  };
 
   for (const v of poem.verses) {
     const sadrJunk = isJunk(v.sadr);
     const sadrIsRefrain = !sadrJunk && isRefrain(v.sadr);
+    const ajuzRaw = v.ajuz;
+    const ajuzPresent = !!ajuzRaw && !isJunk(ajuzRaw) && !isRefrain(ajuzRaw);
+    const ajuzText = ajuzPresent ? normalize(ajuzRaw!) : null;
 
     if (sadrIsRefrain) {
-      refrains++;
-    } else if (!sadrJunk) {
-      sadrs.push({ text: normalize(v.sadr), sourceVerseId: v.id });
+      sawRefrain = true;
+      flushStanza();
+      curSadrs = [];
+      curAjuz = [];
+      pendingAjuz = ajuzText
+        ? { text: ajuzText, sourceVerseId: v.id }
+        : null;
+      continue;
     }
 
-    const ajuzRaw = v.ajuz;
-    if (ajuzRaw && !isJunk(ajuzRaw) && !isRefrain(ajuzRaw)) {
-      const t = normalize(ajuzRaw);
-      if (sadrJunk && ajuzs.length > 0) {
-        const prev = ajuzs[ajuzs.length - 1];
-        ajuzs[ajuzs.length - 1] = {
-          text: `${prev.text} ${t}`,
+    if (!sadrJunk) {
+      curSadrs.push({ text: normalize(v.sadr), sourceVerseId: v.id });
+    }
+    if (ajuzText) {
+      if (sadrJunk && curAjuz.length > 0) {
+        const prev = curAjuz[curAjuz.length - 1];
+        curAjuz[curAjuz.length - 1] = {
+          text: `${prev.text} ${ajuzText}`,
           sourceVerseId: prev.sourceVerseId,
         };
       } else {
-        ajuzs.push({ text: t, sourceVerseId: v.id });
+        curAjuz.push({ text: ajuzText, sourceVerseId: v.id });
       }
     }
   }
+  // trailing stanza after last refrain
+  flushStanza();
 
-  if (refrains === 0) return null;
-
-  const stanzas: Stanza[] = [];
-  for (let i = 0; i < refrains; i++) {
-    const a1 = sadrs[i * 2];
-    const a2 = ajuzs[i * 2];
-    const b1 = sadrs[i * 2 + 1];
-    const b2 = ajuzs[i * 2 + 1];
-    if (!a1 || !a2 || !b1 || !b2) return null;
-    stanzas.push({
-      pairs: [[a1, a2], [b1, b2]],
-      tail: {
-        text: "الله .. الله .. الله .. الله .. الله",
-        sourceVerseId: 0,
-      },
-    });
-  }
+  if (!sawRefrain || stanzas.length === 0) return null;
   return stanzas;
 }
 
