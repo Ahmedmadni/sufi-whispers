@@ -178,43 +178,61 @@ function PoemReader() {
 
             {layout.kind === "stream" && (
               <div
-                className="verse-line text-foreground/95 space-y-2"
+                className="verse-line text-foreground/95"
                 style={{ ["--verse-base" as any]: `${fontSize}px` }}
               >
-                {layout.rows.map((row, i) => {
-                  if (row.type === "refrain") {
-                    return (
-                      <Hemistich
-                        key={i}
-                        text={row.text.text}
-                        className="hemistich-tail text-gold-soft py-1"
-                      />
-                    );
+                {(() => {
+                  // group rows into stanzas, breaking after each refrain
+                  const stanzas: (typeof layout.rows)[] = [];
+                  let cur: typeof layout.rows = [];
+                  for (const r of layout.rows) {
+                    cur.push(r);
+                    if (r.type === "refrain") {
+                      stanzas.push(cur);
+                      cur = [];
+                    }
                   }
-                  if (row.type === "pair") {
-                    return (
-                      <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
-                        <Hemistich
-                          text={row.a.text}
-                          className="pl-2 sm:pl-3 border-l border-gold/15"
-                        />
-                        <Hemistich text={row.b.text} />
-                      </div>
-                    );
-                  }
-                  // single (orphan line — render in right column only)
-                  return (
-                    <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
-                      <Hemistich
-                        text={row.a.text}
-                        className="pl-2 sm:pl-3 border-l border-gold/15"
-                      />
-                      <span />
+                  if (cur.length) stanzas.push(cur);
+
+                  return stanzas.map((rows, si) => (
+                    <div key={si} className="mukhammas-stanza space-y-2">
+                      {rows.map((row, i) => {
+                        if (row.type === "refrain") {
+                          return (
+                            <Hemistich
+                              key={i}
+                              text={row.text.text}
+                              className="hemistich-refrain py-1"
+                            />
+                          );
+                        }
+                        if (row.type === "pair") {
+                          return (
+                            <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+                              <Hemistich
+                                text={row.a.text}
+                                className="pl-2 sm:pl-3 border-l border-gold/15"
+                              />
+                              <Hemistich text={row.b.text} />
+                            </div>
+                          );
+                        }
+                        return (
+                          <div key={i} className="grid grid-cols-2 gap-x-3 sm:gap-x-6">
+                            <Hemistich
+                              text={row.a.text}
+                              className="pl-2 sm:pl-3 border-l border-gold/15"
+                            />
+                            <span />
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  ));
+                })()}
               </div>
             )}
+
 
           </div>
           <Ornament className="w-32 mx-auto mt-10 text-gold/40" />
