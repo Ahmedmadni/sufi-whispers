@@ -216,6 +216,17 @@
   .hemistich-inner.single { justify-content: flex-end; }
   .hemistich-tail { text-align: center; }
   .hemistich-tail .hemistich-inner { justify-content: center; }
+  .hemistich-refrain {
+    text-align: center;
+    color: #e11d74;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .hemistich-refrain .hemistich-inner {
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .mukhammas-stanza + .mukhammas-stanza { margin-top: 1.25rem; }
 
   @keyframes float-slow {
     0%, 100% { transform: translateY(0) translateX(0); opacity: 0.4; }
