@@ -78,11 +78,69 @@ function buildStream(lines: FlatLine[]): StreamRow[] {
   return rows;
 }
 
+function buildMukhammas(poem: Poem): Stanza[] | null {
+  // Column-major reconstruction: sadr column and ajuz column are separate
+  // streams. The refrain only appears in the sadr column; ajuz cells that
+  // sit next to a junk sadr (e.g. sadr="ج", ajuz="الممات") are merged
+  // back into the previous ajuz as a wrapped continuation.
+  const sadrs: FlatLine[] = [];
+  const ajuzs: FlatLine[] = [];
+  let refrains = 0;
+
+  for (const v of poem.verses) {
+    const sadrJunk = isJunk(v.sadr);
+    const sadrIsRefrain = !sadrJunk && isRefrain(v.sadr);
+
+    if (sadrIsRefrain) {
+      refrains++;
+    } else if (!sadrJunk) {
+      sadrs.push({ text: normalize(v.sadr), sourceVerseId: v.id });
+    }
+
+    const ajuzRaw = v.ajuz;
+    if (ajuzRaw && !isJunk(ajuzRaw) && !isRefrain(ajuzRaw)) {
+      const t = normalize(ajuzRaw);
+      if (sadrJunk && ajuzs.length > 0) {
+        const prev = ajuzs[ajuzs.length - 1];
+        ajuzs[ajuzs.length - 1] = {
+          text: `${prev.text} ${t}`,
+          sourceVerseId: prev.sourceVerseId,
+        };
+      } else {
+        ajuzs.push({ text: t, sourceVerseId: v.id });
+      }
+    }
+  }
+
+  if (refrains === 0) return null;
+
+  const stanzas: Stanza[] = [];
+  for (let i = 0; i < refrains; i++) {
+    const a1 = sadrs[i * 2];
+    const a2 = ajuzs[i * 2];
+    const b1 = sadrs[i * 2 + 1];
+    const b2 = ajuzs[i * 2 + 1];
+    if (!a1 || !a2 || !b1 || !b2) return null;
+    stanzas.push({
+      pairs: [[a1, a2], [b1, b2]],
+      tail: {
+        text: "الله .. الله .. الله .. الله .. الله",
+        sourceVerseId: 0,
+      },
+    });
+  }
+  return stanzas;
+}
+
 export function groupPoemVerses(poem: Poem): PoemLayout {
   const flat = flatten(poem);
   const hasRefrain = flat.some((l) => isRefrain(l.text));
 
   if (hasRefrain) {
+    const stanzas = buildMukhammas(poem);
+    if (stanzas && stanzas.length > 0) {
+      return { kind: "mukhammas", stanzas };
+    }
     return { kind: "stream", rows: buildStream(flat) };
   }
 
