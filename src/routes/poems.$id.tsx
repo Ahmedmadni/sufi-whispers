@@ -348,7 +348,7 @@ function StanzaBlock({
           <Hemistich text={stanza.pairs[1][0].text} className="pl-2 sm:pl-3 border-l border-gold/15" />
           <Hemistich text={stanza.pairs[1][1].text} />
         </div>
-        <Hemistich text={stanza.tail.text} className="hemistich-tail text-gold-soft pt-1" />
+        <Hemistich text={stanza.tail.text} className="hemistich-refrain pt-1" />
       </div>
 
       <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
