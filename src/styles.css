@@ -39,9 +39,9 @@
   --color-velvet: var(--velvet);
   --color-beige: var(--beige);
 
-  --font-display: "Alexandria", "Cairo", system-ui, sans-serif;
-  --font-quran: "Alexandria", "Cairo", system-ui, sans-serif;
-  --font-body: "Cairo", "Alexandria", system-ui, sans-serif;
+  --font-display: "Kufam", "Cairo", system-ui, sans-serif;
+  --font-quran: "Cairo", "Kufam", system-ui, sans-serif;
+  --font-body: "Cairo", "Kufam", system-ui, sans-serif;
 }
 
 :root {
@@ -188,6 +188,7 @@
 
   .verse-line {
     font-family: var(--font-quran);
+    font-weight: 300;
     line-height: 2.4;
     letter-spacing: 0.01em;
   }
@@ -196,7 +197,8 @@
   .hemistich {
     overflow: hidden;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
-    font-family: "Calibri", var(--font-quran);
+    font-family: var(--font-quran);
+    font-weight: 300;
     display: block;
     width: 100%;
     line-height: 2.2;
