@@ -124,7 +124,12 @@
 }
 
 @layer utilities {
-  .font-display { font-family: var(--font-display); }
+  .font-display {
+    font-family: var(--font-display);
+    /* Kufam has tall ascenders/descenders — give it room so glyphs don't clip */
+    line-height: 1.45;
+    padding-block: 0.05em;
+  }
   .font-quran { font-family: var(--font-quran); }
 
   .text-gradient-gold {
