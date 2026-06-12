@@ -27,8 +27,9 @@ export default function PdfBookViewer() {
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
   const [scale, setScale] = useState(1);
-  const [pageWidth, setPageWidth] = useState(800);
+  const [pageWidth, setPageWidth] = useState(360);
   const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setInput(String(page));
@@ -37,7 +38,7 @@ export default function PdfBookViewer() {
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
-        const w = containerRef.current.clientWidth - 24;
+        const w = containerRef.current.clientWidth - 8;
         setPageWidth(Math.min(900, Math.max(280, w)));
       }
     };
@@ -54,6 +55,49 @@ export default function PdfBookViewer() {
     [numPages]
   );
 
+  // Swipe navigation. In RTL Arabic books, swiping right goes to NEXT page,
+  // swiping left goes to PREVIOUS page (next page is to the left visually).
+  useEffect(() => {
+    const el = viewerRef.current;
+    if (!el) return;
+    let startX = 0;
+    let startY = 0;
+    let active = false;
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      active = true;
+    };
+    const onEnd = (e: TouchEvent) => {
+      if (!active) return;
+      active = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+      // RTL: swipe-left (dx<0) → next page; swipe-right (dx>0) → previous page
+      if (dx < 0) goTo(page + 1);
+      else goTo(page - 1);
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchend", onEnd);
+    };
+  }, [page, goTo]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") goTo(page + 1); // RTL: left = next
+      else if (e.key === "ArrowRight") goTo(page - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [page, goTo]);
+
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const n = parseInt(input.replace(/[^\d]/g, ""), 10);
@@ -61,7 +105,7 @@ export default function PdfBookViewer() {
   };
 
   const fullscreen = () => {
-    containerRef.current?.requestFullscreen?.();
+    viewerRef.current?.requestFullscreen?.();
   };
 
   const neighbors = useMemo<number[]>(() => {
@@ -77,117 +121,86 @@ export default function PdfBookViewer() {
     () => [
       { label: "الغلاف", page: 1 },
       { label: "المقدمة", page: 6 },
-      { label: "بداية القصائد", page: 20 },
+      { label: "القصائد", page: 20 },
       { label: "الفهرس", page: 425 },
-      { label: "النهاية", page: numPages || 432 },
     ],
-    [numPages]
+    []
   );
 
   return (
     <>
       {/* Bookmarks */}
-      <div className="glass rounded-2xl p-3 sm:p-4 mb-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-body text-gold-soft/70 px-1">إشارات مرجعية:</span>
+      <div className="glass rounded-xl p-2 mb-2 flex flex-nowrap items-center gap-1.5 overflow-x-auto">
         {bookmarks.map((b) => (
           <button
             key={b.label}
             onClick={() => goTo(b.page)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-body transition-all ${
+            className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-body transition-all ${
               page === b.page
-                ? "glass-gold text-gold-soft glow-gold"
-                : "glass text-gold-soft/80 hover:text-gold-soft hover:scale-105"
+                ? "glass-gold text-gold-soft"
+                : "text-gold-soft/80 hover:text-gold-soft"
             }`}
-            aria-label={`الانتقال إلى ${b.label}`}
           >
             {b.label}
-            <span className="opacity-50 mr-1">({b.page})</span>
           </button>
         ))}
       </div>
 
       {/* Controls */}
-      <div className="glass rounded-2xl p-4 sm:p-5 mb-5 flex flex-wrap items-center gap-3 justify-between">
-        <form onSubmit={onSubmit} className="flex items-center gap-2">
+      <div className="glass rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
+        <form onSubmit={onSubmit} className="flex items-center gap-1.5 min-w-0">
           <div className="relative">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold/60 pointer-events-none" />
+            <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold/60 pointer-events-none" />
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               type="text"
               inputMode="numeric"
-              className="w-28 bg-velvet/40 border border-gold/20 rounded-lg pr-9 pl-3 py-2 text-sm font-body text-gold-soft focus:outline-none focus:border-gold/60"
+              className="w-16 bg-velvet/40 border border-gold/20 rounded-md pr-7 pl-2 py-1.5 text-xs font-body text-gold-soft focus:outline-none focus:border-gold/60"
               placeholder="صفحة"
-              aria-label="ابحث برقم الصفحة"
+              aria-label="رقم الصفحة"
             />
           </div>
           <button
             type="submit"
-            className="glass-gold rounded-lg px-4 py-2 text-sm font-body text-gold-soft hover:scale-105 transition-transform"
+            className="glass-gold rounded-md px-2.5 py-1.5 text-xs font-body text-gold-soft"
           >
             انتقل
           </button>
-          {numPages > 0 && (
-            <span className="text-xs text-muted-foreground font-body hidden sm:inline">
-              من أصل {numPages}
-            </span>
-          )}
         </form>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setScale((s) => Math.max(0.5, +(s - 0.15).toFixed(2)))}
-            className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
+            className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تصغير"
           >
-            <ZoomOut className="w-4 h-4" />
+            <ZoomOut className="w-3.5 h-3.5" />
           </button>
-          <span className="text-xs font-body text-gold-soft min-w-[3rem] text-center">
-            {Math.round(scale * 100)}%
-          </span>
           <button
             onClick={() => setScale((s) => Math.min(2.5, +(s + 0.15).toFixed(2)))}
-            className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
+            className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تكبير"
           >
-            <ZoomIn className="w-4 h-4" />
+            <ZoomIn className="w-3.5 h-3.5" />
           </button>
-          <div className="w-px h-6 bg-gold/20 mx-1" />
-          <button
-            onClick={() => goTo(page - 1)}
-            disabled={page <= 1}
-            className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 text-gold-soft"
-            aria-label="السابق"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-          <span className="text-sm font-display text-gold-soft min-w-[3.5rem] text-center">
-            {page}
-            {numPages ? ` / ${numPages}` : ""}
-          </span>
-          <button
-            onClick={() => goTo(page + 1)}
-            disabled={!numPages || page >= numPages}
-            className="p-2 rounded-lg glass hover:glow-gold disabled:opacity-30 text-gold-soft"
-            aria-label="التالي"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <div className="w-px h-6 bg-gold/20 mx-1" />
           <button
             onClick={fullscreen}
-            className="p-2 rounded-lg glass hover:glow-gold text-gold-soft"
+            className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="ملء الشاشة"
           >
-            <Maximize2 className="w-4 h-4" />
+            <Maximize2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       {/* Viewer */}
       <div
-        ref={containerRef}
-        className="glass rounded-2xl p-3 flex justify-center items-center min-h-[60vh] bg-velvet/30"
+        ref={(el) => {
+          containerRef.current = el;
+          viewerRef.current = el;
+        }}
+        className="glass rounded-xl p-1 flex flex-col justify-center items-center min-h-[70vh] bg-velvet/30 touch-pan-y select-none"
       >
         <Document
           file={PDF_URL}
@@ -200,7 +213,7 @@ export default function PdfBookViewer() {
             </div>
           }
           error={
-            <div className="text-center py-12">
+            <div className="text-center py-12 px-4">
               <p className="text-sm text-muted-foreground font-body mb-3">
                 تعذّر تحميل الكتاب.
               </p>
@@ -232,7 +245,6 @@ export default function PdfBookViewer() {
             }
             className="shadow-xl rounded-lg overflow-hidden"
           />
-          {/* Preload adjacent pages off-screen for instant navigation */}
           <div
             aria-hidden
             style={{
@@ -255,6 +267,31 @@ export default function PdfBookViewer() {
             ))}
           </div>
         </Document>
+      </div>
+
+      {/* Bottom pager */}
+      <div className="glass rounded-xl p-2 mt-2 flex items-center justify-between gap-2">
+        <button
+          onClick={() => goTo(page - 1)}
+          disabled={page <= 1}
+          className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
+          aria-label="السابق"
+        >
+          <ChevronRight className="w-4 h-4" />
+          السابق
+        </button>
+        <span className="text-sm font-display text-gold-soft tabular-nums">
+          {page}{numPages ? ` / ${numPages}` : ""}
+        </span>
+        <button
+          onClick={() => goTo(page + 1)}
+          disabled={!numPages || page >= numPages}
+          className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
+          aria-label="التالي"
+        >
+          التالي
+          <ChevronLeft className="w-4 h-4" />
+        </button>
       </div>
     </>
   );
