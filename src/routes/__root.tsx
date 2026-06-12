@@ -71,8 +71,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "جامع النفحات في مدح سيد السادات ﷺ" },
       { name: "twitter:description", content: "ديوان رقمي صوفي فاخر في مدح سيد السادات ﷺ — تجربة قراءة سينمائية روحانية." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/4139a620-81bf-40c1-910a-92eac3daedbd" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/4139a620-81bf-40c1-910a-92eac3daedbd" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/sHg6QnS04TcmbXVlhYYOOD3JhZB2/social-images/social-1781277052051-الغلاف_وجهين1222.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/sHg6QnS04TcmbXVlhYYOOD3JhZB2/social-images/social-1781277052051-الغلاف_وجهين1222.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
