@@ -59,8 +59,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     [numPages]
   );
 
-  // Swipe navigation. In RTL Arabic books, swiping right goes to NEXT page,
-  // swiping left goes to PREVIOUS page (next page is to the left visually).
+  // Swipe navigation. User preference: swipe down OR swipe right → next page;
+  // swipe up OR swipe left → previous page.
   useEffect(() => {
     const el = viewerRef.current;
     if (!el) return;
@@ -79,10 +79,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const t = e.changedTouches[0];
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
-      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
-      // RTL: swipe-left (dx<0) → next page; swipe-right (dx>0) → previous page
-      if (dx < 0) goTo(page + 1);
-      else goTo(page - 1);
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      if (Math.max(absX, absY) < 50) return;
+      if (absX >= absY) {
+        if (dx > 0) goTo(page + 1); // right → next
+        else goTo(page - 1);
+      } else {
+        if (dy > 0) goTo(page + 1); // down → next
+        else goTo(page - 1);
+      }
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
