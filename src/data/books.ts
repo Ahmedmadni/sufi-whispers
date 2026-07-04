@@ -22,15 +22,15 @@ export const books: Book[] = [
   },
   {
     id: "ward",
-    title: "الوِرد الطولي",
-    subtitle: "في الأوراد والأذكار الصوفية",
+    title: "ورد الاستغفار",
+    subtitle: "في توبة الأبرار",
     cover: coverWard,
     pdfUrl: wardAsset.url,
   },
   {
     id: "sirah",
     title: "السيرة الخليلية",
-    subtitle: "في مولد النبي المختار ﷺ",
+    subtitle: "السيرة العطرة لسيدي العارف بالله الشيخ محمد أبو خليل",
     cover: coverSirah,
     pdfUrl: sirahAsset.url,
   },
