@@ -14,15 +14,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const PDF_URL = "/book.pdf";
-
 const pdfOptions = {
   cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
   cMapPacked: true,
   standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
 };
 
-export default function PdfBookViewer() {
+type Props = {
+  pdfUrl?: string;
+  bookId?: string;
+};
+
+export default function PdfBookViewer({ pdfUrl = "/book.pdf" }: Props) {
+  const PDF_URL = pdfUrl;
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
