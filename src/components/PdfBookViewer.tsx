@@ -14,15 +14,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-const PDF_URL = "/book.pdf";
-
 const pdfOptions = {
   cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
   cMapPacked: true,
   standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
 };
 
-export default function PdfBookViewer() {
+type Props = {
+  pdfUrl?: string;
+  bookId?: string;
+};
+
+export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat" }: Props) {
+  const PDF_URL = pdfUrl;
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
@@ -118,33 +122,37 @@ export default function PdfBookViewer() {
   }, [page, numPages]);
 
   const bookmarks = useMemo(
-    () => [
-      { label: "الغلاف", page: 1 },
-      { label: "المقدمة", page: 6 },
-      { label: "القصائد", page: 20 },
-      { label: "الفهرس", page: 425 },
-    ],
-    []
+    () =>
+      bookId === "nafahat"
+        ? [
+            { label: "الغلاف", page: 1 },
+            { label: "المقدمة", page: 6 },
+            { label: "القصائد", page: 20 },
+            { label: "الفهرس", page: 425 },
+          ]
+        : [],
+    [bookId]
   );
 
   return (
     <>
-      {/* Bookmarks */}
-      <div className="glass rounded-xl p-2 mb-2 flex flex-nowrap items-center gap-1.5 overflow-x-auto">
-        {bookmarks.map((b) => (
-          <button
-            key={b.label}
-            onClick={() => goTo(b.page)}
-            className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-body transition-all ${
-              page === b.page
-                ? "glass-gold text-gold-soft"
-                : "text-gold-soft/80 hover:text-gold-soft"
-            }`}
-          >
-            {b.label}
-          </button>
-        ))}
-      </div>
+      {bookmarks.length > 0 && (
+        <div className="glass rounded-xl p-2 mb-2 flex flex-nowrap items-center gap-1.5 overflow-x-auto">
+          {bookmarks.map((b) => (
+            <button
+              key={b.label}
+              onClick={() => goTo(b.page)}
+              className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-body transition-all ${
+                page === b.page
+                  ? "glass-gold text-gold-soft"
+                  : "text-gold-soft/80 hover:text-gold-soft"
+              }`}
+            >
+              {b.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Controls */}
       <div className="glass rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
