@@ -41,6 +41,18 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
 
+  // Swipe sensitivity: smaller threshold = more sensitive.
+  // Higher values reduce accidental navigation.
+  const SENS_KEY = "reader.swipeThreshold";
+  const [swipeThreshold, setSwipeThreshold] = useState<number>(80);
+  useEffect(() => {
+    const v = Number(localStorage.getItem(SENS_KEY));
+    if (v && v >= 30 && v <= 200) setSwipeThreshold(v);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(SENS_KEY, String(swipeThreshold));
+  }, [swipeThreshold]);
+
   useEffect(() => {
     setInput(String(page));
   }, [page]);
