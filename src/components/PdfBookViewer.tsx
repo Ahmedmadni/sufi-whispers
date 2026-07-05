@@ -77,8 +77,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     [numPages]
   );
 
-  // Swipe navigation. User preference: swipe down OR swipe right → next page;
-  // swipe up OR swipe left → previous page.
+  // Swipe navigation. User preference: swipe UP OR swipe LEFT → next page;
+  // swipe DOWN OR swipe RIGHT → previous page.
   useEffect(() => {
     const el = viewerRef.current;
     if (!el) return;
@@ -100,11 +100,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
       if (Math.max(absX, absY) < swipeThreshold) return;
-      if (absX >= absY) {
-        if (dx > 0) goTo(page + 1); // right → next
+      if (absY >= absX) {
+        if (dy < 0) goTo(page + 1); // up → next
         else goTo(page - 1);
       } else {
-        if (dy > 0) goTo(page + 1); // down → next
+        if (dx < 0) goTo(page + 1); // left → next (RTL)
         else goTo(page - 1);
       }
     };
