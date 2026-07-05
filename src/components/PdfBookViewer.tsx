@@ -232,6 +232,63 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           >
             <Maximize2 className="w-3.5 h-3.5" />
           </button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="p-1.5 rounded-md glass text-gold-soft"
+                aria-label="إعدادات القراءة"
+              >
+                <Settings2 className="w-3.5 h-3.5" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="end"
+              className="w-64 glass border-gold/20 text-gold-soft"
+            >
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs font-display mb-1">حساسية التمرير باللمس</p>
+                  <p className="text-[10px] text-gold-soft/60 font-body leading-relaxed">
+                    كلما زادت المسافة قلّ الانتقال العرَضي بين الصفحات.
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { label: "عالية", value: 40 },
+                    { label: "متوسطة", value: 80 },
+                    { label: "منخفضة", value: 140 },
+                  ].map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSwipeThreshold(opt.value)}
+                      className={`px-2 py-1.5 rounded-md text-[11px] font-body transition-all ${
+                        swipeThreshold === opt.value
+                          ? "glass-gold text-gold-soft"
+                          : "glass text-gold-soft/80 hover:text-gold-soft"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min={30}
+                    max={200}
+                    step={5}
+                    value={swipeThreshold}
+                    onChange={(e) => setSwipeThreshold(Number(e.target.value))}
+                    className="flex-1 accent-[hsl(var(--gold))]"
+                    aria-label="ضبط دقيق للحساسية"
+                  />
+                  <span className="text-[10px] font-body tabular-nums w-10 text-left">
+                    {swipeThreshold}px
+                  </span>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
