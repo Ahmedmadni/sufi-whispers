@@ -99,7 +99,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const dy = t.clientY - startY;
       const absX = Math.abs(dx);
       const absY = Math.abs(dy);
-      if (Math.max(absX, absY) < 50) return;
+      if (Math.max(absX, absY) < swipeThreshold) return;
       if (absX >= absY) {
         if (dx > 0) goTo(page + 1); // right → next
         else goTo(page - 1);
@@ -114,7 +114,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchend", onEnd);
     };
-  }, [page, goTo]);
+  }, [page, goTo, swipeThreshold]);
 
   // Keyboard navigation
   useEffect(() => {
