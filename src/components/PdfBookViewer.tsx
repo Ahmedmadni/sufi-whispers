@@ -127,18 +127,27 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     return Array.from(set);
   }, [page, numPages]);
 
-  const bookmarks = useMemo(
-    () =>
-      bookId === "nafahat"
-        ? [
-            { label: "الغلاف", page: 1 },
-            { label: "المقدمة", page: 6 },
-            { label: "القصائد", page: 20 },
-            { label: "الفهرس", page: 425 },
-          ]
-        : [],
-    [bookId]
-  );
+  const bookmarks = useMemo(() => {
+    if (bookId === "nafahat") {
+      return [
+        { label: "الغلاف", page: 1 },
+        { label: "المقدمة", page: 6 },
+        { label: "القصائد", page: 20 },
+        { label: "الفهرس", page: 425 },
+      ];
+    }
+    if (bookId === "ward") {
+      return [
+        { label: "المقدمة", page: 1 },
+        { label: "الحزب الأول", page: 4 },
+        { label: "الحزب الثاني", page: 22 },
+        { label: "إلى باب الكريم", page: 37 },
+        { label: "أوراد السادة الخليلية", page: 40 },
+        { label: "الغلاف", page: 47 },
+      ];
+    }
+    return [];
+  }, [bookId]);
 
   return (
     <>
