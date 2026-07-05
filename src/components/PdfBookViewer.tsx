@@ -57,6 +57,13 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     setInput(String(page));
   }, [page]);
 
+  // Light haptic feedback on every successful page change (mobile only)
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+      navigator.vibrate(12);
+    }
+  }, [page]);
+
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
