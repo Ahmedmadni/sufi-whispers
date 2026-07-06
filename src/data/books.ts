@@ -65,7 +65,6 @@ export const books: Book[] = [
   {
     id: "manaqib",
     title: "المناقب الخليلية",
-    subtitle: "محمد لطفي خشبة",
     cover: coverManaqib,
     pdfUrl: manaqibAsset.url,
   },
