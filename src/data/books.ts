@@ -1,8 +1,10 @@
 import wardAsset from "@/assets/books/ward-tuli.pdf.asset.json";
 import sirahAsset from "@/assets/books/sirah-khaliliyya.pdf.asset.json";
+import kashfAsset from "@/assets/books/kashf-al-ghita.pdf.asset.json";
 import coverNafahat from "@/assets/books/cover-nafahat.jpg";
 import coverWard from "@/assets/books/cover-ward.jpg";
 import coverSirah from "@/assets/books/cover-sirah.jpg";
+import coverKashf from "@/assets/books/cover-kashf.jpg";
 
 export type Book = {
   id: string;
@@ -33,6 +35,13 @@ export const books: Book[] = [
     subtitle: "السيرة العطرة لسيدي العارف بالله الشيخ محمد أبو خليل",
     cover: coverSirah,
     pdfUrl: sirahAsset.url,
+  },
+  {
+    id: "kashf",
+    title: "كشف الغطاء عن أهل البلاء",
+    subtitle: "لفضيلة العارف بالله الشيخ صالح أبو خليل",
+    cover: coverKashf,
+    pdfUrl: kashfAsset.url,
   },
 ];
 
