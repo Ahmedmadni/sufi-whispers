@@ -82,17 +82,23 @@ function BookPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <section className="flex-1 w-full max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
-        <div className="flex items-center justify-between mb-2 px-1">
+        <div
+          dir="rtl"
+          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 mb-2 px-1"
+        >
           <Link
             to="/"
-            className="inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"
+            className="shrink-0 inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
-            المكتبة
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            <span>المكتبة</span>
           </Link>
-          <span className="font-display text-gold-soft text-sm truncate">
+          <h1
+            className="min-w-0 font-display text-gold-soft text-sm sm:text-base text-left truncate"
+            title={book.title}
+          >
             {book.title}
-          </span>
+          </h1>
         </div>
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
