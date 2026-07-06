@@ -2,8 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getBook } from "@/data/books";
+import { getBook, type Book } from "@/data/books";
 
 const PdfBookViewer = lazy(() => import("@/components/PdfBookViewer"));
 
@@ -41,10 +40,30 @@ export const Route = createFileRoute("/books/$bookId")({
   ),
 });
 
-function ViewerSkeleton() {
+function BookPreview({ book }: { book: Book }) {
   return (
-    <div className="glass rounded-2xl p-2 flex justify-center items-center min-h-[70vh] bg-velvet/30">
-      <Skeleton className="w-full max-w-[800px] aspect-[1/1.4] rounded-lg" />
+    <div className="glass rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center min-h-[70vh] bg-velvet/30 animate-fade-in">
+      <div className="relative w-40 sm:w-56 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-2xl mb-5">
+        <img
+          src={book.cover}
+          alt={book.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-velvet/40 to-transparent pointer-events-none" />
+      </div>
+      <h1 className="font-display text-gold-soft text-lg sm:text-2xl text-center leading-tight px-2">
+        {book.title}
+      </h1>
+      {book.subtitle && (
+        <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body text-center max-w-md px-2">
+          {book.subtitle}
+        </p>
+      )}
+      <div className="mt-6 flex items-center gap-2 text-[11px] sm:text-xs text-gold-soft/70 font-body">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-soft/70 animate-pulse" />
+        <span>جارٍ تحميل الكتاب…</span>
+      </div>
     </div>
   );
 }
@@ -52,7 +71,12 @@ function ViewerSkeleton() {
 function BookPage() {
   const { book } = Route.useLoaderData();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // Delay mounting the heavy PDF viewer for one frame so the preview
+  // paints instantly with the cover and title.
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 60);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -71,11 +95,11 @@ function BookPage() {
           </span>
         </div>
         {mounted ? (
-          <Suspense fallback={<ViewerSkeleton />}>
+          <Suspense fallback={<BookPreview book={book} />}>
             <PdfBookViewer pdfUrl={book.pdfUrl} bookId={book.id} />
           </Suspense>
         ) : (
-          <ViewerSkeleton />
+          <BookPreview book={book} />
         )}
       </section>
     </div>
