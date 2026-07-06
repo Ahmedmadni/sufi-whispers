@@ -49,11 +49,11 @@ function LibraryPage() {
                 />
                 <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
               </div>
-              <h2 className="mt-2.5 font-display text-gold-soft text-sm sm:text-base leading-tight">
+              <h2 className="mt-2.5 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-tight text-balance line-clamp-2 break-words">
                 {b.title}
               </h2>
               {b.subtitle && (
-                <p className="text-[10px] sm:text-xs text-muted-foreground font-body mt-0.5 line-clamp-2">
+                <p className="text-[10px] sm:text-xs text-muted-foreground font-body mt-0.5 line-clamp-2 break-words">
                   {b.subtitle}
                 </p>
               )}
