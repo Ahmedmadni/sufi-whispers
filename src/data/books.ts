@@ -4,6 +4,7 @@ import kashfAsset from "@/assets/books/kashf-al-ghita.pdf.asset.json";
 import nafahatKhAsset from "@/assets/books/nafahat-khaliliyya.pdf.asset.json";
 import murabbiAsset from "@/assets/books/al-murabbi.pdf.asset.json";
 import manaqibAsset from "@/assets/books/manaqib-khaliliyya.pdf.asset.json";
+import manahilAsset from "@/assets/books/manahil-khaliliyya.pdf.asset.json";
 import coverNafahat from "@/assets/books/cover-nafahat.jpg";
 import coverWard from "@/assets/books/cover-ward.jpg";
 import coverSirah from "@/assets/books/cover-sirah.jpg";
@@ -11,6 +12,7 @@ import coverKashf from "@/assets/books/cover-kashf.jpg";
 import coverNafahatKh from "@/assets/books/cover-nafahat-khaliliyya.jpg";
 import coverMurabbi from "@/assets/books/cover-murabbi.jpg";
 import coverManaqib from "@/assets/books/cover-manaqib.jpg";
+import coverManahil from "@/assets/books/cover-manahil.jpg";
 
 export type Book = {
   id: string;
@@ -67,6 +69,13 @@ export const books: Book[] = [
     title: "المناقب الخليلية",
     cover: coverManaqib,
     pdfUrl: manaqibAsset.url,
+  },
+  {
+    id: "manahil",
+    title: "المناهل الخليلية",
+    subtitle: "في المعارف والآداب والمقامات والأحوال",
+    cover: coverManahil,
+    pdfUrl: manahilAsset.url,
   },
 ];
 

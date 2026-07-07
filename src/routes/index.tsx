@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Facebook, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { books } from "@/data/books";
+
+const FACEBOOK_GROUP_URL = "https://www.facebook.com/share/p/1c2E8HCajb/";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,6 +63,59 @@ function LibraryPage() {
             </Link>
           ))}
         </div>
+
+        <section
+          id="shaykh"
+          dir="rtl"
+          className="mt-12 sm:mt-16 glass rounded-2xl p-5 sm:p-8 relative overflow-hidden"
+        >
+          <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -right-10 w-64 h-64 rounded-full bg-gold/5 blur-3xl pointer-events-none" />
+
+          <div className="relative flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-gold-soft" />
+            <h2 className="font-display text-gold-soft text-lg sm:text-2xl">
+              نبذة عن شيخ الطريق
+            </h2>
+          </div>
+
+          <div className="relative space-y-3 text-sm sm:text-base leading-relaxed font-body text-foreground/90 text-right">
+            <p>
+              سيدي العارف بالله الشيخ <span className="text-gold-soft">محمد أبو خليل</span>{" "}
+              قدّس الله سرّه، من أعلام الطريق الخليلي وأئمة السلوك والتربية في زمانه،
+              جمع بين علوم الشريعة وأسرار الحقيقة، وسار بالمريدين على منهاج السلف من
+              أهل الله؛ ذوقاً ومقاماً، وأدباً وحالاً.
+            </p>
+            <p>
+              كانت مجالسه نفحاتٍ من مدح سيد السادات ﷺ، وتربيةً على تقوى الله، ومحبةً
+              خالصة لآل البيت الكرام، وحرصاً على إحياء السنن، وردّ القلوب إلى حضرة
+              مولاها. ومن آثاره المباركة: <span className="text-gold-soft">جامع النفحات</span>،
+              و<span className="text-gold-soft">السيرة الخليلية</span>،
+              و<span className="text-gold-soft">المناقب الخليلية</span>،
+              و<span className="text-gold-soft">المناهل الخليلية</span>، وغيرها ممّا
+              يجده القارئ في هذه المكتبة.
+            </p>
+          </div>
+
+          <div className="relative mt-6 flex flex-wrap items-center gap-3">
+            <a
+              href={FACEBOOK_GROUP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg glass-gold px-4 py-2 text-sm font-body text-gold-soft hover:scale-105 transition-transform"
+            >
+              <Facebook className="w-4 h-4" />
+              <span>مجموعة الطريق الخليلي على فيسبوك</span>
+            </a>
+            <Link
+              to="/books/$bookId"
+              params={{ bookId: "sirah" }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 text-sm font-body text-foreground/80 hover:text-gold-soft hover:border-gold/50 transition-colors"
+            >
+              اقرأ السيرة الخليلية
+            </Link>
+          </div>
+        </section>
       </section>
     </div>
   );
