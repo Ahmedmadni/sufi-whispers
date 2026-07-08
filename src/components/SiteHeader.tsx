@@ -15,6 +15,23 @@ export function SiteHeader() {
             </span>
           </span>
         </Link>
+        <nav className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-body">
+          <Link
+            to="/"
+            activeOptions={{ exact: true }}
+            activeProps={{ className: "text-gold-soft bg-gold/10" }}
+            className="rounded-md px-2.5 py-1.5 text-foreground/80 hover:text-gold-soft transition-colors"
+          >
+            الرئيسية
+          </Link>
+          <Link
+            to="/library"
+            activeProps={{ className: "text-gold-soft bg-gold/10" }}
+            className="rounded-md px-2.5 py-1.5 text-foreground/80 hover:text-gold-soft transition-colors"
+          >
+            المكتبة
+          </Link>
+        </nav>
       </div>
     </header>
   );
