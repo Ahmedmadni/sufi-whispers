@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { books, CATEGORY_LABELS, type BookCategory } from "@/data/books";
+import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
+
 
 
 export const Route = createFileRoute("/library")({
@@ -57,6 +58,22 @@ export const Route = createFileRoute("/library")({
 function LibraryPage() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<BookCategory | "all">("all");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
+  useEffect(() => {
+    if (!selectedBook) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedBook(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [selectedBook]);
+
+
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: books.length };
@@ -182,10 +199,10 @@ function LibraryPage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
             {filteredBooks.map((b) => (
-              <Link
+              <button
                 key={b.id}
-                to="/books/$bookId"
-                params={{ bookId: b.id }}
+                type="button"
+                onClick={() => setSelectedBook(b)}
                 className="group flex flex-col items-center text-center"
               >
                 <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
@@ -196,6 +213,11 @@ function LibraryPage() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-velvet/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                    <span className="px-3 py-1 rounded-full glass-gold text-[11px] text-gold-soft font-body">
+                      معاينة سريعة
+                    </span>
+                  </div>
                 </div>
                 <h2 className="mt-2.5 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-tight text-balance line-clamp-2 break-words">
                   {b.title}
@@ -205,11 +227,88 @@ function LibraryPage() {
                     {b.subtitle}
                   </p>
                 )}
-              </Link>
+              </button>
+
             ))}
           </div>
         )}
       </section>
+
+      {selectedBook && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="preview-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+        >
+          <div
+            className="absolute inset-0 bg-velvet/85 backdrop-blur-sm"
+            onClick={() => setSelectedBook(null)}
+            aria-hidden="true"
+          />
+          <div className="relative w-full max-w-lg glass rounded-2xl p-4 sm:p-6 shadow-2xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setSelectedBook(null)}
+              className="absolute top-3 left-3 sm:top-4 sm:left-4 p-1.5 rounded-full glass text-gold-soft hover:text-gold hover:bg-gold/10 transition-colors"
+              aria-label="إغلاق المعاينة"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start">
+              <div className="relative w-32 sm:w-40 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg shrink-0">
+                <img
+                  src={selectedBook.cover}
+                  alt={selectedBook.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
+              </div>
+
+              <div className="flex-1 text-center sm:text-right min-w-0" dir="rtl">
+                <span className="inline-block px-2.5 py-1 rounded-full glass-gold text-[10px] text-gold-soft font-body mb-2">
+                  {CATEGORY_LABELS[selectedBook.category]}
+                </span>
+                <h2
+                  id="preview-title"
+                  className="font-display text-gold-soft text-lg sm:text-xl leading-tight mb-1"
+                >
+                  {selectedBook.title}
+                </h2>
+                {selectedBook.subtitle && (
+                  <p className="text-xs text-muted-foreground font-body mb-3">
+                    {selectedBook.subtitle}
+                  </p>
+                )}
+                <p className="text-xs sm:text-sm text-foreground/80 font-body leading-relaxed line-clamp-4 sm:line-clamp-5">
+                  {selectedBook.description}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3" dir="rtl">
+              <Link
+                to="/books/$bookId"
+                params={{ bookId: selectedBook.id }}
+                onClick={() => setSelectedBook(null)}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-body text-velvet bg-gold-soft hover:bg-gold transition-colors shadow-lg shadow-gold/20"
+              >
+                ابدأ القراءة
+              </Link>
+              <Link
+                to="/books/$bookId"
+                params={{ bookId: selectedBook.id }}
+                onClick={() => setSelectedBook(null)}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-body text-gold-soft glass hover:bg-gold/10 transition-colors"
+              >
+                صفحة التفاصيل
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }

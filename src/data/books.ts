@@ -33,16 +33,20 @@ export type Book = {
   id: string;
   title: string;
   subtitle?: string;
+  description: string;
   cover: string;
   pdfUrl: string;
   category: BookCategory;
 };
+
 
 export const books: Book[] = [
   {
     id: "nafahat",
     title: "جامع النفحات",
     subtitle: "في مدح سيد السادات ﷺ",
+    description:
+      "ديوان شعري خليلي يجمع بين القصائد المحمدية الرقيقة، يتلوها السالك في مجالس الذكر والأنس بالنبي ﷺ، ليستشعر نفحات المدينة والمحبة المحمدية.",
     cover: coverNafahat,
     pdfUrl: "/book.pdf",
     category: "madaih",
@@ -51,6 +55,8 @@ export const books: Book[] = [
     id: "ward",
     title: "ورد الاستغفار",
     subtitle: "في توبة الأبرار",
+    description:
+      "ورد روحاني يومي يجمع أذكار الاستغفار والتوبة على طريقة السادة الخليلية، ليُعين السالك على تطهير القلب والعودة إلى الله بخشوع.",
     cover: coverWard,
     pdfUrl: wardAsset.url,
     category: "awrad",
@@ -59,6 +65,8 @@ export const books: Book[] = [
     id: "sirah",
     title: "السيرة الخليلية",
     subtitle: "السيرة العطرة لسيدي العارف بالله الشيخ محمد أبو خليل",
+    description:
+      "سيرة مباركة لأحد أعيان الطريقة الخليلية، تحكي محطات من حياته الروحية والعلمية، وتقدم للقارئ نموذجاً حياً للإخلاص والتصوف العملي.",
     cover: coverSirah,
     pdfUrl: sirahAsset.url,
     category: "sirah",
@@ -67,6 +75,8 @@ export const books: Book[] = [
     id: "kashf",
     title: "كشف الغطاء عن أهل البلاء",
     subtitle: "لفضيلة العارف بالله الشيخ صالح أبو خليل",
+    description:
+      "رسالة روحانية تكشف عن أسرار الصبر والبلاء، وتبيّن كيف تكون المصيبة باب رحمة للمؤمن، بقلم عارف يرى الأحداث بعين الإيمان.",
     cover: coverKashf,
     pdfUrl: kashfAsset.url,
     category: "maarif",
@@ -74,6 +84,8 @@ export const books: Book[] = [
   {
     id: "nafahat-khaliliyya",
     title: "النفحات الخليلية",
+    description:
+      "مجموعة من القصائد والنفحات المحمدية التي تُنشد على طريقة الخليلية، لتنير مجالس الذكر وتُحيي في القلب محبة النبي ﷺ.",
     cover: coverNafahatKh,
     pdfUrl: nafahatKhAsset.url,
     category: "madaih",
@@ -82,6 +94,8 @@ export const books: Book[] = [
     id: "murabbi",
     title: "المربّي",
     subtitle: "سيدي محمد محمد أبو خليل",
+    description:
+      "كتاب يجمع سيرة ومآثر ومواعظ شيخ الطريقة الخليلية، يُرشد السالك إلى مكارم الأخلاق وأسس التربية الروحية على الخط العلوي.",
     cover: coverMurabbi,
     pdfUrl: murabbiAsset.url,
     category: "sirah",
@@ -89,6 +103,8 @@ export const books: Book[] = [
   {
     id: "manaqib",
     title: "المناقب الخليلية",
+    description:
+      "كتاب يستعرض مناقب وفضائل سادة الطريقة الخليلية، ويُبرز مناقب أهل البيت والصالحين من مشايخها، مجمعاً بين التاريخ والتزكية.",
     cover: coverManaqib,
     pdfUrl: manaqibAsset.url,
     category: "manaqib",
@@ -97,11 +113,14 @@ export const books: Book[] = [
     id: "manahil",
     title: "المناهل الخليلية",
     subtitle: "في المعارف والآداب والمقامات والأحوال",
+    description:
+      "موسوعة روحانية خليلية تتناول المعارف الصوفية والآداب السلوكية والمقامات والأحوال، لتكون منهلاً صافياً للسالك على طريق الحق.",
     cover: coverManahil,
     pdfUrl: manahilAsset.url,
     category: "maarif",
   },
 ];
+
 
 export const getBook = (id: string) => books.find((b) => b.id === id);
 
