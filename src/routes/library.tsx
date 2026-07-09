@@ -11,16 +11,44 @@ export const Route = createFileRoute("/library")({
       {
         name: "description",
         content:
-          "مكتبة رقمية تضم كتب الطريق الخليلي: جامع النفحات، الوِرد الطولي، السيرة الخليلية، المناقب والمناهل — تصفّح واقرأ على الهاتف.",
+          "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب الخليلية والمناهل الخليلية — مكتبة رقمية صوفية للقراءة والبحث.",
       },
       { property: "og:title", content: "المكتبة — مكتبة النفحات" },
       {
         property: "og:description",
-        content: "تصفّح كتب الطريق الخليلي واقرأها في تجربة صوفية هادئة.",
+        content:
+          "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب والمناهل — مكتبة رقمية صوفية.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://sufi-whispers.lovable.app/library" },
+      { property: "og:site_name", content: "مكتبة النفحات" },
+      { property: "og:locale", content: "ar_AR" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "المكتبة — مكتبة النفحات" },
+      {
+        name: "twitter:description",
+        content:
+          "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب والمناهل — مكتبة رقمية صوفية.",
       },
       { name: "theme-color", content: "#0d1a14" },
     ],
-    links: [{ rel: "canonical", href: "/library" }],
+    links: [
+      { rel: "canonical", href: "https://sufi-whispers.lovable.app/library" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "المكتبة — مكتبة النفحات",
+          url: "https://sufi-whispers.lovable.app/library",
+          description:
+            "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب الخليلية والمناهل الخليلية.",
+          inLanguage: "ar",
+        }),
+      },
+    ],
   }),
   component: LibraryPage,
 });
