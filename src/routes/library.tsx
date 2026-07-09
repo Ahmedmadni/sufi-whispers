@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { books } from "@/data/books";
+import { books, CATEGORY_LABELS, type BookCategory } from "@/data/books";
+
 
 export const Route = createFileRoute("/library")({
   head: () => ({
@@ -55,14 +56,32 @@ export const Route = createFileRoute("/library")({
 
 function LibraryPage() {
   const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState<BookCategory | "all">("all");
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: books.length };
+    for (const b of books) counts[b.category] = (counts[b.category] ?? 0) + 1;
+    return counts;
+  }, []);
 
   const normalizedQuery = query.trim().toLowerCase();
-  const filteredBooks = normalizedQuery
-    ? books.filter((b) => {
-        const haystack = [b.title, b.subtitle ?? ""].join(" ").toLowerCase();
-        return haystack.includes(normalizedQuery);
-      })
-    : books;
+  const filteredBooks = books.filter((b) => {
+    if (activeCategory !== "all" && b.category !== activeCategory) return false;
+    if (!normalizedQuery) return true;
+    const haystack = [b.title, b.subtitle ?? "", CATEGORY_LABELS[b.category]]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(normalizedQuery);
+  });
+
+  const categoryChips: Array<{ key: BookCategory | "all"; label: string }> = [
+    { key: "all", label: "الكل" },
+    ...(Object.keys(CATEGORY_LABELS) as BookCategory[]).map((k) => ({
+      key: k,
+      label: CATEGORY_LABELS[k],
+    })),
+  ];
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,19 +125,60 @@ function LibraryPage() {
           )}
         </div>
 
+        <div
+          role="tablist"
+          aria-label="تصنيفات الكتب"
+          dir="rtl"
+          className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8"
+        >
+          {categoryChips.map((c) => {
+            const isActive = activeCategory === c.key;
+            const count = categoryCounts[c.key] ?? 0;
+            return (
+              <button
+                key={c.key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveCategory(c.key)}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-body border transition-all ${
+                  isActive
+                    ? "bg-gold/20 border-gold/60 text-gold-soft shadow-sm"
+                    : "bg-background/40 border-gold/20 text-muted-foreground hover:border-gold/40 hover:text-gold-soft"
+                }`}
+              >
+                <span>{c.label}</span>
+                <span className="mr-1.5 opacity-70">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {activeCategory !== "all" || query ? (
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            {filteredBooks.length} من {books.length} كتاب
+          </p>
+        ) : null}
+
+
+
         {filteredBooks.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground text-sm">
-              لا توجد نتائج مطابقة لـ «{query}»
+              لا توجد نتائج مطابقة{query ? ` لـ «${query}»` : ""}
             </p>
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                setActiveCategory("all");
+              }}
               className="mt-3 text-gold-soft hover:text-gold text-sm underline underline-offset-4"
             >
               عرض جميع الكتب
             </button>
           </div>
+
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
             {filteredBooks.map((b) => (
