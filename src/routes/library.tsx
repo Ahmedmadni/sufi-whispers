@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Search } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { books } from "@/data/books";
 
