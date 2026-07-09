@@ -165,16 +165,20 @@ function LibraryPage() {
         {filteredBooks.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground text-sm">
-              لا توجد نتائج مطابقة لـ «{query}»
+              لا توجد نتائج مطابقة{query ? ` لـ «${query}»` : ""}
             </p>
             <button
               type="button"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                setQuery("");
+                setActiveCategory("all");
+              }}
               className="mt-3 text-gold-soft hover:text-gold text-sm underline underline-offset-4"
             >
               عرض جميع الكتب
             </button>
           </div>
+
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
             {filteredBooks.map((b) => (
