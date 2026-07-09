@@ -60,6 +60,20 @@ function LibraryPage() {
   const [activeCategory, setActiveCategory] = useState<BookCategory | "all">("all");
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
 
+  useEffect(() => {
+    if (!selectedBook) return;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedBook(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [selectedBook]);
+
+
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: books.length };
