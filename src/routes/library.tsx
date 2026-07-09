@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { books, CATEGORY_LABELS, type BookCategory } from "@/data/books";
+import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
+
 
 
 export const Route = createFileRoute("/library")({
