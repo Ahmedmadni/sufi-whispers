@@ -16,19 +16,42 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة ومناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
+          "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
       },
-      { property: "og:title", content: "مكتبة النفحات — الطريق الخليلي" },
+      { property: "og:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         property: "og:description",
-        content: "نفحاتٌ من حضرة سيد السادات ﷺ — كتب الطريق الخليلي في مكتبة رقمية أنيقة.",
+        content:
+          "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://sufi-whispers.lovable.app/icon-192.png" },
+      { property: "og:url", content: "https://sufi-whispers.lovable.app/" },
+      { property: "og:site_name", content: "مكتبة النفحات" },
+      { property: "og:locale", content: "ar_AR" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      {
+        name: "twitter:description",
+        content:
+          "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
+      },
       { name: "theme-color", content: "#0d1a14" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://sufi-whispers.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "مكتبة النفحات",
+          url: "https://sufi-whispers.lovable.app/",
+          description:
+            "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
+          inLanguage: "ar",
+        }),
+      },
+    ],
   }),
   component: HomePage,
 });
