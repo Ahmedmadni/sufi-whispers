@@ -58,6 +58,8 @@ export const Route = createFileRoute("/library")({
 function LibraryPage() {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<BookCategory | "all">("all");
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: books.length };
