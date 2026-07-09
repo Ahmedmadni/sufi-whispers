@@ -33,10 +33,12 @@ export type Book = {
   id: string;
   title: string;
   subtitle?: string;
+  description: string;
   cover: string;
   pdfUrl: string;
   category: BookCategory;
 };
+
 
 export const books: Book[] = [
   {
