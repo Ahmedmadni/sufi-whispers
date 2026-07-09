@@ -125,6 +125,43 @@ function LibraryPage() {
           )}
         </div>
 
+        <div
+          role="tablist"
+          aria-label="تصنيفات الكتب"
+          dir="rtl"
+          className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8"
+        >
+          {categoryChips.map((c) => {
+            const isActive = activeCategory === c.key;
+            const count = categoryCounts[c.key] ?? 0;
+            return (
+              <button
+                key={c.key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveCategory(c.key)}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-body border transition-all ${
+                  isActive
+                    ? "bg-gold/20 border-gold/60 text-gold-soft shadow-sm"
+                    : "bg-background/40 border-gold/20 text-muted-foreground hover:border-gold/40 hover:text-gold-soft"
+                }`}
+              >
+                <span>{c.label}</span>
+                <span className="mr-1.5 opacity-70">({count})</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {activeCategory !== "all" || query ? (
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            {filteredBooks.length} من {books.length} كتاب
+          </p>
+        ) : null}
+
+
+
         {filteredBooks.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground text-sm">
