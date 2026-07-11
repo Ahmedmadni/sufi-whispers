@@ -241,10 +241,6 @@ function LibraryPage() {
                 overlayClassName="bg-velvet/85 backdrop-blur-sm"
                 hideClose
                 className="glass rounded-2xl border-gold/30 p-4 sm:p-6 shadow-2xl overflow-hidden"
-                onCloseAutoFocus={(e) => {
-                  e.preventDefault();
-                  triggerRef.current?.focus();
-                }}
               >
                 <DialogClose asChild>
                   <button
