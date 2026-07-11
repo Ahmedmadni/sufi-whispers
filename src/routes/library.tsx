@@ -197,36 +197,35 @@ function LibraryPage() {
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
               {filteredBooks.map((b) => (
-                <DialogTrigger key={b.id} asChild>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedBook(b)}
-                    className="group flex flex-col items-center text-center"
-                  >
-                    <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
-                      <img
-                        src={b.cover}
-                        alt={b.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-velvet/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                        <span className="px-3 py-1 rounded-full glass-gold text-[11px] text-gold-soft font-body">
-                          معاينة سريعة
-                        </span>
-                      </div>
+                <button
+                  key={b.id}
+                  type="button"
+                  onClick={() => setSelectedBook(b)}
+                  className="group flex flex-col items-center text-center"
+                >
+                  <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
+                    <img
+                      src={b.cover}
+                      alt={b.title}
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-velvet/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                      <span className="px-3 py-1 rounded-full glass-gold text-[11px] text-gold-soft font-body">
+                        معاينة سريعة
+                      </span>
                     </div>
-                    <h2 className="mt-2.5 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-tight text-balance line-clamp-2 break-words">
-                      {b.title}
-                    </h2>
-                    {b.subtitle && (
-                      <p className="text-[10px] sm:text-xs text-muted-foreground font-body mt-0.5 line-clamp-2 break-words">
-                        {b.subtitle}
-                      </p>
-                    )}
-                  </button>
-                </DialogTrigger>
+                  </div>
+                  <h2 className="mt-2.5 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-tight text-balance line-clamp-2 break-words">
+                    {b.title}
+                  </h2>
+                  {b.subtitle && (
+                    <p className="text-[10px] sm:text-xs text-muted-foreground font-body mt-0.5 line-clamp-2 break-words">
+                      {b.subtitle}
+                    </p>
+                  )}
+                </button>
               ))}
             </div>
 
