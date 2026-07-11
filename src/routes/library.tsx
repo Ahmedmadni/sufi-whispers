@@ -247,10 +247,11 @@ function LibraryPage() {
 
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start">
                     <div className="relative w-32 sm:w-40 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg shrink-0">
-                      <img
+                      <BookCover
                         src={selectedBook.cover}
                         alt={selectedBook.title}
-                        className="w-full h-full object-cover"
+                        priority
+                        sizes="160px"
                       />
                       <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
                     </div>
