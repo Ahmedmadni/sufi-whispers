@@ -193,7 +193,10 @@ function LibraryPage() {
           <Dialog
             open={!!selectedBook}
             onOpenChange={(open) => {
-              if (!open) setSelectedBook(null);
+              if (!open) {
+                triggerRef.current?.focus();
+                setSelectedBook(null);
+              }
             }}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
