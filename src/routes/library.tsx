@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
+import { BookCover } from "@/components/BookCover";
 
 export const Route = createFileRoute("/library")({
   head: () => ({
