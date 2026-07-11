@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
+import { BookCover } from "@/components/BookCover";
 
 export const Route = createFileRoute("/library")({
   head: () => ({
@@ -198,11 +199,10 @@ function LibraryPage() {
                   className="group flex flex-col items-center text-center"
                 >
                   <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
-                    <img
+                    <BookCover
                       src={b.cover}
                       alt={b.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
+                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
                     />
                     <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-t from-velvet/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
@@ -247,10 +247,11 @@ function LibraryPage() {
 
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start">
                     <div className="relative w-32 sm:w-40 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg shrink-0">
-                      <img
+                      <BookCover
                         src={selectedBook.cover}
                         alt={selectedBook.title}
-                        className="w-full h-full object-cover"
+                        priority
+                        sizes="160px"
                       />
                       <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
                     </div>
