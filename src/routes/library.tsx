@@ -208,6 +208,7 @@ function LibraryPage() {
                   type="button"
                   onClick={(e) => {
                     triggerRef.current = e.currentTarget;
+                    (window as any).__lastBookTrigger = e.currentTarget;
                     setSelectedBook(b);
                   }}
                   className="group flex flex-col items-center text-center"
