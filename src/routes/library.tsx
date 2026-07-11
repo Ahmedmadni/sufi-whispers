@@ -201,7 +201,10 @@ function LibraryPage() {
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => setSelectedBook(b)}
+                  onClick={(e) => {
+                    triggerRef.current = e.currentTarget;
+                    setSelectedBook(b);
+                  }}
                   className="group flex flex-col items-center text-center"
                 >
                   <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
