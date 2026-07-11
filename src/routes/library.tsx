@@ -301,6 +301,7 @@ function LibraryPage() {
             )}
           </Dialog>
         )}
+      </section>
     </div>
 
   );
