@@ -11,8 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
 
-
-
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
@@ -41,9 +39,7 @@ export const Route = createFileRoute("/library")({
       },
       { name: "theme-color", content: "#0d1a14" },
     ],
-    links: [
-      { rel: "canonical", href: "https://sufi-whispers.lovable.app/library" },
-    ],
+    links: [{ rel: "canonical", href: "https://sufi-whispers.lovable.app/library" }],
     scripts: [
       {
         type: "application/ld+json",
@@ -92,28 +88,20 @@ function LibraryPage() {
     })),
   ];
 
-
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <section className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
         <div className="text-center mb-6 sm:mb-10">
-          <h1 className="font-display text-gold-soft text-2xl sm:text-3xl mb-2">
-            المكتبة
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground font-body">
-            اختر كتاباً للقراءة
-          </p>
+          <h1 className="font-display text-gold-soft text-2xl sm:text-3xl mb-2">المكتبة</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground font-body">اختر كتاباً للقراءة</p>
         </div>
 
         <div className="relative max-w-md mx-auto mb-6 sm:mb-8">
           <label htmlFor="book-search" className="sr-only">
             ابحث في عناوين الكتب
           </label>
-          <Search
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gold/70"
-            size={18}
-          />
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gold/70" size={18} />
           <input
             id="book-search"
             type="text"
@@ -170,8 +158,6 @@ function LibraryPage() {
           </p>
         ) : null}
 
-
-
         {filteredBooks.length === 0 ? (
           <div className="text-center py-10">
             <p className="text-muted-foreground text-sm">
@@ -188,7 +174,6 @@ function LibraryPage() {
               عرض جميع الكتب
             </button>
           </div>
-
         ) : (
           <Dialog
             open={!!selectedBook}
@@ -292,7 +277,10 @@ function LibraryPage() {
                     </div>
                   </div>
 
-                  <div className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3" dir="rtl">
+                  <div
+                    className="mt-5 sm:mt-6 flex flex-col sm:flex-row gap-2.5 sm:gap-3"
+                    dir="rtl"
+                  >
                     <Link
                       to="/books/$bookId"
                       params={{ bookId: selectedBook.id }}
@@ -317,6 +305,5 @@ function LibraryPage() {
         )}
       </section>
     </div>
-
   );
 }
