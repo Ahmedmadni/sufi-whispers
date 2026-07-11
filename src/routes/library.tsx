@@ -199,11 +199,10 @@ function LibraryPage() {
                   className="group flex flex-col items-center text-center"
                 >
                   <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
-                    <img
+                    <BookCover
                       src={b.cover}
                       alt={b.title}
-                      loading="lazy"
-                      className="w-full h-full object-cover"
+                      sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 240px"
                     />
                     <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-t from-velvet/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
