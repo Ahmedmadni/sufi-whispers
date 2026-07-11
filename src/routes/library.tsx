@@ -194,8 +194,10 @@ function LibraryPage() {
             open={!!selectedBook}
             onOpenChange={(open) => {
               if (!open) {
-                triggerRef.current?.focus();
                 setSelectedBook(null);
+                window.requestAnimationFrame(() => {
+                  triggerRef.current?.focus();
+                });
               }
             }}
           >
