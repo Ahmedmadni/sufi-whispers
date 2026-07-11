@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { books, CATEGORY_LABELS, type Book, type BookCategory } from "@/data/books";
 
