@@ -31,6 +31,13 @@ export function SiteHeader() {
           >
             المكتبة
           </Link>
+          <Link
+            to="/quran"
+            activeProps={{ className: "text-gold-soft bg-gold/10" }}
+            className="rounded-md px-2.5 py-1.5 text-foreground/80 hover:text-gold-soft transition-colors"
+          >
+            المصحف
+          </Link>
         </nav>
       </div>
     </header>
