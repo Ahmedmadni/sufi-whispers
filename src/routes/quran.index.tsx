@@ -12,7 +12,7 @@ import {
   type ReadingPosition,
 } from "@/lib/quran";
 
-export const Route = createFileRoute("/quran")({
+export const Route = createFileRoute("/quran/")({
   head: () => ({
     meta: [
       { title: "المصحف الشريف — رواية حفص | مكتبة النفحات" },
