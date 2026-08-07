@@ -52,6 +52,7 @@
   --font-display: "Kufam", "Cairo", system-ui, sans-serif;
   --font-quran: "Cairo", "Kufam", system-ui, sans-serif;
   --font-body: "Cairo", "Kufam", system-ui, sans-serif;
+  --font-uthmani: "UthmanicHafs", "Cairo", serif;
 }
 
 :root {
@@ -141,6 +142,25 @@
     padding-block: 0.05em;
   }
   .font-quran { font-family: var(--font-quran); }
+
+  /* Mushaf typography — official Uthmanic script, never altered */
+  .font-uthmani {
+    font-family: var(--font-uthmani);
+    font-feature-settings: normal;
+    font-variant-ligatures: normal;
+  }
+  .mushaf-text {
+    font-family: var(--font-uthmani);
+    direction: rtl;
+    text-align: center;
+    line-height: 2.35;
+    letter-spacing: 0;
+    word-spacing: 0.06em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
 
   .text-gradient-gold {
     background: var(--gradient-gold);
