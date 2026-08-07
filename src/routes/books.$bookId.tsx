@@ -21,7 +21,7 @@ export const Route = createFileRoute("/books/$bookId")({
       ],
     };
   },
-  loader: ({ params }) => {
+  loader: ({ params }): { book: Book } => {
     const book = getBook(params.bookId);
     if (!book) throw notFound();
     return { book };
