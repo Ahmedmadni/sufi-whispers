@@ -11,7 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as QuranIndexRouteImport } from './routes/quran.index'
 import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
+import { Route as QuranSurahSuraNoRouteImport } from './routes/quran.surah.$suraNo'
+import { Route as QuranPagePageRouteImport } from './routes/quran.page.$page'
 
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
@@ -23,9 +26,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const QuranIndexRoute = QuranIndexRouteImport.update({
+  id: '/quran/',
+  path: '/quran/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BooksBookIdRoute = BooksBookIdRouteImport.update({
   id: '/books/$bookId',
   path: '/books/$bookId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuranSurahSuraNoRoute = QuranSurahSuraNoRouteImport.update({
+  id: '/quran/surah/$suraNo',
+  path: '/quran/surah/$suraNo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuranPagePageRoute = QuranPagePageRouteImport.update({
+  id: '/quran/page/$page',
+  path: '/quran/page/$page',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -33,30 +51,61 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/quran/': typeof QuranIndexRoute
+  '/quran/page/$page': typeof QuranPagePageRoute
+  '/quran/surah/$suraNo': typeof QuranSurahSuraNoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/quran': typeof QuranIndexRoute
+  '/quran/page/$page': typeof QuranPagePageRoute
+  '/quran/surah/$suraNo': typeof QuranSurahSuraNoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library': typeof LibraryRoute
   '/books/$bookId': typeof BooksBookIdRoute
+  '/quran/': typeof QuranIndexRoute
+  '/quran/page/$page': typeof QuranPagePageRoute
+  '/quran/surah/$suraNo': typeof QuranSurahSuraNoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/books/$bookId'
+  fullPaths:
+    | '/'
+    | '/library'
+    | '/books/$bookId'
+    | '/quran/'
+    | '/quran/page/$page'
+    | '/quran/surah/$suraNo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/books/$bookId'
-  id: '__root__' | '/' | '/library' | '/books/$bookId'
+  to:
+    | '/'
+    | '/library'
+    | '/books/$bookId'
+    | '/quran'
+    | '/quran/page/$page'
+    | '/quran/surah/$suraNo'
+  id:
+    | '__root__'
+    | '/'
+    | '/library'
+    | '/books/$bookId'
+    | '/quran/'
+    | '/quran/page/$page'
+    | '/quran/surah/$suraNo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryRoute: typeof LibraryRoute
   BooksBookIdRoute: typeof BooksBookIdRoute
+  QuranIndexRoute: typeof QuranIndexRoute
+  QuranPagePageRoute: typeof QuranPagePageRoute
+  QuranSurahSuraNoRoute: typeof QuranSurahSuraNoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +124,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/quran/': {
+      id: '/quran/'
+      path: '/quran'
+      fullPath: '/quran/'
+      preLoaderRoute: typeof QuranIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/books/$bookId': {
       id: '/books/$bookId'
       path: '/books/$bookId'
       fullPath: '/books/$bookId'
       preLoaderRoute: typeof BooksBookIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quran/surah/$suraNo': {
+      id: '/quran/surah/$suraNo'
+      path: '/quran/surah/$suraNo'
+      fullPath: '/quran/surah/$suraNo'
+      preLoaderRoute: typeof QuranSurahSuraNoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quran/page/$page': {
+      id: '/quran/page/$page'
+      path: '/quran/page/$page'
+      fullPath: '/quran/page/$page'
+      preLoaderRoute: typeof QuranPagePageRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -89,6 +159,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryRoute: LibraryRoute,
   BooksBookIdRoute: BooksBookIdRoute,
+  QuranIndexRoute: QuranIndexRoute,
+  QuranPagePageRoute: QuranPagePageRoute,
+  QuranSurahSuraNoRoute: QuranSurahSuraNoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

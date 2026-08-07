@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BookOpen, Facebook, Sparkles, Moon, Feather } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
 import { books } from "@/data/books";
@@ -291,13 +292,7 @@ function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ============ FOOTER ============ */}
-      <footer className="mt-auto border-t border-gold/15 py-6 text-center">
-        <p className="text-[11px] sm:text-xs text-muted-foreground font-body">
-          ﷺ اللهم صلِّ وسلم وبارك على سيدنا محمد وعلى آله وصحبه أجمعين
-        </p>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
