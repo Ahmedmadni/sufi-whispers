@@ -16,13 +16,13 @@ import { BookCover } from "@/components/BookCover";
 export const Route = createFileRoute("/library")({
   head: () => ({
     meta: [
-      { title: "المكتبة — مكتبة النفحات" },
+      { title: "المكتبة — رحاب الخليلية" },
       {
         name: "description",
         content:
           "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب الخليلية والمناهل الخليلية — مكتبة رقمية صوفية للقراءة والبحث.",
       },
-      { property: "og:title", content: "المكتبة — مكتبة النفحات" },
+      { property: "og:title", content: "المكتبة — رحاب الخليلية" },
       {
         property: "og:description",
         content:
@@ -30,10 +30,10 @@ export const Route = createFileRoute("/library")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://sufi-whispers.lovable.app/library" },
-      { property: "og:site_name", content: "مكتبة النفحات" },
+      { property: "og:site_name", content: "رحاب الخليلية" },
       { property: "og:locale", content: "ar_AR" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "المكتبة — مكتبة النفحات" },
+      { name: "twitter:title", content: "المكتبة — رحاب الخليلية" },
       {
         name: "twitter:description",
         content:
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/library")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "المكتبة — مكتبة النفحات",
+          name: "المكتبة — رحاب الخليلية",
           url: "https://sufi-whispers.lovable.app/library",
           description:
             "تصفّح كتب الطريق الخليلي: جامع النفحات، ورد الاستغفار، السيرة الخليلية، كشف الغطاء، النفحات الخليلية، المربّي، المناقب الخليلية والمناهل الخليلية.",

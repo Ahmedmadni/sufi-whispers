@@ -7,19 +7,20 @@ import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
+import logo from "@/assets/rihab-logo.png.asset.json";
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/share/p/1c2E8HCajb/";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { title: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         name: "description",
         content:
           "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
       },
-      { property: "og:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { property: "og:title", content: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         property: "og:description",
         content:
@@ -27,10 +28,10 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://sufi-whispers.lovable.app/" },
-      { property: "og:site_name", content: "مكتبة النفحات" },
+      { property: "og:site_name", content: "رحاب الخليلية" },
       { property: "og:locale", content: "ar_AR" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { name: "twitter:title", content: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         name: "twitter:description",
         content:
@@ -45,7 +46,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "مكتبة النفحات",
+          name: "رحاب الخليلية",
           url: "https://sufi-whispers.lovable.app/",
           description:
             "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
@@ -133,12 +134,20 @@ function HomePage() {
               <p className="font-quran text-gold-soft/90 text-sm sm:text-base mb-3">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[1.35] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
-                مكتبة النفحات
+              <img
+                src={logo.url}
+                alt="شعار مجموعة في رحاب الخليلية"
+                width={320}
+                height={380}
+                className="mx-auto w-40 sm:w-56 h-auto object-contain drop-shadow-[0_6px_30px_rgba(200,160,80,0.35)]"
+              />
+              <h1 className="mt-4 font-display text-3xl sm:text-5xl lg:text-6xl leading-[1.35] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
+                رحاب الخليلية
               </h1>
               <p className="mt-3 font-display text-gold-soft/85 text-base sm:text-xl">
-                نفحاتٌ من حضرة سيد السادات ﷺ
+                مجموعة في رحاب الطريق الخليلي — نفحاتٌ من حضرة سيد السادات ﷺ
               </p>
+
               <div className="my-6 flex items-center justify-center">
                 <Ornament className="w-40 sm:w-56 text-gold" />
               </div>

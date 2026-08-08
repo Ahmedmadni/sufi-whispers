@@ -21,7 +21,7 @@ export const Route = createFileRoute("/quran/surah/$suraNo")({
   head: ({ params }) => {
     const sura = SURA_INDEX.find((s) => s.no === Number(params.suraNo));
     const title = sura
-      ? `سورة ${sura.nameAr} — المصحف الشريف | مكتبة النفحات`
+      ? `سورة ${sura.nameAr} — المصحف الشريف | رحاب الخليلية`
       : "سورة — المصحف الشريف";
     const description = sura
       ? `اقرأ سورة ${sura.nameAr} كاملة (${sura.ayaCount} آية) بالرسم العثماني من مجمع الملك فهد لطباعة المصحف الشريف.`
