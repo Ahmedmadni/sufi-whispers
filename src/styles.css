@@ -152,15 +152,20 @@
   .mushaf-text {
     font-family: var(--font-uthmani);
     direction: rtl;
-    text-align: center;
-    line-height: 2.35;
+    /* Printed-mushaf look: fully justified lines, last line centered */
+    text-align: justify;
+    text-align-last: center;
+    text-justify: inter-word;
+    line-height: 2.15;
     letter-spacing: 0;
-    word-spacing: 0.06em;
+    word-spacing: 0.02em;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     overflow-wrap: normal;
     word-break: keep-all;
+    hyphens: none;
   }
+
 
   .text-gradient-gold {
     background: var(--gradient-gold);
