@@ -133,12 +133,20 @@ function HomePage() {
               <p className="font-quran text-gold-soft/90 text-sm sm:text-base mb-3">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[1.35] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
+              <img
+                src={logo.url}
+                alt="شعار مجموعة في رحاب الخليلية"
+                width={320}
+                height={380}
+                className="mx-auto w-40 sm:w-56 h-auto object-contain drop-shadow-[0_6px_30px_rgba(200,160,80,0.35)]"
+              />
+              <h1 className="mt-4 font-display text-3xl sm:text-5xl lg:text-6xl leading-[1.35] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
                 رحاب الخليلية
               </h1>
               <p className="mt-3 font-display text-gold-soft/85 text-base sm:text-xl">
-                نفحاتٌ من حضرة سيد السادات ﷺ
+                مجموعة في رحاب الطريق الخليلي — نفحاتٌ من حضرة سيد السادات ﷺ
               </p>
+
               <div className="my-6 flex items-center justify-center">
                 <Ornament className="w-40 sm:w-56 text-gold" />
               </div>
