@@ -48,12 +48,12 @@ function AboutPage() {
           <h2 className="font-display text-lg text-gold-soft">مطوّر التطبيق</h2>
           <p className="mt-2 text-sm text-foreground/85 font-body leading-7">أحمد المدني</p>
           <a
-            href="https://ahmedelmadnim.com"
+            href="https://ahmedelmadni.com"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-2 inline-block text-sm font-body text-gold-soft hover:underline"
           >
-            ahmedelmadnim.com
+            ahmedelmadni.com
           </a>
         </section>
 
