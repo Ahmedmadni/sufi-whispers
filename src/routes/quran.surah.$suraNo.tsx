@@ -104,8 +104,9 @@ function SurahPage() {
         )}
 
         {ayat.length > 0 && (
-          <article className="mt-4 glass rounded-2xl px-3 sm:px-6 py-6">
-            <div className="mushaf-text text-[1.35rem] sm:text-[1.6rem] text-foreground">
+          <article className="mt-4 glass rounded-2xl px-3 sm:px-5 py-5">
+            <div className="mushaf-text text-[1.05rem] sm:text-[1.2rem] text-foreground">
+
               {ayat.map((a) => (
                 <span key={a.id} id={`aya-${a.aya_no}`} className="inline">
                   {a.aya_text}{" "}
