@@ -9,7 +9,7 @@ export function SiteHeader() {
             م
           </div>
           <span className="font-display text-gold-soft text-sm leading-tight truncate">
-            مكتبة النفحات
+            رحاب الخليلية
             <span className="block text-[10px] text-muted-foreground truncate">
               كتب في مدح سيد السادات ﷺ
             </span>

@@ -9,13 +9,13 @@ const PdfBookViewer = lazy(() => import("@/components/PdfBookViewer"));
 export const Route = createFileRoute("/books/$bookId")({
   head: ({ params }) => {
     const book = getBook(params.bookId);
-    const title = book ? `${book.title} — مكتبة النفحات` : "كتاب — مكتبة النفحات";
+    const title = book ? `${book.title} — رحاب الخليلية` : "كتاب — رحاب الخليلية";
     return {
       meta: [
         { title },
         {
           name: "description",
-          content: book?.subtitle ?? "قراءة الكتاب في مكتبة النفحات",
+          content: book?.subtitle ?? "قراءة الكتاب في رحاب الخليلية",
         },
         { name: "theme-color", content: "#0d1a14" },
       ],

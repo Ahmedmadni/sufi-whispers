@@ -13,7 +13,7 @@ export const Route = createFileRoute("/quran/page/$page")({
     return { page };
   },
   head: ({ params }) => {
-    const title = `صفحة ${params.page} من المصحف الشريف | مكتبة النفحات`;
+    const title = `صفحة ${params.page} من المصحف الشريف | رحاب الخليلية`;
     const description = `اقرأ الصفحة ${params.page} من المصحف الشريف بالرسم العثماني الرسمي، رواية حفص عن عاصم.`;
     return {
       meta: [

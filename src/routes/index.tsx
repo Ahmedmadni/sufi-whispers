@@ -13,13 +13,13 @@ const FACEBOOK_GROUP_URL = "https://www.facebook.com/share/p/1c2E8HCajb/";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { title: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         name: "description",
         content:
           "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
       },
-      { property: "og:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { property: "og:title", content: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         property: "og:description",
         content:
@@ -27,10 +27,10 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://sufi-whispers.lovable.app/" },
-      { property: "og:site_name", content: "مكتبة النفحات" },
+      { property: "og:site_name", content: "رحاب الخليلية" },
       { property: "og:locale", content: "ar_AR" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "مكتبة النفحات — نفحاتٌ من حضرة سيد السادات ﷺ" },
+      { name: "twitter:title", content: "رحاب الخليلية — نفحاتٌ من حضرة سيد السادات ﷺ" },
       {
         name: "twitter:description",
         content:
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "مكتبة النفحات",
+          name: "رحاب الخليلية",
           url: "https://sufi-whispers.lovable.app/",
           description:
             "بوابة صوفية إلى الطريق الخليلي: مدائح، أوراد، سيرة، مناقب، ومناهل في المعارف والآداب — بروح المسجد النبوي الشريف.",
@@ -134,7 +134,7 @@ function HomePage() {
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
               <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl leading-[1.35] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
-                مكتبة النفحات
+                رحاب الخليلية
               </h1>
               <p className="mt-3 font-display text-gold-soft/85 text-base sm:text-xl">
                 نفحاتٌ من حضرة سيد السادات ﷺ
