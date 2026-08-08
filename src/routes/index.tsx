@@ -7,6 +7,7 @@ import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
+import logo from "@/assets/rihab-logo.png.asset.json";
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/share/p/1c2E8HCajb/";
 
