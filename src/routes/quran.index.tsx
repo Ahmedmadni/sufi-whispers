@@ -117,7 +117,7 @@ function QuranIndexPage() {
                     hash={`aya-${a.aya_no}`}
                     className="block rounded-xl glass border border-gold/15 px-4 py-3 hover:border-gold/40 transition-colors"
                   >
-                    <p className="mushaf-text text-base sm:text-lg text-foreground">{a.aya_text}</p>
+                    <p className="mushaf-text text-[0.95rem] sm:text-[1.05rem] text-foreground">{a.aya_text}</p>
                     <p className="mt-1.5 text-center text-[11px] text-gold-soft/80 font-body">
                       سورة {a.sura_name_ar} — الآية {a.aya_no} — صفحة {a.page}
                     </p>
