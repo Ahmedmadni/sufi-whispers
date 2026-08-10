@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -9,6 +9,8 @@ import {
   quranQueryOptions,
   getSura,
   saveReadingPosition,
+  BASMALA,
+  hasBasmala,
 } from "@/lib/quran";
 
 export const Route = createFileRoute("/quran/surah/$suraNo")({
@@ -45,19 +47,40 @@ export const Route = createFileRoute("/quran/surah/$suraNo")({
 function SurahPage() {
   const { sura } = Route.useLoaderData();
   const { data, isLoading, error } = useQuery(quranQueryOptions);
+  const [pageIdx, setPageIdx] = useState(0);
 
   const ayat = useMemo(() => (data ? getSura(data, sura.no) : []), [data, sura.no]);
 
+  /** Split the sura into mushaf pages, exactly as printed. */
+  const pages = useMemo(() => {
+    const map = new Map<number, typeof ayat>();
+    for (const a of ayat) {
+      const arr = map.get(a.page);
+      if (arr) arr.push(a);
+      else map.set(a.page, [a]);
+    }
+    return Array.from(map.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([page, list]) => ({ page, list }));
+  }, [ayat]);
+
+  useEffect(() => setPageIdx(0), [sura.no]);
+
+  const current = pages[Math.min(pageIdx, Math.max(pages.length - 1, 0))];
+
   useEffect(() => {
-    if (ayat.length > 0) {
+    if (current && current.list.length > 0) {
       saveReadingPosition({
         suraNo: sura.no,
         suraNameAr: sura.nameAr,
-        ayaNo: ayat[0].aya_no,
-        page: ayat[0].page,
+        ayaNo: current.list[0].aya_no,
+        page: current.page,
       });
     }
-  }, [ayat, sura]);
+  }, [current, sura]);
+
+  const goNext = () => setPageIdx((i) => Math.min(i + 1, pages.length - 1));
+  const goPrev = () => setPageIdx((i) => Math.max(i - 1, 0));
 
   const prev = SURA_INDEX.find((s) => s.no === sura.no - 1);
   const next = SURA_INDEX.find((s) => s.no === sura.no + 1);
@@ -76,10 +99,10 @@ function SurahPage() {
           </Link>
           <Link
             to="/quran/page/$page"
-            params={{ page: String(sura.startPage) }}
+            params={{ page: String(current?.page ?? sura.startPage) }}
             className="text-xs text-gold-soft/80 hover:text-gold-soft font-body"
           >
-            عرض الصفحة {sura.startPage}
+            عرض الصفحة {current?.page ?? sura.startPage}
           </Link>
         </div>
 
@@ -103,17 +126,53 @@ function SurahPage() {
           </p>
         )}
 
-        {ayat.length > 0 && (
+        {current && (
           <article className="mt-4 glass rounded-2xl px-3 sm:px-5 py-5">
+            {pageIdx === 0 && hasBasmala(sura.no) && (
+              <p className="mushaf-text mb-4 text-center text-[1.05rem] sm:text-[1.2rem] text-gold-soft [text-align-last:center]">
+                {BASMALA}
+              </p>
+            )}
             <div className="mushaf-text text-[1.05rem] sm:text-[1.2rem] text-foreground">
-
-              {ayat.map((a) => (
+              {current.list.map((a) => (
                 <span key={a.id} id={`aya-${a.aya_no}`} className="inline">
                   {a.aya_text}{" "}
                 </span>
               ))}
             </div>
+            <p className="mt-6 text-center text-[11px] text-gold-soft/70 font-body">
+              صفحة {current.page} — {pageIdx + 1} من {pages.length}
+            </p>
           </article>
+        )}
+
+        {pages.length > 1 && (
+          <nav className="mt-4 flex items-center justify-between gap-2">
+            <button
+              onClick={goNext}
+              disabled={pageIdx >= pages.length - 1}
+              className="inline-flex items-center gap-1 rounded-lg border border-gold/25 px-3 py-2 text-xs font-body text-foreground/85 hover:text-gold-soft disabled:opacity-40"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              الصفحة التالية
+            </button>
+            <button
+              onClick={goNext}
+              disabled={pageIdx >= pages.length - 1}
+              aria-label="الانتقال للصفحة التالية"
+              className="inline-flex items-center justify-center rounded-full border border-gold/25 w-9 h-9 text-gold-soft/80 hover:text-gold-soft disabled:opacity-40"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </button>
+            <button
+              onClick={goPrev}
+              disabled={pageIdx <= 0}
+              className="inline-flex items-center gap-1 rounded-lg border border-gold/25 px-3 py-2 text-xs font-body text-foreground/85 hover:text-gold-soft disabled:opacity-40"
+            >
+              الصفحة السابقة
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </nav>
         )}
 
         <nav className="mt-5 flex items-center justify-between gap-2">
@@ -142,6 +201,7 @@ function SurahPage() {
             <span />
           )}
         </nav>
+
       </main>
       <SiteFooter />
     </div>

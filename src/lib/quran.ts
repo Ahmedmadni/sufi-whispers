@@ -116,3 +116,11 @@ export function readReadingPosition(): ReadingPosition | null {
     return null;
   }
 }
+
+/* ---------- Basmala ---------- */
+
+/** Uthmanic basmala rendered above a sura (never part of the aya text itself). */
+export const BASMALA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ";
+
+/** Al-Fatiha includes it as aya 1; At-Tawba has none. */
+export const hasBasmala = (suraNo: number) => suraNo !== 1 && suraNo !== 9;
