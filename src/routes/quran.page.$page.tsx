@@ -118,14 +118,29 @@ function QuranPageView() {
 
         {ayat.length > 0 && (
           <article className="mt-3 glass rounded-2xl px-3 sm:px-5 py-5">
-            <div className="mushaf-text text-[1.05rem] sm:text-[1.2rem] text-foreground">
-
-              {ayat.map((a) => (
-                <span key={a.id} id={`aya-${a.sura_no}-${a.aya_no}`} className="inline">
-                  {a.aya_text}{" "}
-                </span>
-              ))}
-            </div>
+            {groups.map((g) => (
+              <div key={`${g.suraNo}-${g.list[0].id}`} className="mt-4 first:mt-0">
+                {g.startsSura && (
+                  <>
+                    <p className="font-display text-center text-base sm:text-lg text-gradient-gold">
+                      سورة {g.suraNameAr}
+                    </p>
+                    {hasBasmala(g.suraNo) && (
+                      <p className="mushaf-text my-3 text-center text-[1.05rem] sm:text-[1.2rem] text-gold-soft [text-align-last:center]">
+                        {BASMALA}
+                      </p>
+                    )}
+                  </>
+                )}
+                <div className="mushaf-text text-[1.05rem] sm:text-[1.2rem] text-foreground">
+                  {g.list.map((a) => (
+                    <span key={a.id} id={`aya-${a.sura_no}-${a.aya_no}`} className="inline">
+                      {a.aya_text}{" "}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
             <p className="mt-6 text-center text-[11px] text-gold-soft/70 font-body">
               صفحة {page} من {MAX_PAGE}
             </p>
@@ -142,6 +157,14 @@ function QuranPageView() {
             الصفحة التالية
           </button>
           <button
+            onClick={() => go(page + 1)}
+            disabled={page >= MAX_PAGE}
+            aria-label="الانتقال للصفحة التالية"
+            className="inline-flex items-center justify-center rounded-full border border-gold/25 w-9 h-9 text-gold-soft/80 hover:text-gold-soft disabled:opacity-40"
+          >
+            <ChevronDown className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => go(page - 1)}
             disabled={page <= 1}
             className="inline-flex items-center gap-1 rounded-lg border border-gold/25 px-3 py-2 text-xs font-body text-foreground/85 hover:text-gold-soft disabled:opacity-40"
@@ -150,6 +173,7 @@ function QuranPageView() {
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </nav>
+
       </main>
       <SiteFooter />
     </div>
