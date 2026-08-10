@@ -1,10 +1,18 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { MAX_PAGE, quranQueryOptions, getPage, saveReadingPosition } from "@/lib/quran";
+import {
+  MAX_PAGE,
+  quranQueryOptions,
+  getPage,
+  saveReadingPosition,
+  BASMALA,
+  hasBasmala,
+  type Aya,
+} from "@/lib/quran";
 
 export const Route = createFileRoute("/quran/page/$page")({
   loader: ({ params }): { page: number } => {
@@ -64,6 +72,23 @@ function QuranPageView() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   });
+
+  /** Consecutive runs of ayat belonging to the same sura on this page. */
+  const groups = useMemo(() => {
+    const out: { suraNo: number; suraNameAr: string; startsSura: boolean; list: Aya[] }[] = [];
+    for (const a of ayat) {
+      const last = out[out.length - 1];
+      if (last && last.suraNo === a.sura_no) last.list.push(a);
+      else
+        out.push({
+          suraNo: a.sura_no,
+          suraNameAr: a.sura_name_ar,
+          startsSura: a.aya_no === 1,
+          list: [a],
+        });
+    }
+    return out;
+  }, [ayat]);
 
   const suraNames = useMemo(
     () => Array.from(new Set(ayat.map((a) => a.sura_name_ar))),
