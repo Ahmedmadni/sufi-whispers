@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -9,6 +9,8 @@ import {
   quranQueryOptions,
   getSura,
   saveReadingPosition,
+  BASMALA,
+  hasBasmala,
 } from "@/lib/quran";
 
 export const Route = createFileRoute("/quran/surah/$suraNo")({
