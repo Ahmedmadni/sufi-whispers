@@ -49,9 +49,10 @@
   --color-velvet: var(--velvet);
   --color-beige: var(--beige);
 
-  --font-display: "Amiri", "Cairo", Georgia, serif;
+  --font-display: "Cairo", "Amiri", Georgia, serif;
   --font-quran: "Cairo", "Amiri", system-ui, sans-serif;
-  --font-body: "Cairo", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans Arabic", "Cairo", system-ui, sans-serif;
+
   --font-uthmani: "UthmanicHafs", "Cairo", serif;
 }
 
