@@ -45,7 +45,9 @@ export function SiteHeader() {
           >
             المصحف
           </Link>
+          <ThemeToggle />
         </nav>
+
       </div>
     </header>
   );
