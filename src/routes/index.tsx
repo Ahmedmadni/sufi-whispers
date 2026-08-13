@@ -5,6 +5,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
+import { SurahVirtues } from "@/components/SurahVirtues";
+
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
 import logo from "@/assets/rihab-logo.png.asset.json";
