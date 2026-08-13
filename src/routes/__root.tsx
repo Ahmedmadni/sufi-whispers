@@ -100,6 +100,11 @@ function RootShell({ children }: { children: React.ReactNode }) {
     <html lang="ar" dir="rtl">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('rihab-theme')||'dark';document.documentElement.classList.add(t);}catch(e){}`,
+          }}
+        />
       </head>
       <body>
         {children}
