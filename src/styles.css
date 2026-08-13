@@ -292,3 +292,194 @@
   }
   .animate-glow-pulse { animation: glow-pulse 4s ease-in-out infinite; }
 }
+
+/* ============================================================
+   الوضع النهاري — Paper Craft / Cut-Paper aesthetic
+   ============================================================ */
+.light {
+  /* Paper stack */
+  --background: oklch(0.968 0.028 92);      /* cream #FDF6E3 */
+  --foreground: oklch(0.31 0.028 68);       /* warm brown #3D3327 */
+
+  --card: oklch(0.99 0.008 95 / 0.96);      /* soft white #FEFDFB */
+  --card-foreground: oklch(0.31 0.028 68);
+  --popover: oklch(0.99 0.008 95);
+  --popover-foreground: oklch(0.31 0.028 68);
+
+  --primary: oklch(0.56 0.16 27);           /* construction red #D64545 */
+  --primary-foreground: oklch(0.99 0.008 95);
+
+  --secondary: oklch(0.83 0.038 82);        /* kraft tan #D4C4A8 */
+  --secondary-foreground: oklch(0.31 0.028 68);
+
+  --muted: oklch(0.91 0.03 88);
+  --muted-foreground: oklch(0.45 0.03 70);
+
+  --accent: oklch(0.56 0.07 220);           /* paper blue #4A7C8C */
+  --accent-foreground: oklch(0.99 0.008 95);
+
+  --destructive: oklch(0.56 0.16 27);
+  --destructive-foreground: oklch(0.99 0.008 95);
+
+  --border: oklch(0.83 0.038 82);
+  --input: oklch(0.83 0.038 82);
+  --ring: oklch(0.56 0.07 220 / 0.5);
+
+  /* Brand tokens remapped to construction paper colours */
+  --gold: oklch(0.56 0.07 220);             /* accents = paper blue */
+  --gold-soft: oklch(0.42 0.06 222);
+  --emerald-deep: oklch(0.55 0.09 145);     /* paper green #5B8C5A */
+  --emerald-glow: oklch(0.66 0.11 145);
+  --velvet: oklch(0.83 0.038 82);           /* kraft tan surfaces */
+  --beige: oklch(0.99 0.008 95);
+
+  --paper-red: oklch(0.56 0.16 27);
+  --paper-yellow: oklch(0.84 0.14 92);
+  --paper-shadow: 60 50 40;
+
+  --gradient-gold: linear-gradient(135deg, oklch(0.56 0.07 220), oklch(0.42 0.06 222), oklch(0.55 0.09 145));
+  --shadow-gold: 0 6px 0 -2px rgb(212 196 168 / 0.9), 0 10px 18px -8px rgb(60 50 40 / 0.22);
+  --shadow-soft: 0 8px 20px -10px rgb(60 50 40 / 0.28);
+
+  --font-display: "Amiri", "Merriweather", Georgia, serif;
+  --font-body: "Cairo", "Nunito", system-ui, sans-serif;
+  --font-quran: "Cairo", "Amiri", system-ui, sans-serif;
+}
+
+/* Paper grain + fold lines on the page itself */
+.light body {
+  background-color: var(--color-background);
+  background-image:
+    /* subtle fold line */
+    linear-gradient(90deg, transparent 49.6%, rgb(60 50 40 / 0.05) 50%, transparent 50.4%),
+    /* paper grain */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-attachment: fixed, fixed;
+}
+
+.light ::selection {
+  background: rgb(230 200 75 / 0.45);
+  color: var(--color-foreground);
+}
+.light ::-webkit-scrollbar-track { background: oklch(0.93 0.03 90); }
+.light ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--secondary), var(--gold));
+}
+
+/* Cards become paper sheets: stacked layers, cast shadow between sheets */
+.light .glass {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"),
+    oklch(0.99 0.008 95);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgb(60 50 40 / 0.10);
+  box-shadow:
+    3px 3px 0 0 oklch(0.96 0.02 92),
+    4px 4px 0 1px rgb(60 50 40 / 0.10),
+    7px 8px 0 0 oklch(0.83 0.038 82),
+    8px 12px 18px -10px rgb(60 50 40 / 0.22);
+}
+
+.light .glass-gold {
+  background:
+    linear-gradient(180deg, oklch(0.93 0.06 220 / 0.5), oklch(0.90 0.05 220 / 0.35)),
+    oklch(0.99 0.008 95);
+  backdrop-filter: none;
+  border: 1px solid rgb(74 124 140 / 0.35);
+  box-shadow:
+    3px 4px 0 0 rgb(212 196 168 / 0.85),
+    5px 8px 14px -8px rgb(60 50 40 / 0.25);
+}
+
+.light .glow-gold {
+  box-shadow:
+    0 0 0 1px rgb(74 124 140 / 0.25),
+    4px 6px 0 0 rgb(212 196 168 / 0.8),
+    6px 10px 16px -8px rgb(60 50 40 / 0.22);
+}
+
+.light .pattern-islamic {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgb(60 50 40 / 0.08) 1px, transparent 0);
+}
+
+/* Torn / deckled divider instead of the gold hairline */
+.light .ornament-divider {
+  background: linear-gradient(90deg, transparent, var(--secondary) 15%, var(--secondary) 85%, transparent);
+  height: 6px;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='6' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q5 0 10 3 T20 3 T30 3 T40 3 V6 H0 Z' fill='%23000'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='6' preserveAspectRatio='none'%3E%3Cpath d='M0 3 Q5 0 10 3 T20 3 T30 3 T40 3 V6 H0 Z' fill='%23000'/%3E%3C/svg%3E");
+  -webkit-mask-size: 40px 6px;
+  mask-size: 40px 6px;
+}
+.light .ornament-divider::before {
+  background: var(--background);
+  color: var(--gold);
+}
+
+/* Buttons / links behave like paper tags that lift */
+.light .hover-scale:hover { transform: translateY(-4px); }
+
+@layer utilities {
+  /* Paper tag: small label sheet with a lift on hover */
+  .paper-tag {
+    transition: transform 300ms ease-out, box-shadow 300ms ease-out;
+  }
+  .light .paper-tag {
+    background: oklch(0.99 0.008 95);
+    border-color: rgb(60 50 40 / 0.14);
+    box-shadow: 2px 3px 0 0 rgb(212 196 168 / 0.9), 3px 5px 8px -5px rgb(60 50 40 / 0.22);
+  }
+  .light .paper-tag:hover {
+    transform: translateY(-4px);
+    box-shadow: 3px 5px 0 0 rgb(212 196 168 / 0.95), 5px 10px 14px -6px rgb(60 50 40 / 0.28);
+  }
+  .light .paper-tag:active {
+    transform: translateY(0);
+    box-shadow: 1px 2px 0 0 rgb(212 196 168 / 0.9);
+  }
+
+  /* Washi tape strip — attach it to the top of a paper sheet */
+  .washi-tape { display: none; }
+  .light .washi-tape {
+    display: block;
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 92px;
+    height: 22px;
+    transform: translateX(-50%) rotate(-2deg);
+    background: repeating-linear-gradient(
+      45deg,
+      rgb(230 200 75 / 0.55) 0 8px,
+      rgb(212 196 168 / 0.55) 8px 16px
+    );
+    border-left: 1px dashed rgb(60 50 40 / 0.15);
+    border-right: 1px dashed rgb(60 50 40 / 0.15);
+    box-shadow: 0 2px 4px -2px rgb(60 50 40 / 0.25);
+    pointer-events: none;
+  }
+
+  /* Pushpin accent */
+  .pushpin { display: none; }
+  .light .pushpin {
+    display: block;
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 10px;
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, oklch(0.75 0.16 27), oklch(0.5 0.17 27));
+    box-shadow: 1px 2px 3px rgb(60 50 40 / 0.35);
+    pointer-events: none;
+  }
+
+  /* Slight handmade rotation for stacked paper elements */
+  .light .paper-tilt { transform: rotate(-1deg); }
+  .light .paper-tilt-alt { transform: rotate(1.5deg); }
+}
+
+/* Mushaf sheet reads like printed paper in day mode */
+.light .mushaf-text { color: var(--foreground); }
