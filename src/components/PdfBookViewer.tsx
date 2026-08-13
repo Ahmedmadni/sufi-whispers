@@ -53,9 +53,33 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     localStorage.setItem(SENS_KEY, String(swipeThreshold));
   }, [swipeThreshold]);
 
+  // Resume last reading position per book
+  const POS_KEY = `reader.page.${bookId}`;
+  const restored = useRef(false);
+  useEffect(() => {
+    restored.current = false;
+    try {
+      const v = Number(localStorage.getItem(`reader.page.${bookId}`));
+      if (v && v >= 1) setPage(v);
+      else setPage(1);
+    } catch {
+      /* ignore */
+    }
+    restored.current = true;
+  }, [bookId]);
+  useEffect(() => {
+    if (!restored.current) return;
+    try {
+      localStorage.setItem(POS_KEY, String(page));
+    } catch {
+      /* ignore */
+    }
+  }, [POS_KEY, page]);
+
   useEffect(() => {
     setInput(String(page));
   }, [page]);
+
 
   // Light haptic feedback on every successful page change (mobile only)
   useEffect(() => {

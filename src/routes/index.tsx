@@ -5,6 +5,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
+import { SurahVirtues } from "@/components/SurahVirtues";
+
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
 import logo from "@/assets/rihab-logo.png.asset.json";
@@ -244,8 +246,12 @@ function HomePage() {
         </div>
       </section>
 
+      {/* ============ SURAH VIRTUES ============ */}
+      <SurahVirtues />
+
       {/* ============ SHAYKH ============ */}
       <section
+
         id="shaykh"
         dir="rtl"
         className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16"
