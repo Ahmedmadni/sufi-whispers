@@ -69,7 +69,8 @@ function BookPreview({ book }: { book: Book }) {
 }
 
 function BookPage() {
-  const { book } = Route.useLoaderData();
+  const { bookId } = Route.useParams();
+  const book = getBook(bookId) as Book;
   const [mounted, setMounted] = useState(false);
   // Delay mounting the heavy PDF viewer for one frame so the preview
   // paints instantly with the cover and title.
