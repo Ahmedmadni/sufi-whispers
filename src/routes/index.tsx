@@ -246,8 +246,12 @@ function HomePage() {
         </div>
       </section>
 
+      {/* ============ SURAH VIRTUES ============ */}
+      <SurahVirtues />
+
       {/* ============ SHAYKH ============ */}
       <section
+
         id="shaykh"
         dir="rtl"
         className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16"
