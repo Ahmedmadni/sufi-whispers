@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/rihab-logo.png.asset.json";
 
 export function SiteHeader() {
