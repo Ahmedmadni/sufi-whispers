@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ShaykhRouteImport } from './routes/shaykh'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
 import { Route as QuranSurahSuraNoRouteImport } from './routes/quran.surah.$suraNo'
 import { Route as QuranPagePageRouteImport } from './routes/quran.page.$page'
 
+const ShaykhRoute = ShaykhRouteImport.update({
+  id: '/shaykh',
+  path: '/shaykh',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
+  '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
   '/quran/': typeof QuranIndexRoute
   '/quran/page/$page': typeof QuranPagePageRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
+  '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
   '/quran': typeof QuranIndexRoute
   '/quran/page/$page': typeof QuranPagePageRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/library': typeof LibraryRoute
+  '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
   '/quran/': typeof QuranIndexRoute
   '/quran/page/$page': typeof QuranPagePageRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/library'
+    | '/shaykh'
     | '/books/$bookId'
     | '/quran/'
     | '/quran/page/$page'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/library'
+    | '/shaykh'
     | '/books/$bookId'
     | '/quran'
     | '/quran/page/$page'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/library'
+    | '/shaykh'
     | '/books/$bookId'
     | '/quran/'
     | '/quran/page/$page'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   LibraryRoute: typeof LibraryRoute
+  ShaykhRoute: typeof ShaykhRoute
   BooksBookIdRoute: typeof BooksBookIdRoute
   QuranIndexRoute: typeof QuranIndexRoute
   QuranPagePageRoute: typeof QuranPagePageRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/shaykh': {
+      id: '/shaykh'
+      path: '/shaykh'
+      fullPath: '/shaykh'
+      preLoaderRoute: typeof ShaykhRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library': {
       id: '/library'
       path: '/library'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   LibraryRoute: LibraryRoute,
+  ShaykhRoute: ShaykhRoute,
   BooksBookIdRoute: BooksBookIdRoute,
   QuranIndexRoute: QuranIndexRoute,
   QuranPagePageRoute: QuranPagePageRoute,
