@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook } from "lucide-react";
+import { SalawatRotator } from "@/components/Salawat";
+
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/groups/alkhaleelih/";
 
@@ -39,9 +41,7 @@ export function SiteFooter() {
           </a>
         </nav>
 
-        <p className="mt-4 text-[11px] sm:text-xs text-muted-foreground font-body">
-          ﷺ اللهم صلِّ وسلم وبارك على سيدنا محمد وعلى آله وصحبه أجمعين
-        </p>
+        <SalawatRotator className="mt-4 text-[11px] sm:text-xs text-gold-soft/85 font-body leading-7" />
       </div>
     </footer>
   );
