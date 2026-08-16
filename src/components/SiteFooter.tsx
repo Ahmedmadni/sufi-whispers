@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook } from "lucide-react";
+import { SalawatRotator } from "@/components/Salawat";
+
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/groups/alkhaleelih/";
 
