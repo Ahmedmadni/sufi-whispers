@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShaykhRouteImport } from './routes/shaykh'
 import { Route as LibraryRouteImport } from './routes/library'
+import { Route as DhikrRouteImport } from './routes/dhikr'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as QuranIndexRouteImport } from './routes/quran.index'
@@ -26,6 +27,11 @@ const ShaykhRoute = ShaykhRouteImport.update({
 const LibraryRoute = LibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DhikrRoute = DhikrRouteImport.update({
+  id: '/dhikr',
+  path: '/dhikr',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -62,6 +68,7 @@ const QuranPagePageRoute = QuranPagePageRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dhikr': typeof DhikrRoute
   '/library': typeof LibraryRoute
   '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dhikr': typeof DhikrRoute
   '/library': typeof LibraryRoute
   '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/dhikr': typeof DhikrRoute
   '/library': typeof LibraryRoute
   '/shaykh': typeof ShaykhRoute
   '/books/$bookId': typeof BooksBookIdRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/dhikr'
     | '/library'
     | '/shaykh'
     | '/books/$bookId'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/dhikr'
     | '/library'
     | '/shaykh'
     | '/books/$bookId'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/dhikr'
     | '/library'
     | '/shaykh'
     | '/books/$bookId'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  DhikrRoute: typeof DhikrRoute
   LibraryRoute: typeof LibraryRoute
   ShaykhRoute: typeof ShaykhRoute
   BooksBookIdRoute: typeof BooksBookIdRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/library'
       preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dhikr': {
+      id: '/dhikr'
+      path: '/dhikr'
+      fullPath: '/dhikr'
+      preLoaderRoute: typeof DhikrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  DhikrRoute: DhikrRoute,
   LibraryRoute: LibraryRoute,
   ShaykhRoute: ShaykhRoute,
   BooksBookIdRoute: BooksBookIdRoute,
