@@ -7,6 +7,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
 import { ResumeBar } from "@/components/ResumeBar";
+import { DhikrCard } from "@/components/DhikrCard";
+
 
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
