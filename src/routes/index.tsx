@@ -7,6 +7,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
 import { Particles } from "@/components/Particles";
 import { ResumeBar } from "@/components/ResumeBar";
+import { DhikrCard } from "@/components/DhikrCard";
+
 
 import { books } from "@/data/books";
 import heroNabawi from "@/assets/hero-nabawi.jpg";
@@ -215,6 +217,13 @@ function HomePage() {
 
       {/* ============ RESUME ============ */}
       <ResumeBar />
+
+      {/* ============ WIRD OF THE HOUR ============ */}
+      <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 pt-6" dir="rtl">
+        <DhikrCard />
+      </section>
+
+
 
       {/* ============ QUICK ACCESS ============ */}
       <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-8 sm:py-12" dir="rtl">
