@@ -216,6 +216,13 @@ function HomePage() {
       {/* ============ RESUME ============ */}
       <ResumeBar />
 
+      {/* ============ WIRD OF THE HOUR ============ */}
+      <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 pt-6" dir="rtl">
+        <DhikrCard />
+      </section>
+
+
+
       {/* ============ QUICK ACCESS ============ */}
       <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-8 sm:py-12" dir="rtl">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
