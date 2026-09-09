@@ -45,7 +45,7 @@ export function HomeHero() {
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 4.7, duration: 1.15, ease: "easeOut" }}
-        className="hero-shaykh absolute bottom-0 right-[-12%] z-10 h-[57%] w-auto max-w-[62%] object-contain object-bottom drop-shadow-2xl sm:right-[2%] sm:h-[78%] sm:max-w-[45%]"
+        className="hero-shaykh absolute bottom-0 right-[-12%] z-10 h-[57%] w-auto max-w-[62%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_left,black_78%,transparent_99%)] sm:right-[2%] sm:h-[78%] sm:max-w-[45%]"
       />
 
       <motion.div
