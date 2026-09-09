@@ -556,12 +556,12 @@ html { font-size: calc(100% * var(--reader-scale, 1)); }
 }
 
 .hero-logo-draw img {
-  clip-path: inset(0 100% 0 0);
+  clip-path: inset(0 0 0 100%);
   animation: logo-draw 2.4s cubic-bezier(0.6, 0, 0.2, 1) 0.3s forwards;
   filter: drop-shadow(0 8px 34px rgb(200 160 80 / 0.4));
 }
 @keyframes logo-draw {
-  0% { clip-path: inset(0 100% 0 0); opacity: 0.4; }
+  0% { clip-path: inset(0 0 0 100%); opacity: 0.4; }
   30% { opacity: 1; }
   100% { clip-path: inset(0 0 0 0); opacity: 1; }
 }
