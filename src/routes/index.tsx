@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { BookOpen, Facebook, Sparkles, Feather, Star } from "lucide-react";
+import { BookOpen, Facebook, Sparkles, Feather, BookMarked, Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ResumeBar } from "@/components/ResumeBar";
