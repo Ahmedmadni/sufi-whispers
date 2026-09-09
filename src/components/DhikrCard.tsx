@@ -8,9 +8,11 @@ import { useDhikr, formatNumber } from "@/lib/dhikr-store";
 /** بطاقة «ورد هذه الساعة» في الصفحة الرئيسية. */
 export function DhikrCard() {
   const { hydrated, active, activeProgress, state } = useDhikr();
-  const [wird, setWird] = useState(() => currentWird());
+  // Fixed initial date keeps SSR and first client render identical (no hydration mismatch)
+  const [wird, setWird] = useState(() => currentWird(new Date(2000, 0, 1, 12)));
 
   useEffect(() => {
+    setWird(currentWird());
     const id = setInterval(() => setWird(currentWird()), 60000);
     return () => clearInterval(id);
   }, []);
