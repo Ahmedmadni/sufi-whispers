@@ -42,10 +42,10 @@ export function HomeHero() {
         alt="فضيلة الشيخ صالح أبو خليل"
         width={848}
         height={1264}
-        initial={{ opacity: 0, x: 30 }}
+        initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 4.7, duration: 1.15, ease: "easeOut" }}
-        className="hero-shaykh absolute bottom-0 right-[-12%] z-10 h-[57%] w-auto max-w-[62%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_left,black_78%,transparent_99%)] sm:right-[2%] sm:h-[78%] sm:max-w-[45%]"
+        className="hero-shaykh absolute bottom-0 left-[-12%] z-10 h-[57%] w-auto max-w-[62%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_right,black_78%,transparent_99%)] sm:left-[2%] sm:h-[78%] sm:max-w-[45%]"
       />
 
       <motion.div
@@ -54,7 +54,7 @@ export function HomeHero() {
         transition={{ delay: 4.9, duration: 0.9 }}
         className="relative z-20 mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-6xl items-start px-4 pb-24 pt-10 sm:items-center sm:px-8 sm:pb-20 sm:pt-12"
       >
-        <div className="mr-auto w-full max-w-2xl text-center sm:w-[58%] sm:text-right">
+        <div className="ml-auto w-full max-w-2xl text-center sm:w-[58%] sm:text-right">
           <p className="mb-3 font-quran text-base text-gold-soft sm:text-xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
           <h1 id="home-title" className="font-display text-3xl font-bold leading-[1.55] text-gradient-gold sm:text-5xl lg:text-6xl">
             الجمعية الخليلية الإسلامية
