@@ -1,18 +1,14 @@
 import { lazy, Suspense } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { BookOpen, Facebook, Sparkles, Moon, Feather, BookMarked, Star } from "lucide-react";
+import { BookOpen, Facebook, Sparkles, Feather, Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Ornament } from "@/components/Decorations";
-import { Particles } from "@/components/Particles";
 import { ResumeBar } from "@/components/ResumeBar";
 import { DhikrCard } from "@/components/DhikrCard";
-
+import { HomeHero } from "@/components/HomeHero";
 
 import { books } from "@/data/books";
-import heroNabawi from "@/assets/hero-nabawi.jpg";
-import logo from "@/assets/rihab-logo.png.asset.json";
 
 const SurahVirtues = lazy(() =>
   import("@/components/SurahVirtues").then((m) => ({ default: m.SurahVirtues })),
@@ -108,112 +104,7 @@ function HomePage() {
       <SiteHeader />
 
       {/* ============ HERO ============ */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src={heroNabawi}
-            alt="المسجد النبوي الشريف"
-            width={1920}
-            height={1200}
-            decoding="async"
-            fetchPriority="high"
-            className="w-full h-full object-cover object-center opacity-70"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-velvet/40 via-velvet/60 to-velvet" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,var(--velvet)_85%)]" />
-        </div>
-
-        <Particles count={16} />
-
-        <div className="relative z-10 mx-auto max-w-5xl px-4 sm:px-6 pt-10 sm:pt-20 pb-16 sm:pb-28 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="mx-auto mb-5 flex w-fit items-center gap-2 rounded-full glass-gold px-4 py-1.5 text-[11px] sm:text-xs font-body text-gold-soft"
-          >
-            <Moon className="w-3.5 h-3.5" />
-            <span>على منهاج السلف من أهل الله</span>
-          </motion.div>
-
-          <div className="relative mx-auto max-w-2xl">
-            {/* Mihrab arch */}
-            <svg
-              viewBox="0 0 400 480"
-              className="absolute inset-x-0 -top-4 mx-auto w-full h-auto text-gold/40 pointer-events-none"
-              aria-hidden="true"
-            >
-              <defs>
-                <linearGradient id="archGold" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor="currentColor" stopOpacity="0.15" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M40 470 L40 200 Q40 40 200 40 Q360 40 360 200 L360 470"
-                fill="none"
-                stroke="url(#archGold)"
-                strokeWidth="1.2"
-              />
-              <circle cx="200" cy="40" r="4" fill="currentColor" />
-            </svg>
-
-            <div className="relative py-7 sm:py-11 px-4 sm:px-8">
-              <p className="font-quran text-gold-soft/90 text-sm sm:text-base mb-3">
-                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-              </p>
-              <img
-                src={logo.url}
-                alt="شعار الجمعية الخليلية الإسلامية"
-                width={320}
-                height={380}
-                decoding="async"
-                className="mx-auto w-36 sm:w-52 h-auto object-contain drop-shadow-[0_6px_30px_rgba(200,160,80,0.35)]"
-              />
-              <h1 className="mt-4 font-display text-2xl sm:text-4xl lg:text-5xl leading-[1.5] text-gradient-gold drop-shadow-[0_2px_20px_rgba(200,160,80,0.35)]">
-                الجمعية الخليلية الإسلامية
-              </h1>
-              <p className="mt-2 font-display text-gold-soft/85 text-sm sm:text-lg leading-8">
-                تحت لواء شيخها {SHAYKH_FULL_NAME}
-              </p>
-
-              <div className="my-5 flex items-center justify-center">
-                <Ornament className="w-36 sm:w-52 text-gold" />
-              </div>
-              <p className="mx-auto max-w-xl text-sm sm:text-base leading-8 font-body text-foreground/85">
-                منصّةٌ رقميّة تجمع المصحف الشريف كاملاً، وكتب الطريق الخليلي
-                وأوراده، وفضائل السُّور — للقراءة على الهاتف في أي وقت.
-              </p>
-
-              <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                <Link
-                  to="/quran"
-                  className="inline-flex items-center gap-2 rounded-lg glass-gold px-5 py-2.5 text-sm sm:text-base font-body text-gold-soft glow-gold hover:scale-105 transition-transform"
-                >
-                  <BookMarked className="w-4 h-4" />
-                  <span>المصحف الشريف</span>
-                </Link>
-                <Link
-                  to="/library"
-                  className="inline-flex items-center gap-2 rounded-lg border border-gold/30 px-5 py-2.5 text-sm sm:text-base font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
-                >
-                  <BookOpen className="w-4 h-4" />
-                  <span>المكتبة</span>
-                </Link>
-                <Link
-                  to="/shaykh"
-                  className="inline-flex items-center gap-2 rounded-lg border border-gold/20 px-4 py-2.5 text-sm font-body text-foreground/75 hover:text-gold-soft hover:border-gold/60 transition-colors"
-                >
-                  <Feather className="w-4 h-4" />
-                  <span>نبذة عن الشيخ</span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-b from-transparent to-velvet pointer-events-none" />
-      </section>
+      <HomeHero />
 
       {/* ============ RESUME ============ */}
       <ResumeBar />
