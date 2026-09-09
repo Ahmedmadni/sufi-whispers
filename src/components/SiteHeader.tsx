@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { FontSizeControl } from "@/components/FontSizeControl";
 import logo from "@/assets/rihab-logo.png.asset.json";
 
 const linkClass =
@@ -40,6 +41,7 @@ export function SiteHeader() {
           <Link to="/shaykh" activeProps={activeClass} className={linkClass}>
             الشيخ
           </Link>
+          <FontSizeControl />
           <ThemeToggle />
         </nav>
       </div>
