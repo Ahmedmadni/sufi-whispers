@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { FontSizeControl } from "@/components/FontSizeControl";
-import logo from "@/assets/rihab-logo.png.asset.json";
+import logo from "@/assets/rihab-logo-clean.png";
 
 const linkClass =
   "rounded-md px-2 sm:px-2.5 py-1.5 text-foreground/80 hover:text-gold-soft transition-colors whitespace-nowrap";
@@ -13,7 +13,7 @@ export function SiteHeader() {
       <div className="mx-auto max-w-5xl px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
         <Link to="/" className="flex items-center gap-2 min-w-0 group">
           <img
-            src={logo.url}
+            src={logo}
             alt="شعار الجمعية الخليلية الإسلامية"
             width={36}
             height={36}
