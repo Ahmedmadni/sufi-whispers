@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { BookMarked, BookOpen, Feather } from "lucide-react";
-import logo from "@/assets/rihab-logo.png.asset.json";
+import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
 
@@ -28,7 +28,7 @@ export function HomeHero() {
       <div className="hero-intro absolute inset-0 z-30 grid place-items-center bg-velvet px-5 text-center" aria-hidden="true">
         <div>
           <div className="hero-logo-draw relative mx-auto w-44 sm:w-60">
-            <img src={logo.url} alt="" width={320} height={380} className="h-auto w-full object-contain" />
+            <img src={logo} alt="" width={320} height={380} className="h-auto w-full object-contain" />
             <span className="hero-logo-sheen absolute inset-0" />
           </div>
           <p className="hero-typewriter mt-5 overflow-hidden whitespace-nowrap font-display text-xl text-gold-soft sm:text-3xl">
