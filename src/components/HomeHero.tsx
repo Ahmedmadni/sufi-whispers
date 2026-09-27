@@ -29,7 +29,19 @@ export function HomeHero() {
         <div>
           <div className="hero-logo-draw relative mx-auto w-44 sm:w-60">
             <img src={logo} alt="" width={320} height={380} className="h-auto w-full object-contain" />
-            <span className="hero-logo-sheen absolute inset-0" />
+            <span
+              className="hero-logo-sheen absolute inset-0"
+              style={{
+                WebkitMaskImage: `url(${logo})`,
+                maskImage: `url(${logo})`,
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+              }}
+            />
           </div>
           <p className="hero-typewriter mt-5 overflow-hidden whitespace-nowrap font-display text-xl text-gold-soft sm:text-3xl">
             الجمعية الخليلية الإسلامية
