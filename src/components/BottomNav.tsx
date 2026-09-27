@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Home, BookMarked, BookOpen, Feather, Sparkles } from "lucide-react";
+import { Home, BookMarked, BookOpen, Feather } from "lucide-react";
+import { TasbihIcon } from "@/components/TasbihIcon";
 
 const item =
   "flex flex-1 flex-col items-center justify-center gap-0.5 py-1.5 text-[10px] font-body text-foreground/65 transition-colors";
@@ -28,7 +29,7 @@ export function BottomNav() {
           className="relative flex flex-1 flex-col items-center justify-end pb-1.5 text-[10px] font-body text-foreground/75"
         >
           <span className="bottom-nav-fab">
-            <Sparkles className="w-5 h-5" />
+            <TasbihIcon className="w-5 h-5" />
           </span>
           <span className="mt-0.5">الذكر</span>
         </Link>

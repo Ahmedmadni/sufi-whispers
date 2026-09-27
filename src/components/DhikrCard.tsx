@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Sparkles, Clock, ChevronLeft } from "lucide-react";
+import { Clock, ChevronLeft } from "lucide-react";
+import { TasbihIcon } from "@/components/TasbihIcon";
 import { useEffect, useState } from "react";
 import { currentWird, NAME_TARGET } from "@/data/dhikr";
 import { useDhikr, formatNumber } from "@/lib/dhikr-store";
@@ -30,7 +31,7 @@ export function DhikrCard() {
       >
         <div className="flex items-center justify-between gap-3">
           <span className="inline-flex items-center gap-2 text-gold-soft font-display text-base sm:text-lg">
-            <Sparkles className="w-4 h-4 shrink-0" />
+            <TasbihIcon className="w-4 h-4 shrink-0" />
             ورد هذه الساعة
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-body shrink-0">
