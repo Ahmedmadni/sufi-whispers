@@ -6,7 +6,6 @@ import {
   Play,
   Pause,
   RotateCcw,
-  Sparkles,
   Timer,
   Gauge,
   Flame,
@@ -24,6 +23,7 @@ import {
   WIRD_ASMA,
 } from "@/data/dhikr";
 import { useDhikr, formatDuration, formatNumber, MILESTONES } from "@/lib/dhikr-store";
+import { TasbihIcon } from "@/components/TasbihIcon";
 
 const TITLE = "لوحة الذكر — الجمعية الخليلية الإسلامية";
 const DESCRIPTION =
@@ -97,7 +97,7 @@ function DhikrPage() {
       <main className="mx-auto w-full max-w-3xl px-3 sm:px-6 py-5 sm:py-8 space-y-5">
         <header className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full glass-gold px-4 py-1.5 text-[11px] font-body text-gold-soft">
-            <Sparkles className="w-3.5 h-3.5" />
+            <TasbihIcon className="w-3.5 h-3.5" />
             أوراد الطريق الخليلي
           </span>
           <h1 className="mt-3 font-display text-2xl sm:text-3xl text-gradient-gold leading-[1.6]">
