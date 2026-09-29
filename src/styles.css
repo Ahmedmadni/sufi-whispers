@@ -60,18 +60,18 @@
   --radius: 0.875rem;
 
   /* Core palette — Velvet Black canvas */
-  --background: oklch(0.13 0.012 150);
-  --foreground: oklch(0.94 0.02 80);
+  --background: #101D1A;
+  --foreground: #F4EAD7;
 
   --card: oklch(0.18 0.022 155 / 0.55);
   --card-foreground: oklch(0.94 0.02 80);
   --popover: oklch(0.16 0.02 155);
   --popover-foreground: oklch(0.94 0.02 80);
 
-  --primary: oklch(0.78 0.12 80);          /* Antique Gold */
-  --primary-foreground: oklch(0.15 0.02 155);
+  --primary: #D3AB62;
+  --primary-foreground: #101D1A;
 
-  --secondary: oklch(0.32 0.06 160);
+  --secondary: #245548;
   --secondary-foreground: oklch(0.94 0.02 80);
 
   --muted: oklch(0.22 0.02 155);
@@ -88,11 +88,11 @@
   --ring: oklch(0.78 0.12 80 / 0.6);
 
   /* Named brand tokens */
-  --gold: oklch(0.78 0.12 80);
+  --gold: #D3AB62;
   --gold-soft: oklch(0.88 0.08 85);
-  --emerald-deep: oklch(0.28 0.06 160);
+  --emerald-deep: #245548;
   --emerald-glow: oklch(0.55 0.13 160);
-  --velvet: oklch(0.09 0.008 150);
+  --velvet: #101D1A;
   --beige: oklch(0.91 0.04 80);
 
   --gradient-gold: linear-gradient(135deg, oklch(0.88 0.08 85), oklch(0.72 0.13 75), oklch(0.88 0.08 85));
@@ -545,11 +545,11 @@
 html { font-size: calc(100% * var(--reader-scale, 1)); }
 
 /* ===== Home hero intro sequence ===== */
-.hero-scene { opacity: 0; animation: hero-scene-in 1.6s ease-out 4.2s forwards; }
+.hero-scene { opacity: 0; animation: hero-scene-in 0.7s ease-out 2.1s forwards; }
 @keyframes hero-scene-in { to { opacity: 1; } }
 
 .hero-intro {
-  animation: hero-intro-out 0.9s ease-in 3.6s forwards;
+  animation: hero-intro-out 0.55s ease-in 1.85s forwards;
 }
 @keyframes hero-intro-out {
   to { opacity: 0; visibility: hidden; }
@@ -557,7 +557,7 @@ html { font-size: calc(100% * var(--reader-scale, 1)); }
 
 .hero-logo-draw img {
   clip-path: inset(0 0 0 100%);
-  animation: logo-draw 2.4s cubic-bezier(0.6, 0, 0.2, 1) 0.3s forwards;
+  animation: logo-draw 1.3s cubic-bezier(0.6, 0, 0.2, 1) 0.15s forwards;
   filter: drop-shadow(0 8px 34px rgb(200 160 80 / 0.4));
 }
 @keyframes logo-draw {
@@ -569,7 +569,7 @@ html { font-size: calc(100% * var(--reader-scale, 1)); }
   background: linear-gradient(100deg, transparent 30%, rgb(255 240 200 / 0.55) 50%, transparent 70%);
   background-size: 220% 100%;
   mix-blend-mode: screen;
-  animation: sheen 2.2s ease-in-out 0.5s forwards;
+  animation: sheen 1.3s ease-in-out 0.25s forwards;
   opacity: 0;
 }
 @keyframes sheen {
@@ -583,8 +583,8 @@ html { font-size: calc(100% * var(--reader-scale, 1)); }
   margin-inline: auto;
   border-inline-end: 2px solid var(--gold-soft);
   animation:
-    type-in 1.8s steps(28) 1.6s forwards,
-    caret 0.8s step-end 1.6s 3;
+    type-in 0.8s steps(28) 0.8s forwards,
+    caret 0.4s step-end 0.8s 3;
 }
 @keyframes type-in { to { width: 100%; } }
 @keyframes caret { 50% { border-color: transparent; } }
