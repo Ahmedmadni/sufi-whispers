@@ -545,6 +545,13 @@
 html { font-size: calc(100% * var(--reader-scale, 1)); }
 
 /* ===== Home hero intro sequence ===== */
+.hero-sequence {
+  --foreground: #F4EAD7;
+  --gold-soft: #E8C788;
+  --velvet: #101D1A;
+  --primary: #D3AB62;
+  --primary-foreground: #101D1A;
+}
 .hero-scene { opacity: 0; animation: hero-scene-in 0.7s ease-out 2.1s forwards; }
 @keyframes hero-scene-in { to { opacity: 1; } }
 
