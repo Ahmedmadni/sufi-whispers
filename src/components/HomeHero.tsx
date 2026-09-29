@@ -1,16 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
-import { BookMarked, BookOpen, Feather } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowUpLeft, BookMarked, BookOpen, Feather } from "lucide-react";
 import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
 
-const SHAYKH_FULL_NAME =
-  "فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
-
 export function HomeHero() {
+  const reducedMotion = useReducedMotion();
+
   return (
-    <section className="hero-sequence relative isolate min-h-[calc(100svh-3.5rem)] overflow-hidden" aria-labelledby="home-title">
+    <section className="hero-sequence relative isolate min-h-[min(610px,calc(100svh-8rem))] overflow-hidden border-b border-gold/25 bg-velvet sm:min-h-[650px]" aria-labelledby="home-title">
       <div className="hero-scene absolute inset-0" aria-hidden="true">
         <img
           src={heroNabawi}
@@ -19,15 +18,14 @@ export function HomeHero() {
           height={1080}
           decoding="async"
           fetchPriority="high"
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full object-cover object-[66%_center] sm:object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-velvet/20 via-velvet/45 to-velvet" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_10%,var(--velvet)_100%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-velvet/65 via-velvet/30 to-velvet/95 sm:bg-gradient-to-l sm:from-velvet/90 sm:via-velvet/45 sm:to-velvet/25" />
       </div>
 
       <div className="hero-intro absolute inset-0 z-30 grid place-items-center bg-velvet px-5 text-center" aria-hidden="true">
         <div>
-          <div className="hero-logo-draw relative mx-auto w-44 sm:w-60">
+          <div className="hero-logo-draw relative mx-auto w-36 sm:w-48">
             <img src={logo} alt="" width={320} height={380} className="h-auto w-full object-contain" />
             <span
               className="hero-logo-sheen absolute inset-0"
@@ -43,7 +41,7 @@ export function HomeHero() {
               }}
             />
           </div>
-          <p className="hero-typewriter mt-5 overflow-hidden whitespace-nowrap font-display text-xl text-gold-soft sm:text-3xl">
+          <p className="hero-typewriter mt-4 overflow-hidden whitespace-nowrap font-display text-lg text-gold-soft sm:text-2xl">
             الجمعية الخليلية الإسلامية
           </p>
         </div>
@@ -54,39 +52,41 @@ export function HomeHero() {
         alt="فضيلة الشيخ صالح أبو خليل"
         width={848}
         height={1264}
-        initial={{ opacity: 0, x: -30 }}
+        initial={reducedMotion ? false : { opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 4.7, duration: 1.15, ease: "easeOut" }}
-        className="hero-shaykh absolute bottom-0 left-[-12%] z-10 h-[57%] w-auto max-w-[62%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_right,black_78%,transparent_99%)] sm:left-[2%] sm:h-[78%] sm:max-w-[45%]"
+        transition={{ delay: reducedMotion ? 0 : 2.35, duration: 0.65 }}
+        className="absolute bottom-0 left-[-9%] z-10 h-[48%] w-auto max-w-[55%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_right,black_80%,transparent_100%)] sm:left-[1%] sm:h-[88%] sm:max-w-[48%]"
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
+        initial={reducedMotion ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 4.9, duration: 0.9 }}
-        className="relative z-20 mx-auto flex min-h-[calc(100svh-3.5rem)] max-w-6xl items-start px-4 pb-24 pt-10 sm:items-center sm:px-8 sm:pb-20 sm:pt-12"
+        transition={{ delay: reducedMotion ? 0 : 2.25, duration: 0.65 }}
+        className="relative z-20 mx-auto flex min-h-[min(610px,calc(100svh-8rem))] max-w-6xl flex-col px-5 pb-5 pt-8 sm:min-h-[650px] sm:justify-center sm:px-8 sm:py-12"
       >
-        <div className="ml-auto w-full max-w-2xl text-center sm:w-[58%] sm:text-right">
-          <p className="mb-3 font-quran text-base text-gold-soft sm:text-xl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-          <h1 id="home-title" className="font-display text-3xl font-bold leading-[1.55] text-gradient-gold sm:text-5xl lg:text-6xl">
-            الجمعية الخليلية الإسلامية
+        <div className="w-full sm:mr-0 sm:ml-auto sm:w-[57%]">
+          <div className="mb-4 flex items-center gap-3 text-gold-soft sm:mb-7">
+            <span className="h-px w-7 bg-gold" />
+            <span className="font-body text-xs font-semibold sm:text-sm">رحاب الخليلية</span>
+          </div>
+          <h1 id="home-title" className="max-w-xl font-display text-[clamp(1.7rem,7vw,2.4rem)] font-bold leading-[1.5] text-foreground sm:text-5xl sm:leading-[1.45]">
+            الجمعية الخليلية <span className="text-gold-soft">الإسلامية</span>
           </h1>
-          <p className="mt-3 font-display text-base font-semibold leading-8 text-foreground sm:text-xl">
-            تحت لواء شيخها {SHAYKH_FULL_NAME}
+          <p className="mt-2 max-w-lg border-r-2 border-gold pr-3 font-body text-sm leading-7 text-foreground/90 sm:mt-5 sm:text-lg sm:leading-9">
+            تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل
           </p>
-          <p className="mx-auto mt-4 max-w-xl text-base font-medium leading-8 text-foreground/90 sm:mx-0 sm:text-lg sm:leading-9">
-            رحابٌ تجمع المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر؛ في تجربة قراءة واضحة وميسّرة.
+          <p className="mt-2 max-w-md font-body text-sm leading-7 text-foreground/85 sm:mt-5 sm:text-base sm:leading-8">
+            المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر.
           </p>
-
-          <div className="mt-6 flex flex-wrap justify-center gap-3 sm:justify-start">
-            <Link to="/quran" className="inline-flex min-h-12 items-center gap-2 rounded-lg glass-gold px-5 py-3 font-body text-base font-semibold text-gold-soft">
-              <BookMarked className="h-5 w-5" /> المصحف الشريف
+          <div className="mt-5 flex flex-wrap gap-2 sm:mt-8 sm:gap-3">
+            <Link to="/quran" className="inline-flex min-h-11 items-center gap-2 rounded-sm bg-primary px-4 py-2 font-body text-sm font-semibold text-primary-foreground transition-transform active:translate-y-0.5 sm:min-h-12 sm:px-5 sm:text-base">
+              <BookMarked className="h-4 w-4" /> المصحف الشريف <ArrowUpLeft className="h-4 w-4" />
             </Link>
-            <Link to="/library" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-gold/40 bg-velvet/65 px-5 py-3 font-body text-base font-semibold text-foreground">
-              <BookOpen className="h-5 w-5" /> المكتبة
+            <Link to="/library" className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-gold/65 bg-velvet/70 px-4 py-2 font-body text-sm font-semibold text-foreground backdrop-blur-sm sm:min-h-12 sm:px-5 sm:text-base">
+              <BookOpen className="h-4 w-4" /> المكتبة
             </Link>
-            <Link to="/shaykh" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-gold/30 bg-velvet/65 px-5 py-3 font-body text-base font-semibold text-foreground">
-              <Feather className="h-5 w-5" /> نبذة عن الشيخ
+            <Link to="/shaykh" className="inline-flex min-h-11 items-center gap-2 border-b border-gold/70 px-2 py-2 font-body text-sm font-semibold text-gold-soft sm:text-base">
+              <Feather className="h-4 w-4" /> نبذة عن الشيخ
             </Link>
           </div>
         </div>

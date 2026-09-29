@@ -117,20 +117,20 @@ function HomePage() {
 
 
       {/* ============ QUICK ACCESS ============ */}
-      <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-8 sm:py-12" dir="rtl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+      <section className="w-full border-y border-gold/15 bg-secondary/15 py-8 sm:py-12" dir="rtl">
+        <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-x-5 gap-y-6 px-4 sm:grid-cols-4 sm:gap-7 sm:px-6">
           {QUICK_LINKS.map(({ to, params, icon: Icon, title, text }) => (
             <Link
               key={title}
               to={to}
               {...(params ? { params } : {})}
-              className="glass rounded-2xl p-4 sm:p-5 text-right hover:border-gold/40 transition-colors"
+              className="group border-r-2 border-gold/45 pr-3 text-right transition-colors hover:border-gold"
             >
-              <span className="inline-flex items-center gap-2 text-gold-soft font-display text-base sm:text-lg">
+              <span className="inline-flex items-center gap-2 text-gold-soft font-display text-sm sm:text-lg">
                 <Icon className="w-4 h-4" />
                 {title}
               </span>
-              <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body leading-7">
+              <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body leading-6 sm:leading-7">
                 {text}
               </p>
             </Link>
@@ -139,16 +139,16 @@ function HomePage() {
       </section>
 
       {/* ============ FEATURED BOOKS ============ */}
-      <section className="relative mx-auto w-full max-w-5xl px-3 sm:px-6 pb-10 sm:pb-16" dir="rtl">
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-2 mb-2 text-gold-soft">
+      <section className="relative mx-auto w-full max-w-5xl px-4 sm:px-6 py-10 sm:py-16" dir="rtl">
+        <div className="text-right mb-7 sm:mb-10">
+          <div className="flex items-center gap-2 mb-2 text-gold-soft">
             <Sparkles className="w-4 h-4" />
             <span className="text-xs sm:text-sm font-body tracking-widest">من نفحات المكتبة</span>
           </div>
           <h2 className="font-display text-xl sm:text-3xl text-gradient-gold leading-[1.6]">
             كتبٌ مختارة
           </h2>
-          <div className="mt-3 mx-auto ornament-divider w-2/3 max-w-sm" />
+          <div className="mt-3 h-px w-full bg-gold/25" />
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
@@ -165,7 +165,7 @@ function HomePage() {
                 params={{ bookId: b.id }}
                 className="group flex flex-col items-center text-center"
               >
-                <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
+                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-sm border border-gold/25 shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
                   <img
                     src={b.cover}
                     alt={b.title}
@@ -173,7 +173,7 @@ function HomePage() {
                     decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
+                   <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-velvet/85 to-transparent pointer-events-none" />
                 </div>
                 <h3 className="mt-2.5 font-display text-gold-soft text-sm sm:text-base leading-tight line-clamp-2">
@@ -207,9 +207,7 @@ function HomePage() {
 
       {/* ============ SHAYKH ============ */}
       <section id="shaykh" dir="rtl" className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16">
-        <div className="relative glass rounded-2xl p-5 sm:p-10 overflow-hidden">
-          <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-gold/10 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 -right-10 w-64 h-64 rounded-full bg-emerald-glow/15 blur-3xl pointer-events-none" />
+        <div className="relative border-t border-gold/35 py-6 sm:py-10">
 
           <div className="relative flex items-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-gold-soft" />
@@ -240,7 +238,7 @@ function HomePage() {
           <div className="relative mt-6 flex flex-wrap items-center gap-3">
             <Link
               to="/shaykh"
-              className="inline-flex items-center gap-2 rounded-lg glass-gold px-4 py-2 text-sm font-body text-gold-soft hover:scale-105 transition-transform"
+              className="inline-flex items-center gap-2 rounded-sm border border-gold/40 px-4 py-2 text-sm font-body text-gold-soft hover:border-gold transition-colors"
             >
               <Feather className="w-4 h-4" />
               <span>النبذة الكاملة</span>
