@@ -1,114 +1,182 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { BookOpen, Search, BookMarked } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { getBook, type Book } from "@/data/books";
+import { SiteFooter } from "@/components/SiteFooter";
+import {
+  SURA_INDEX,
+  quranQueryOptions,
+  searchQuran,
+  readReadingPosition,
+  type ReadingPosition,
+} from "@/lib/quran";
 
-const PdfBookViewer = lazy(() => import("@/components/PdfBookViewer"));
-
-export const Route = createFileRoute("/books/$bookId")({
-  head: ({ params }) => {
-    const book = getBook(params.bookId);
-    const title = book ? `${book.title} — رحاب الخليلية` : "كتاب — رحاب الخليلية";
-    return {
-      meta: [
-        { title },
-        {
-          name: "description",
-          content: book?.subtitle ?? "قراءة الكتاب في رحاب الخليلية",
-        },
-        { name: "theme-color", content: "#0d1a14" },
-      ],
-    };
-  },
-  loader: ({ params }): { book: Book } => {
-    const book = getBook(params.bookId);
-    if (!book) throw notFound();
-    return { book };
-  },
-  component: BookPage,
-  notFoundComponent: () => (
-    <div className="min-h-screen flex flex-col">
-      <SiteHeader />
-      <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6">
-        <p className="font-display text-gold-soft">لم يُعثر على الكتاب</p>
-        <Link to="/" className="text-sm text-gold-soft underline">
-          العودة إلى المكتبة
-        </Link>
-      </div>
-    </div>
-  ),
+export const Route = createFileRoute("/quran/")({
+  head: () => ({
+    meta: [
+      { title: "المصحف الشريف — رواية حفص | رحاب الخليلية" },
+      {
+        name: "description",
+        content:
+          "تصفّح المصحف الشريف كاملاً بالرسم العثماني من مجمع الملك فهد لطباعة المصحف الشريف: فهرس السور، القراءة بالصفحات، والبحث في الآيات.",
+      },
+      { property: "og:title", content: "المصحف الشريف — رواية حفص | رحاب الخليلية" },
+      {
+        property: "og:description",
+        content: "المصحف كاملاً بالرسم العثماني الرسمي مع فهرس السور والبحث والقراءة بالصفحات.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "المصحف الشريف — رواية حفص" },
+      {
+        name: "twitter:description",
+        content: "المصحف كاملاً بالرسم العثماني الرسمي مع فهرس السور والبحث والقراءة بالصفحات.",
+      },
+    ],
+  }),
+  component: QuranIndexPage,
 });
 
-function BookPreview({ book }: { book: Book }) {
-  return (
-    <div className="glass rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center min-h-[70vh] bg-velvet/30 animate-fade-in">
-      <div className="relative w-40 sm:w-56 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-2xl mb-5">
-        <img
-          src={book.cover}
-          alt={book.title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 rounded-lg pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-velvet/40 to-transparent pointer-events-none" />
-      </div>
-      <h1 className="font-display text-gold-soft text-lg sm:text-2xl text-center leading-tight px-2">
-        {book.title}
-      </h1>
-      {book.subtitle && (
-        <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body text-center max-w-md px-2">
-          {book.subtitle}
-        </p>
-      )}
-      <div className="mt-6 flex items-center gap-2 text-[11px] sm:text-xs text-gold-soft/70 font-body">
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-gold-soft/70 animate-pulse" />
-        <span>جارٍ تحميل الكتاب…</span>
-      </div>
-    </div>
+function QuranIndexPage() {
+  const [query, setQuery] = useState("");
+  const [last, setLast] = useState<ReadingPosition | null>(null);
+  useEffect(() => setLast(readReadingPosition()), []);
+
+  const searching = query.trim().length >= 2;
+  const { data, isLoading, isError, refetch } = useQuery({ ...quranQueryOptions, enabled: searching });
+
+  const results = useMemo(
+    () => (searching && data ? searchQuran(data, query) : []),
+    [searching, data, query],
   );
-}
 
-function BookPage() {
-  const { bookId } = Route.useParams();
-  const book = getBook(bookId) as Book;
-  const [mounted, setMounted] = useState(false);
-  // Delay mounting the heavy PDF viewer for one frame so the preview
-  // paints instantly with the cover and title.
-  useEffect(() => {
-    const t = setTimeout(() => setMounted(true), 60);
-    return () => clearTimeout(t);
-  }, []);
+  const suras = useMemo(() => {
+    const q = query.trim();
+    if (!q || searching) return SURA_INDEX;
+    return SURA_INDEX.filter((s) => s.nameAr.includes(q));
+  }, [query, searching]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" dir="rtl">
       <SiteHeader />
-      <section className="flex-1 w-full max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
-        <div
-          dir="rtl"
-          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 mb-2 px-1"
-        >
+      <main className="flex-1 w-full max-w-4xl mx-auto px-3 sm:px-5 py-5">
+        <header className="mushaf-index-hero text-center">
+          <span className="mushaf-index-hero__eyebrow">رحاب الخليلية · نور القرآن</span>
+          <div className="rihab-ornament my-3" aria-hidden="true">✦</div>
+          <h1 className="font-display text-2xl sm:text-4xl text-[#e8c788] leading-[1.7]">المصحف الشريف</h1>
+          <p className="mt-1.5 text-xs sm:text-base text-[#f4ead7]/90 font-body leading-8">
+            برواية حفص عن عاصم · بالرسم العثماني الأصيل
+          </p>
+          <p className="mt-1 text-[11px] text-[#e8c788]/80 font-body">
+            ١١٤ سورة · ٦٠٤ صفحات · خط عثماني قابل للتكبير
+          </p>
+        </header>
+
+        {last && (
           <Link
-            to="/"
-            className="shrink-0 inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"
+            to="/quran/page/$page"
+            params={{ page: String(last.page) }}
+            className="mt-5 flex items-center justify-between gap-3 rounded-xl glass-gold px-4 py-3 hover:scale-[1.01] transition-transform"
           >
-            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-            <span>المكتبة</span>
+            <span className="flex items-center gap-2 text-sm font-body text-gold-soft">
+              <BookMarked className="w-4 h-4 shrink-0" />
+              متابعة القراءة
+            </span>
+            <span className="text-xs text-foreground/80 font-body truncate">
+              سورة {last.suraNameAr} — صفحة {last.page}
+            </span>
           </Link>
-          <h1
-            className="min-w-0 font-display text-gold-soft text-sm sm:text-base text-left truncate"
-            title={book.title}
-          >
-            {book.title}
-          </h1>
-        </div>
-        {mounted ? (
-          <Suspense fallback={<BookPreview book={book} />}>
-            <PdfBookViewer key={book.id} pdfUrl={book.pdfUrl} bookId={book.id} />
-          </Suspense>
-        ) : (
-          <BookPreview book={book} />
         )}
-      </section>
+
+        <div className="mt-5 relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gold-soft/70" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            dir="rtl"
+            placeholder="ابحث عن سورة أو آية…"
+            aria-label="بحث في المصحف"
+            className="w-full rounded-xl glass border border-gold/20 bg-velvet/40 py-2.5 pr-10 pl-3 text-sm font-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-gold/50"
+          />
+        </div>
+
+        {searching ? (
+          <section className="mt-5">
+            {isLoading && (
+              <p className="text-center text-xs text-muted-foreground font-body py-8">
+                جارٍ تحميل نص المصحف…
+              </p>
+            )}
+            {isError && (
+              <div className="text-center py-8">
+                <p className="text-xs text-destructive font-body mb-3">تعذّر تحميل بيانات البحث.</p>
+                <button type="button" onClick={() => void refetch()} className="glass-gold rounded-lg px-3 py-2 text-xs font-body">
+                  إعادة المحاولة
+                </button>
+              </div>
+            )}
+            {!isLoading && !isError && results.length === 0 && (
+              <p className="text-center text-xs text-muted-foreground font-body py-8">
+                لا توجد نتائج مطابقة.
+              </p>
+            )}
+            <ul className="space-y-2">
+              {results.map((a) => (
+                <li key={a.id}>
+                  <Link
+                    to="/quran/surah/$suraNo"
+                    params={{ suraNo: String(a.sura_no) }}
+                    hash={`aya-${a.aya_no}`}
+                    className="block rounded-xl glass border border-gold/15 px-4 py-3 hover:border-gold/40 transition-colors"
+                  >
+                    <p className="mushaf-text text-[0.95rem] sm:text-[1.05rem] text-foreground">{a.aya_text}</p>
+                    <p className="mt-1.5 text-center text-[11px] text-gold-soft/80 font-body">
+                      سورة {a.sura_name_ar} — الآية {a.aya_no} — صفحة {a.page}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <ul className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {suras.map((s) => (
+              <li key={s.no}>
+                <Link
+                  to="/quran/surah/$suraNo"
+                  params={{ suraNo: String(s.no) }}
+                  className="flex items-center gap-3 rounded-xl glass border border-gold/15 px-3 py-2.5 hover:border-gold/40 transition-colors"
+                >
+                  <span className="shrink-0 w-8 h-8 rounded-full glass-gold flex items-center justify-center text-[11px] font-body text-gold-soft">
+                    {s.no}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-display text-sm text-gold-soft truncate">
+                      سورة {s.nameAr}
+                    </span>
+                    <span className="block text-[11px] text-muted-foreground font-body">
+                      {s.ayaCount} آية — تبدأ صفحة {s.startPage}
+                    </span>
+                  </span>
+                  <BookOpen className="w-4 h-4 shrink-0 text-gold-soft/60" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-6 text-center">
+          <Link
+            to="/quran/page/$page"
+            params={{ page: "1" }}
+            className="inline-flex items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 text-sm font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
+          >
+            القراءة بنظام الصفحات (٦٠٤ صفحة)
+          </Link>
+        </div>
+      </main>
+      <SiteFooter />
     </div>
   );
 }
