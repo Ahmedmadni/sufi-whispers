@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        command: [test, typecheck, build]
+        command: [test, typecheck, build, test:integrity]
     name: quality (${{ matrix.command }})
     steps:
       - uses: actions/checkout@v4
