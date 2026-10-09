@@ -44,7 +44,7 @@ function QuranIndexPage() {
   useEffect(() => setLast(readReadingPosition()), []);
 
   const searching = query.trim().length >= 2;
-  const { data, isLoading } = useQuery({ ...quranQueryOptions, enabled: searching });
+  const { data, isLoading, isError, refetch } = useQuery({ ...quranQueryOptions, enabled: searching });
 
   const results = useMemo(
     () => (searching && data ? searchQuran(data, query) : []),
@@ -70,8 +70,8 @@ function QuranIndexPage() {
 
         {last && (
           <Link
-            to="/quran/surah/$suraNo"
-            params={{ suraNo: String(last.suraNo) }}
+            to="/quran/page/$page"
+            params={{ page: String(last.page) }}
             className="mt-5 flex items-center justify-between gap-3 rounded-xl glass-gold px-4 py-3 hover:scale-[1.01] transition-transform"
           >
             <span className="flex items-center gap-2 text-sm font-body text-gold-soft">
@@ -79,7 +79,7 @@ function QuranIndexPage() {
               متابعة القراءة
             </span>
             <span className="text-xs text-foreground/80 font-body truncate">
-              سورة {last.suraNameAr} — آية {last.ayaNo}
+              سورة {last.suraNameAr} — صفحة {last.page}
             </span>
           </Link>
         )}
@@ -103,7 +103,15 @@ function QuranIndexPage() {
                 جارٍ تحميل نص المصحف…
               </p>
             )}
-            {!isLoading && results.length === 0 && (
+            {isError && (
+              <div className="text-center py-8">
+                <p className="text-xs text-destructive font-body mb-3">تعذّر تحميل بيانات البحث.</p>
+                <button type="button" onClick={() => void refetch()} className="glass-gold rounded-lg px-3 py-2 text-xs font-body">
+                  إعادة المحاولة
+                </button>
+              </div>
+            )}
+            {!isLoading && !isError && results.length === 0 && (
               <p className="text-center text-xs text-muted-foreground font-body py-8">
                 لا توجد نتائج مطابقة.
               </p>
