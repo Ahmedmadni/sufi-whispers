@@ -21,6 +21,7 @@ bun run build
 ```sh
 # فحص المنطق الحرج للعمل دون إنترنت، دون أي اتصال بالويب
 bun run test:integrity
+bun run mobile:assets:audit  # تقرير الأصول المتاحة والناقصة دون تنزيل
 
 # إعداد الملفات الأصلية للمصحف والخط والكتب ثم حزم SPA مستقلة
 bun run mobile:build
