@@ -58,3 +58,41 @@ Once the app has a client-only Vite build with a known `webDir`:
 - Saved Quran reading position and PDF settings survive a restart.
 - Device in airplane mode can read bundled Quran and downloaded PDFs.
 - Signed APK/AAB builds and installs without a remote SSR dependency.
+
+## Implemented mobile SPA staging
+
+- `mobile/index.html`, `mobile/main.tsx`, and `vite.mobile.config.ts` produce
+  a standalone client-only React Router bundle to `dist-mobile/`.
+- `capacitor.config.json` includes the proposed Android application ID
+  `com.rihabalkhaliliyya.app`. Freeze the ID before publishing to Play.
+- `bun run mobile:prepare` copies public resources then downloads the Quran,
+  authentic Quran font, and library PDFs referenced by Lovable asset descriptors
+  to `mobile/.public/mobile-assets`; checks sizes, Quran dataset structure,
+  and writes SHA-256 entries to `manifest.json`.
+- `bun run mobile:build` creates the static client bundle. This requires the
+  source assets to be reachable from the Lovable public site, or validated local
+  staging files already present; it must fail instead of shipping a broken app.
+- Web SSR routes and Cloudflare configuration remain unchanged.
+
+## To generate the native Android project
+
+On a machine with Node 22+, Bun, the Android SDK and Java installed:
+
+```sh
+bun install
+bun add @capacitor/core@^8 @capacitor/android@^8
+bun add -d @capacitor/cli@^8
+bun run mobile:build
+bunx cap add android
+bunx cap sync android
+bunx cap open android
+```
+
+Commit the lockfile and generated `android/` source after CLI generation.
+This step has NOT yet been run by the maintainer tools, and no APK/AAB
+was generated or device-tested.
+
+If Lovable blocks unauthenticated asset downloads, export the original
+assets to `mobile/.public/mobile-assets` rather than disabling integrity
+checks. Verify the SHA-256 of the Quran source separately against an
+authentic publisher copy before public release.
