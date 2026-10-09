@@ -1,0 +1,274 @@
+/* Premium Quran experience and cohesive site refinements.
+   No webfonts, remote graphics, JavaScript animations or Quran text changes. */
+
+/* Base interface: cohesive emerald / warm gold across both themes. */
+html { -webkit-text-size-adjust: 100%; }
+button, a { touch-action: manipulation; }
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+body { overflow-x: clip; }
+.light {
+  --background: #f8f3e7;
+  --foreground: #243b30;
+  --card: #fffdf7;
+  --card-foreground: #243b30;
+  --popover: #fffdf7;
+  --popover-foreground: #243b30;
+  --primary: #1e5a43;
+  --primary-foreground: #fff8e6;
+  --secondary: #eee3cb;
+  --secondary-foreground: #304b3a;
+  --muted: #eee6d4;
+  --muted-foreground: #5d6e60;
+  --accent: #d4bc83;
+  --accent-foreground: #183a2c;
+  --border: rgb(121 96 50 / .22);
+  --input: rgb(121 96 50 / .22);
+  --ring: rgb(138 103 49 / .5);
+  --gold: #936a28;
+  --gold-soft: #815a20;
+  --emerald-deep: #1b5b43;
+  --emerald-glow: #327457;
+  --velvet: #214b39;
+  --beige: #fffaf0;
+  --gradient-gold: linear-gradient(110deg, #9d6c25, #79501e, #aa7a32);
+  --shadow-gold: 0 15px 38px -20px rgb(102 80 42 / .35);
+  --shadow-soft: 0 16px 42px -25px rgb(32 49 34 / .24);
+}
+.light body {
+  background-image:
+    radial-gradient(ellipse 75% 35% at 50% 0%, rgb(188 161 104 / .16), transparent),
+    radial-gradient(ellipse 50% 40% at 90% 90%, rgb(61 109 78 / .06), transparent);
+  background-attachment: scroll;
+}
+.light .glass {
+  background: linear-gradient(145deg, #fffdf6, #f4eddd);
+  border: 1px solid rgb(123 95 45 / .2);
+  box-shadow: 0 14px 34px -24px rgb(64 65 43 / .35);
+}
+.light .glass-gold {
+  background: linear-gradient(145deg, #fff9e7, #eae0c8);
+  border: 1px solid rgb(146 106 40 / .28);
+  box-shadow: 0 10px 26px -20px rgb(105 79 38 / .35);
+}
+.light .bottom-nav { background: rgb(251 246 232 / .95); }
+.light .library-banner { background: linear-gradient(130deg, #244e3c, #102d23); }
+.light .library-banner h1,
+.light .library-banner .rihab-eyebrow { color: #e8c788; }
+.light .library-banner p { color: #f6eedc; }
+.light .dhikr-stage { background: linear-gradient(155deg, #f9f0db, #e9ddc4); }
+.light .bottom-nav-fab { color: #fff6de; background: #2b654b; }
+.light .rihab-section::before { opacity: .5; }
+
+/* All Quran reading is isolated from the global theme.
+   The original Uthmanic Hafs v2.0 font is used without changing Unicode text. */
+.mushaf-reading-toolbar {
+  margin-block: 1.1rem .5rem;
+  padding: .7rem .85rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 29%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--background) 88%, var(--gold) 12%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .7rem;
+  flex-wrap: wrap;
+}
+.mushaf-reading-toolbar .mushaf-reader-control {
+  transition: color .18s, background-color .18s, border-color .18s;
+}
+@media (hover:hover) {
+  .mushaf-reading-toolbar .mushaf-reader-control:hover:not(:disabled) {
+    border-color: var(--gold);
+    background-color: color-mix(in srgb, var(--gold) 12%, transparent);
+  }
+}
+.mushaf-premium {
+  --mushaf-text: #233a2e;
+  --mushaf-ink: #254433;
+  --mushaf-gold: #9e7234;
+  --mushaf-frame: rgb(144 103 38 / .28);
+  position: relative;
+  isolation: isolate;
+  color: var(--mushaf-text);
+  border: 1px solid #b99b65;
+  background:
+    radial-gradient(ellipse at top, rgb(214 192 149 / .18), transparent 52%),
+    linear-gradient(155deg, #fffdf6, #f9f2e1 80%, #f5ead4);
+  box-shadow:
+    inset 0 0 0 5px rgb(255 255 255 / .65),
+    inset 0 0 0 6px rgb(160 126 67 / .18),
+    0 20px 50px -22px rgb(0 0 0 / .24);
+}
+.mushaf-premium.mushaf-midnight {
+  --mushaf-text: #f2e8d1;
+  --mushaf-ink: #e4d8bd;
+  --mushaf-gold: #d7ac61;
+  --mushaf-frame: rgb(211 171 98 / .3);
+  border-color: #8c7148;
+  background: radial-gradient(ellipse at top, #244836, #112920 75%);
+  box-shadow: inset 0 0 0 5px rgb(228 189 109 / .03),
+    inset 0 0 0 6px rgb(228 189 109 / .12), 0 20px 55px -25px rgb(0 0 0 / .45);
+}
+.mushaf-premium.mushaf-sheet::after {
+  border-color: var(--mushaf-frame);
+  border-radius: .4rem;
+  inset: .55rem;
+}
+.mushaf-premium .mushaf-text,
+.light .mushaf-premium .mushaf-text {
+  font-family: "UthmanicHafs", "Amiri", serif;
+  font-weight: 400;
+  font-size: calc(clamp(1.25rem, 3vw, 1.66rem) * var(--mushaf-scale, 1));
+  line-height: 2.05;
+  letter-spacing: 0;
+  word-spacing: .025em;
+  text-align: justify;
+  text-align-last: center;
+  color: var(--mushaf-text);
+  font-feature-settings: normal;
+  font-synthesis: none;
+  font-kerning: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+.mushaf-premium .mushaf-verses {
+  position: relative;
+  z-index: 1;
+  padding-inline: .15rem;
+}
+.mushaf-surah-opening {
+  text-align: center;
+  margin-block: .25rem 1.45rem;
+  padding-inline: .2rem;
+}
+.mushaf-surah-ribbon {
+  width: min(100%, 540px);
+  min-height: 3.4rem;
+  margin-inline: auto;
+  padding: .45rem 1.1rem;
+  display: flex;
+  gap: .65rem;
+  align-items: center;
+  justify-content: center;
+  border-block: 1px solid var(--mushaf-frame);
+  background:
+    linear-gradient(90deg, transparent, rgb(183 139 64 / .10) 25%, rgb(183 139 64 / .10) 75%, transparent);
+  color: var(--mushaf-ink);
+}
+.mushaf-surah-ribbon__title {
+  margin: 0;
+  font: 600 clamp(.95rem, 3.6vw, 1.27rem)/1.8 "Amiri", "Cairo", serif;
+  color: var(--mushaf-ink);
+}
+.mushaf-surah-ribbon__flourish {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--mushaf-gold);
+}
+.mushaf-basmala {
+  position: relative;
+  max-width: 560px;
+  margin: .85rem auto 0;
+  min-height: 5.3rem;
+  padding: 1rem clamp(.9rem, 4vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--mushaf-gold);
+  border-radius: 1.05rem .25rem 1.05rem .25rem;
+  background:
+    radial-gradient(circle at 50% 50%, rgb(208 174 109 / .12), transparent 74%),
+    repeating-linear-gradient(45deg, transparent 0 15px, rgb(190 146 63 / .035) 16px 17px);
+  box-shadow: inset 0 0 0 4px rgb(163 121 57 / .065),
+    0 7px 24px -19px rgb(0 0 0 / .25);
+}
+.mushaf-basmala::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--mushaf-frame);
+  border-radius: .75rem .15rem .75rem .15rem;
+  pointer-events: none;
+}
+.mushaf-basmala__corner {
+  position: absolute;
+  color: var(--mushaf-gold);
+  font-size: 1.05rem;
+  background: color-mix(in srgb, var(--mushaf-ink) 2%, transparent);
+  z-index: 1;
+  line-height: 1;
+  pointer-events: none;
+}
+.mushaf-basmala__corner--tl { top: -.46rem; left: -.46rem; }
+.mushaf-basmala__corner--tr { top: -.46rem; right: -.46rem; }
+.mushaf-basmala__corner--bl { bottom: -.46rem; left: -.46rem; }
+.mushaf-basmala__corner--br { bottom: -.46rem; right: -.46rem; }
+.mushaf-basmala__text {
+  position: relative;
+  z-index: 1;
+  font: 400 calc(clamp(1.14rem, 4vw, 1.75rem) * var(--mushaf-scale, 1)) / 2.1 "UthmanicHafs", "Amiri", serif;
+  font-synthesis: none;
+  direction: rtl;
+  color: var(--mushaf-ink);
+  text-align: center;
+  overflow-wrap: normal;
+}
+.mushaf-surah-opening__separator {
+  margin: .85rem auto;
+  color: var(--mushaf-gold);
+  opacity: .8;
+  font-size: 1.1rem;
+}
+.mushaf-premium .rihab-ornament { color: var(--mushaf-gold); }
+.mushaf-premium p.text-gold-soft\/70 { color: var(--mushaf-gold); }
+.quran-surah-top {
+  background: radial-gradient(ellipse at top, rgb(203 165 96 / .15), transparent 80%),
+    color-mix(in srgb, var(--background) 94%, var(--gold) 6%);
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, transparent);
+  box-shadow: 0 16px 30px -24px rgb(0 0 0 / .28);
+}
+.quran-surah-top .text-gradient-gold {
+  color: var(--gold-soft);
+  background: none;
+}
+@media (max-width: 640px) {
+  .mushaf-premium { padding-inline: 1.2rem; }
+  .mushaf-premium .mushaf-text, .light .mushaf-premium .mushaf-text {
+    font-size: calc(1.31rem * var(--mushaf-scale, 1));
+    line-height: 2.12;
+  }
+  .mushaf-basmala { min-height: 4.6rem; margin-inline: -.25rem; }
+  .mushaf-basmala__text { font-size: calc(1.13rem * var(--mushaf-scale, 1)); }
+  .mushaf-surah-ribbon__title { font-size: 1rem; }
+  .mushaf-reading-toolbar { justify-content: center; gap: .65rem; }
+  .mushaf-reading-toolbar > span { flex-basis: 100%; text-align: center; }
+}
+/* Global second-pass visual polish on existing original photographs / assets. */
+.hero-sequence::after {
+  background: linear-gradient(0deg, rgb(9 26 21 / .91), transparent 44%),
+    radial-gradient(ellipse at 65% 28%, rgb(234 190 108 / .17), transparent 46%);
+}
+.hero-links a:first-child {
+  border: 1px solid rgb(255 234 182 / .5);
+  border-radius: .8rem;
+  box-shadow: 0 12px 28px rgb(0 0 0 / .2), inset 0 1px rgb(255 255 255 / .22);
+}
+.hero-links a:nth-child(2) { border-radius: .8rem; }
+.rihab-section .book-card,
+.library-filter, .glass, .glass-gold { -webkit-backface-visibility: hidden; }
+.book-art { border-radius: .85rem; }
+.book-card__label { line-height: 1.7; }
+.library-banner { box-shadow: 0 16px 42px -24px rgb(0 0 0 / .4); }
+.library-banner h1 { text-wrap: balance; }
+.dhikr-stage { box-shadow: 0 19px 46px -26px rgb(0 0 0 / .38); }
+.bottom-nav a { border-radius: .6rem; }
+.bottom-nav a[aria-current="page"] {
+  background: color-mix(in srgb, var(--gold) 11%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-links a, .book-art, .bottom-nav a, .library-filter { transition: none !important; }
+}
