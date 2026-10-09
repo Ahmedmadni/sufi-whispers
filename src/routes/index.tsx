@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { ResumeBar } from "@/components/ResumeBar";
 import { DhikrCard } from "@/components/DhikrCard";
 import { HomeHero } from "@/components/HomeHero";
+import { BookCover } from "@/components/BookCover";
 
 import { books } from "@/data/books";
 
@@ -117,14 +118,14 @@ function HomePage() {
 
 
       {/* ============ QUICK ACCESS ============ */}
-      <section className="w-full border-y border-gold/15 bg-secondary/15 py-8 sm:py-12" dir="rtl">
+      <section className="rihab-section w-full border-y border-gold/15 bg-secondary/15 py-8 sm:py-12" dir="rtl">
         <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-x-5 gap-y-6 px-4 sm:grid-cols-4 sm:gap-7 sm:px-6">
           {QUICK_LINKS.map(({ to, params, icon: Icon, title, text }) => (
             <Link
               key={title}
               to={to}
               {...(params ? { params } : {})}
-              className="group border-r-2 border-gold/45 pr-3 text-right transition-colors hover:border-gold"
+              className="group rounded-xl border border-gold/15 bg-background/25 p-4 text-right transition-[border-color,background-color,transform] hover:border-gold/50 hover:bg-gold/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
             >
               <span className="inline-flex items-center gap-2 text-gold-soft font-display text-sm sm:text-lg">
                 <Icon className="w-4 h-4" />
@@ -139,7 +140,7 @@ function HomePage() {
       </section>
 
       {/* ============ FEATURED BOOKS ============ */}
-      <section className="relative mx-auto w-full max-w-5xl px-4 sm:px-6 py-10 sm:py-16" dir="rtl">
+      <section className="rihab-section relative mx-auto w-full max-w-5xl px-4 sm:px-6 py-10 sm:py-16" dir="rtl">
         <div className="text-right mb-7 sm:mb-10">
           <div className="flex items-center gap-2 mb-2 text-gold-soft">
             <Sparkles className="w-4 h-4" />
@@ -148,7 +149,7 @@ function HomePage() {
           <h2 className="font-display text-xl sm:text-3xl text-gradient-gold leading-[1.6]">
             كتبٌ مختارة
           </h2>
-          <div className="mt-3 h-px w-full bg-gold/25" />
+          <div className="rihab-ornament mt-3 justify-start" aria-hidden="true">✦</div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
@@ -163,20 +164,18 @@ function HomePage() {
               <Link
                 to="/books/$bookId"
                 params={{ bookId: b.id }}
-                className="group flex flex-col items-center text-center"
+                className="book-card group flex flex-col items-center text-center"
               >
-                <div className="relative w-full aspect-[3/4] overflow-hidden rounded-sm border border-gold/25 shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
-                  <img
+                <div className="book-art relative w-full aspect-[3/4] group-active:scale-[0.98]">
+                  <BookCover
                     src={b.cover}
                     alt={b.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 640px) 45vw, (max-width: 1024px) 23vw, 230px"
                   />
                    <div className="absolute inset-0 ring-1 ring-inset ring-gold/30 pointer-events-none" />
                   <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-velvet/85 to-transparent pointer-events-none" />
                 </div>
-                <h3 className="mt-2.5 font-display text-gold-soft text-sm sm:text-base leading-tight line-clamp-2">
+                <h3 className="book-card__label mt-3 font-display text-gold-soft text-sm sm:text-base leading-relaxed line-clamp-2">
                   {b.title}
                 </h3>
                 {b.subtitle && (
