@@ -1,0 +1,11 @@
+{
+  "appId": "com.rihabalkhaliliyya.app",
+  "appName": "رحاب الخليلية",
+  "webDir": "dist-mobile",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
