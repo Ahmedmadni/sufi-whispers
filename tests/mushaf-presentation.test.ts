@@ -18,6 +18,9 @@ describe("printed Quran surah opening", () => {
     }));
     expect(html).toContain("بسم الله اختبار");
     expect(html).toContain("mushaf-basmala");
+    expect(html).toContain("mushaf-basmala__cartouche");
+    expect((html.match(/mushaf-illumination-wing/g) || []).length).toBeGreaterThanOrEqual(2);
+    expect(html).not.toContain("mushaf-basmala__corner");
     expect((html.match(/بسم الله اختبار/g) || []).length).toBe(1);
   });
 
