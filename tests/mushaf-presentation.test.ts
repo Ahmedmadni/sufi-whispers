@@ -24,7 +24,21 @@ describe("printed Quran surah opening", () => {
     expect((html.match(/بسم الله اختبار/g) || []).length).toBe(1);
   });
 
-  test("never injects a basmala into At-Tawbah", () => {
+  test("keeps the exact original Hafs verse marker but positions it apart from Al-Fatiha Basmala", () => {
+    const original = "بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ\u00A0\uFC00";
+    const markup = renderToStaticMarkup(createElement(MushafSurahOpening, {
+      suraNo: 1, suraName: "الفاتحة", firstAyaText: original,
+    }));
+    expect(markup).toContain("mushaf-basmala__ayah-mark");
+    expect(markup).toContain("\uFC00");
+    expect(markup).toContain("بِسۡمِ");
+    expect((markup.match(/\uFC00/g) || []).length).toBe(1);
+    const textWithoutMarkup = markup.replace(/<[^>]*>/g, "");
+    expect(textWithoutMarkup).toContain(original);
+    expect(openingVerses(1, [{ aya_no: 1, aya_text: original } as Aya], true)).toEqual([]);
+  });
+
+    test("never injects a basmala into At-Tawbah", () => {
     const html = renderToStaticMarkup(createElement(MushafSurahOpening, {
       suraNo: 9, suraName: "التوبة",
     }));

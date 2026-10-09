@@ -145,50 +145,49 @@ body { overflow-x: clip; }
    arabesque artwork is vector decoration and ignored by screen readers. */
 .mushaf-surah-opening {
   text-align: center;
-  margin-block: .35rem 1.45rem;
+  margin-block: .1rem .75rem;
   padding-inline: 0;
 }
 .mushaf-surah-cartouche {
   position: relative;
   width: min(100%, 580px);
-  min-height: 3.8rem;
+  min-height: 2.55rem;
   margin-inline: auto;
-  padding: .52rem clamp(.6rem, 2vw, 1.2rem);
+  padding: .18rem clamp(.45rem, 1.5vw, .8rem);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: clamp(.5rem, 5vw, 2.3rem);
-  border: 3px double #d1ab63;
+  gap: clamp(.35rem, 3vw, 1.35rem);
+  border: 2px double #d1ab63;
   outline: 1px solid #234558;
-  outline-offset: -7px;
+  outline-offset: -5px;
   background:
-    radial-gradient(circle at 15% 50%, rgb(237 198 106 / .3), transparent 15%),
-    radial-gradient(circle at 85% 50%, rgb(237 198 106 / .3), transparent 15%),
-    repeating-linear-gradient(90deg, transparent 0 24px, rgb(226 182 99 / .06) 25px 26px),
+    radial-gradient(circle at 15% 50%, rgb(237 198 106 / .26), transparent 15%),
+    radial-gradient(circle at 85% 50%, rgb(237 198 106 / .26), transparent 15%),
     linear-gradient(150deg, #254663, #163450 48%, #1f5360);
-  box-shadow: 0 2px 0 #c5a369, inset 0 0 0 4px #102d40;
-  border-radius: 1.1rem .3rem 1.1rem .3rem;
+  box-shadow: 0 1px 0 #c5a369, inset 0 0 0 2px #102d40;
+  border-radius: .8rem .25rem .8rem .25rem;
 }
 .mushaf-surah-cartouche__title {
   position: relative;
   z-index: 1;
   margin: 0;
   flex: 1;
-  font: 600 clamp(.96rem, 3.25vw, 1.28rem)/1.9 "Amiri", "Cairo", serif;
+  font: 600 clamp(.94rem, 2.5vw, 1.12rem)/1.35 "Amiri", "Cairo", serif;
   color: #fff0ca;
-  text-shadow: 0 1px 2px rgb(0 0 0 / .55);
+  text-shadow: 0 1px 2px rgb(0 0 0 / .45);
 }
 .mushaf-surah-cartouche__ornament {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
-  width: 1.65rem;
-  height: 1.65rem;
+  width: 1.25rem;
+  height: 1.25rem;
   border: 1px solid #c9a15b;
   border-radius: 50%;
   background: #1d5461;
   color: #efd4a1;
-  font-size: 1.13rem;
+  font-size: .87rem;
   line-height: 1;
 }
 .mushaf-basmala--illuminated {
@@ -197,21 +196,21 @@ body { overflow-x: clip; }
   flex-direction: column;
   position: relative;
   width: min(100%, 660px);
-  min-height: 10rem;
-  margin: .9rem auto 0;
+  min-height: 0;
+  margin: .45rem auto 0;
   padding: 0;
-  border: 4px double #c6a15f;
+  border: 2px double #c6a15f;
   border-radius: .2rem;
   background: #143850;
-  box-shadow: inset 0 0 0 3px #09273a, 0 5px 13px rgb(27 36 30 / .15);
+  box-shadow: inset 0 0 0 2px #09273a, 0 4px 10px rgb(27 36 30 / .14);
 }
 .mushaf-basmala--illuminated::before,
 .mushaf-basmala--illuminated::after { content: none; }
 .mushaf-basmala__border {
-  flex: 0 0 15px;
-  margin: 3px;
+  flex: 0 0 7px;
+  margin: 1px;
   background:
-    radial-gradient(circle, #f3da9f 0 2px, transparent 2.5px) 0 50% / 22px 13px repeat-x,
+    radial-gradient(circle, #f3da9f 0 1.4px, transparent 1.9px) 0 50% / 18px 6px repeat-x,
     linear-gradient(#d9b46a, #d9b46a) center top / 100% 1px no-repeat,
     linear-gradient(#d9b46a, #d9b46a) center bottom / 100% 1px no-repeat,
     linear-gradient(100deg, #12465a, #206074, #12465a);
@@ -220,20 +219,19 @@ body { overflow-x: clip; }
 .mushaf-basmala__interior {
   display: flex;
   flex: 1;
-  align-items: stretch;
+  align-items: center;
   justify-content: center;
-  min-height: 7.6rem;
+  min-height: 5.55rem;
   gap: 0;
-  padding: 0 3px;
+  padding: 0 2px;
 }
 .mushaf-illumination-wing {
-  width: clamp(3.3rem, 20%, 8.2rem);
+  width: clamp(2.25rem, 13%, 5.35rem);
   min-width: 0;
-  height: auto;
-  align-self: stretch;
+  height: 5.1rem;
+  align-self: center;
   flex-shrink: 0;
-  max-height: 190px;
-  overflow: visible;
+  overflow: hidden;
 }
 .mushaf-illumination-wing--flipped { transform: scaleX(-1); }
 .mushaf-basmala__cartouche {
@@ -241,55 +239,71 @@ body { overflow-x: clip; }
   z-index: 1;
   flex: 1 1 auto;
   min-width: 0;
-  min-height: 7.3rem;
-  margin-block: .65rem;
+  min-height: 4.75rem;
+  margin-block: .22rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: .6rem clamp(.4rem, 2.5vw, 1.2rem);
+  padding: .25rem clamp(.25rem, 1.35vw, .75rem);
   border: 2px solid #dbb976;
-  border-radius: 1.65rem .5rem 1.65rem .5rem;
-  background:
-    radial-gradient(ellipse at 50% 50%, #fffdf5, #f5e9ce 95%);
-  box-shadow: inset 0 0 0 4px #fff9e8, inset 0 0 0 5px rgb(153 106 48 / .4);
+  border-radius: 1.05rem .3rem 1.05rem .3rem;
+  background: radial-gradient(ellipse at 50% 50%, #fffdf5, #f5e9ce 95%);
+  box-shadow: inset 0 0 0 3px #fff9e8, inset 0 0 0 4px rgb(153 106 48 / .4);
 }
 .mushaf-basmala__cartouche::before {
   content: "";
   position: absolute;
-  inset: -7px 35%;
-  border-top: 2px solid #e0bd75;
-  border-bottom: 2px solid #e0bd75;
+  inset: -4px 34%;
+  border-top: 1px solid #e0bd75;
+  border-bottom: 1px solid #e0bd75;
   border-radius: 50%;
   pointer-events: none;
 }
 .mushaf-basmala--illuminated .mushaf-basmala__text {
   position: relative;
   z-index: 1;
-  font: 400 calc(clamp(1.04rem, 3.5vw, 1.6rem) * var(--mushaf-scale, 1))/2.05 "UthmanicHafs", "Amiri", serif;
+  font-family: "UthmanicHafs", "Amiri", serif;
+  font-size: calc(clamp(1.27rem, 2.85vw, 1.72rem) * var(--mushaf-scale, 1));
+  font-weight: 400;
+  line-height: 1.45;
   color: #302f25;
   font-synthesis: none;
+  font-feature-settings: "ccmp" 1, "liga" 1, "mark" 1, "mkmk" 1;
+  text-rendering: optimizeLegibility;
   direction: rtl;
+  unicode-bidi: isolate;
   text-align: center;
   text-wrap: balance;
   overflow-wrap: normal;
   white-space: normal;
 }
+.mushaf-basmala__ayah-mark {
+  position: absolute;
+  z-index: 2;
+  inset-inline-end: .3rem;
+  bottom: .16rem;
+  font: 400 .9rem/1.2 "UthmanicHafs", "Amiri", serif;
+  color: #936f3e;
+  white-space: pre;
+  pointer-events: none;
+}
+.mushaf-midnight .mushaf-basmala__ayah-mark { color: #f0d7a4; }
 .mushaf-midnight .mushaf-basmala--illuminated .mushaf-basmala__cartouche {
   background: radial-gradient(ellipse at center, #29493f, #19372d 90%);
   box-shadow: inset 0 0 0 4px #254739, inset 0 0 0 5px rgb(237 213 155 / .2);
 }
 .mushaf-midnight .mushaf-basmala--illuminated .mushaf-basmala__text { color: #fff2d6; }
 @media (max-width: 640px) {
-  .mushaf-basmala--illuminated { min-height: 8.75rem; margin-inline: 0; width: 100%; }
-  .mushaf-basmala__interior { min-height: 6.6rem; }
-  .mushaf-illumination-wing { width: 15%; }
-  .mushaf-basmala__cartouche { margin-block: .35rem; min-height: 6.4rem; padding-inline: .25rem; }
+  .mushaf-basmala--illuminated { min-height: 0; margin-inline: 0; width: 100%; }
+  .mushaf-basmala__interior { min-height: 5.15rem; }
+  .mushaf-illumination-wing { width: 12%; height: 4.45rem; }
+  .mushaf-basmala__cartouche { margin-block: .17rem; min-height: 4.65rem; padding-inline: .25rem; }
   .mushaf-basmala--illuminated .mushaf-basmala__text {
-    font-size: calc(1.07rem * var(--mushaf-scale, 1));
-    line-height: 1.95;
+    font-size: calc(1.21rem * var(--mushaf-scale, 1));
+    line-height: 1.42;
   }
-  .mushaf-surah-cartouche__title { font-size: clamp(.89rem, 3.7vw, 1.08rem); }
-  .mushaf-surah-cartouche__ornament { width: 1.2rem; height: 1.2rem; font-size: .8rem; }
+  .mushaf-surah-cartouche__title { font-size: clamp(.91rem, 3.7vw, 1.05rem); }
+  .mushaf-surah-cartouche__ornament { width: 1.05rem; height: 1.05rem; font-size: .74rem; }
 }
 .mushaf-surah-opening__separator {
   margin: .85rem auto;

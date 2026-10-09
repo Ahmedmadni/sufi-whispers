@@ -49,3 +49,33 @@ This design is a manuscript-inspired visual element, not an official
 King Fahd Complex-certified page replica. Faithful official page
 layout would need the complete QPC page-specific font/glyph pipeline
 and source-level verification.
+
+
+## Compact calligraphy refinement — V4
+
+The on-device reference showed an over-tall approximately 266-pixel Basmala
+frame and considerable vertical whitespace. This stage preserves the same
+original floral SVG and Quran font, but changes its presentation:
+
+- Surah cartouche: minimum approximately 41px instead of 61px at normal scale.
+- Frame: dynamic height with ~7px gold divider bands (previously 15px).
+- Botanical side wings: ~71–82px on mobile/desktop at normal scale, rather
+  than sizing themselves from the 150×190 viewBox to over 160px.
+- Center panel: minimum approximately 74–76px (previously ~117px).
+- Quran calligraphy: use the embedded KFGQPC Hafs Uthmanic font with explicit
+  OpenType ligature/mark positioning, shorter ~1.42–1.45 line height and
+  wider usable line length. Preload the original font on Android and web.
+- Al-Fatiha's source first verse ends with U+00A0 + U+FC00; the original
+  codepoints remain in the rendered text, but the verse marker gets a
+  dedicated, unobtrusive spot rather than sitting in the middle of the
+  horizontal Basmala line. The stored Quran data is never mutated.
+- Increased font scale may naturally grow the center panel to avoid cropping;
+  the frame is compact *by default*, not hard-clamped at the cost of legibility.
+
+Validate screenshot comparisons at 320/360/390/430px, 768px and desktop,
+and at 100%, 130% and 145% reading scales. Verify the official Uthmanic font
+rather than any fallback is actually loaded on devices before evaluating its
+visual appearance.
+
+Do not claim that font alone recreates the precisely line-set printed Madinah
+Mushaf: page line breaks and typesetting remain application-specific.

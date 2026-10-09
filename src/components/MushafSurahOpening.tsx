@@ -69,6 +69,14 @@ export function MushafSurahOpening({
 }) {
   const basmala =
     suraNo === 1 ? firstAyaText : hasBasmala(suraNo) ? BASMALA : null;
+  // The Hafs source encodes Al-Fatiha verse 1 as the exact basmala followed
+  // by NBSP + the Quran-font verse marker (U+FC00). Keep both original
+  // characters, but give the ayah marker its own quiet visual position.
+  // Never modify the source JSON or the text content read by assistive tech.
+  const fatihaMarker = suraNo === 1 && basmala?.endsWith("\u00A0\uFC00")
+    ? "\u00A0\uFC00"
+    : null;
+  const basmalaText = fatihaMarker ? basmala!.slice(0, -2) : basmala;
 
   return (
     <header className="mushaf-surah-opening mushaf-surah-opening--illuminated" aria-label={`بداية سورة ${suraName}`}>
@@ -83,7 +91,10 @@ export function MushafSurahOpening({
           <div className="mushaf-basmala__interior">
             <ArabesqueWing />
             <div className="mushaf-basmala__cartouche">
-              <span className="mushaf-basmala__text" lang="ar">{basmala}</span>
+              <span className="mushaf-basmala__text" lang="ar">{basmalaText}</span>
+              {fatihaMarker && (
+                <span className="mushaf-basmala__ayah-mark" lang="ar" aria-label="نهاية الآية الأولى">{fatihaMarker}</span>
+              )}
             </div>
             <ArabesqueWing flipped />
           </div>
