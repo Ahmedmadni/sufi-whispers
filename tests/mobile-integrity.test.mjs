@@ -59,10 +59,12 @@ describe("local binary asset verification", () => {
     const dir = mkdtempSync(join(tmpdir(), "rihab-asset-"));
     try {
       const file = join(dir, "asset.pdf");
-      writeFileSync(file, "hello");
+      writeFileSync(file, "%PDF-");
       assert.equal(validateFile(file, 5).bytes, 5);
       assert.equal(validateFile(file, 5).sha256.length, 64);
       assert.throws(() => validateFile(file, 6), /length mismatch/);
+      writeFileSync(file, "hello");
+      assert.throws(() => validateFile(file, 5), /PDF file signature/);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
