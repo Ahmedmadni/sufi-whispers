@@ -145,7 +145,7 @@ function QuranPageView() {
         )}
 
         {ayat.length > 0 && (
-          <article className="mt-3 glass rounded-2xl px-3 sm:px-5 py-5">
+          <article className="mushaf-sheet mt-3 rounded-2xl px-4 sm:px-7 py-6 sm:py-8">
             {groups.map((g) => (
               <div key={`${g.suraNo}-${g.list[0].id}`} className="mt-4 first:mt-0">
                 {g.startsSura && (
@@ -169,7 +169,8 @@ function QuranPageView() {
                 </div>
               </div>
             ))}
-            <p className="mt-6 text-center text-[11px] text-gold-soft/70 font-body">
+            <div className="rihab-ornament mt-6" aria-hidden="true">✦</div>
+            <p className="mt-3 text-center text-[11px] text-gold-soft/70 font-body">
               صفحة {page} من {MAX_PAGE}
             </p>
           </article>
