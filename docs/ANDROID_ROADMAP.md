@@ -7,7 +7,7 @@ Do **not** point Capacitor directly at its server-side build output.
 Keep the web deployment intact while creating a separate client-only
 mobile entry/build and verifying deep links, local routing, and asset URLs.
 
-## Phase 1 — web reliability (in progress)
+## Phase 1 — web reliability (implemented; build/device verification pending)
 
 - Restore Quran reading by exact saved page.
 - Local calendar day for dhikr counters; guard disabled storage.
@@ -96,3 +96,54 @@ If Lovable blocks unauthenticated asset downloads, export the original
 assets to `mobile/.public/mobile-assets` rather than disabling integrity
 checks. Verify the SHA-256 of the Quran source separately against an
 authentic publisher copy before public release.
+
+## Phase 4 — offline verification and reproducible native Android development
+
+Implemented on the `feature/android-offline-hardening` branch and intended
+to be merged into `main`:
+
+- `scripts/mobile-integrity.mjs`: strict Quran verse/sura/page-order validation,
+  PDF/font binary signature checks, size and SHA-256 checks.
+- `scripts/prepare-mobile-assets.mjs`: inspect cached downloads as rigorously
+  as newly downloaded ones, refuse missing/corrupt content and package full
+  local source assets. `QURAN_EXPECTED_SHA256` is supported for publisher
+  integrity verification; a missing checksum prints a warning.
+- `scripts/verify-mobile-bundle.mjs`: validate the final `dist-mobile/`
+  output, including the PDF.js CMaps/fonts, all descriptors, hashes and Quran.
+- `tests/mobile-integrity.test.mjs`: pure Node 22 tests to diagnose offline
+  integrity logic without React, Bun installation or external APIs.
+- `scripts/android-dev.mjs`: install aligned Capacitor 8 packages,
+  regenerate `android/` when missing, sync assets and optionally compile a
+  debug APK (Android SDK + Gradle required).
+- `.github/workflows/android-debug.yml`: manually-triggered debug APK job
+  with a short-lived artifact; GitHub-hosted runners must be functional.
+
+### Commands
+
+```sh
+bun run test:integrity
+bun run mobile:build
+bun run mobile:android:setup
+bun run mobile:android:apk
+```
+
+Expected development output (after a verified local Android build):
+`android/app/build/outputs/apk/debug/app-debug.apk`.
+
+Capacitor 8 requires Node 22+, Android Studio 2025.2.1 or later, and
+Android SDK API 36 for this build path. Keep `bun.lock` and generated
+`android/` source in version control after the first successful native
+setup. Neither the native project nor an APK is represented as
+pre-generated here.
+
+### Unresolved release gates
+
+1. Confirm that every original Lovable PDF/font/Quran asset can be exported
+   or fetched. Upload the authoritative files to the local staging path if
+   network retrieval is denied.
+2. Pin and verify an official Quran source SHA-256. Structural checks are
+   not proof of word-for-word authenticity.
+3. Repair GitHub Actions runner availability. Earlier smoke checks failed
+   without any executed steps, including a standalone `echo` job.
+4. Complete native compile, install on actual Android hardware, verify
+   offline Quran / book reading, and sign a release AAB.

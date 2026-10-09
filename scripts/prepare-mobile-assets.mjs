@@ -1,78 +1,111 @@
 /**
- * Prepare a truly local Quran, book collection and PDF.js resources for
- * the standalone Android bundle. A failed download MUST fail the build:
- * silently shipping empty Quran/book files would be worse than no APK.
- *
- * Existing files are reusable when their byte size matches the original
- * Lovable descriptors. To work offline in CI, provide the verified files
- * in mobile/.public/mobile-assets before invoking this script.
+ * Prepare a fully local Android content package.
+ * No asset failure may silently degrade a Quran/reading release.
+ * A previously exported original file can be placed under
+ * mobile/.public/mobile-assets/ to build without network access.
  */
 import {
-  copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync,
+  cpSync, existsSync, mkdirSync, readFileSync, readdirSync,
   statSync, writeFileSync,
 } from "node:fs";
 import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
+import {
+  assertSafeAssetDescriptor,
+  validateFile,
+  validateQuranFile,
+} from "./mobile-integrity.mjs";
 
 const root = resolve(".");
 const output = resolve("mobile/.public");
 const assetsDir = join(output, "mobile-assets");
 const sourceOrigin = process.env.CONTENT_ASSET_ORIGIN || "https://sufi-whispers.lovable.app";
+const originUrl = new URL(sourceOrigin);
+if (originUrl.protocol !== "https:") throw new Error("CONTENT_ASSET_ORIGIN must use HTTPS");
 
 function descriptorsIn(folder) {
   return readdirSync(resolve(folder))
     .filter((file) => file.endsWith(".asset.json"))
+    .sort()
     .map((file) => resolve(folder, file));
 }
-const descriptors = [
+const paths = [
   resolve("src/data/quran/hafsData_v2-0.json.asset.json"),
   resolve("src/assets/quran/uthmanic_hafs_v20.ttf.asset.json"),
   ...descriptorsIn("src/assets/books"),
 ];
+const descriptors = paths.map((file) => ({
+  ...assertSafeAssetDescriptor(JSON.parse(readFileSync(file, "utf8"))),
+  descriptorPath: file,
+}));
+const names = descriptors.map((asset) => asset.filename);
+if (new Set(names).size !== names.length) {
+  throw new Error("Duplicate mobile asset filenames would overwrite one another");
+}
+if (!names.includes("hafsData_v2-0.json") || !names.includes("uthmanic_hafs_v20.ttf")) {
+  throw new Error("Missing official Quran data or font descriptor");
+}
 mkdirSync(assetsDir, { recursive: true });
 
-// Copy existing public assets including the main /book.pdf and PDF.js resources.
-// Avoid recursively copying generated mobile assets into the staging directory.
+// Keep source public resources, including the /book.pdf catalog entry.
 cpSync(join(root, "public"), output, { recursive: true, force: true });
 
 const checksums = [];
-for (const source of descriptors) {
-  const asset = JSON.parse(readFileSync(source, "utf8"));
-  const { original_filename: filename, size, url } = asset;
-  if (
-    !filename || filename.includes("/") || filename.includes("\\") ||
-    !Number.isSafeInteger(size) || size < 1 ||
-    !url.startsWith("/__l5e/assets-v1/")
-  ) throw new Error(`Invalid Lovable asset descriptor: ${source}`);
-
+for (const asset of descriptors) {
+  const { filename, size, url } = asset;
   const target = join(assetsDir, filename);
-  if (!existsSync(target) || statSync(target).size !== size) {
-    const assetUrl = new URL(url, sourceOrigin);
-    const response = await fetch(assetUrl, { signal: AbortSignal.timeout(120_000) });
-    if (!response.ok) throw new Error(`Failed downloading ${filename}: HTTP ${response.status}`);
-    const data = Buffer.from(await response.arrayBuffer());
-    if (data.length !== size) {
-      throw new Error(`Asset size mismatch for ${filename}: expected ${size}, got ${data.length}`);
+  if (!existsSync(target)) {
+    const remote = new URL(url, originUrl);
+    if (remote.origin !== originUrl.origin) {
+      throw new Error(`Asset origin mismatch for ${filename}`);
     }
-    if (filename === "hafsData_v2-0.json") {
-      const verses = JSON.parse(data.toString("utf8"));
-      if (!Array.isArray(verses) || verses.length !== 6236 ||
-          !verses.every((a) => Number.isInteger(a.page) && a.page >= 1 &&
-            a.page <= 604 && typeof a.aya_text === "string")) {
-        throw new Error("Quran dataset shape validation failed; refusing to package");
-      }
+    let response;
+    try {
+      response = await fetch(remote, {
+        signal: AbortSignal.timeout(120_000),
+        headers: { Accept: "application/octet-stream,application/pdf,application/json,*/*" },
+      });
+    } catch (error) {
+      throw new Error(
+        `Cannot retrieve ${filename}. Export the original from Lovable to ${target}: ${error}`,
+      );
     }
-    writeFileSync(target, data);
+    if (!response.ok) {
+      throw new Error(
+        `Cannot retrieve ${filename} (HTTP ${response.status}). Export the original Lovable asset to ${target}.`,
+      );
+    }
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (bytes.length !== size) {
+      throw new Error(`Incorrect byte length for ${filename}: ${bytes.length} vs ${size}`);
+    }
+    writeFileSync(target, bytes);
   }
-  const bytes = readFileSync(target);
-  checksums.push({
-    filename,
-    bytes: bytes.length,
-    sha256: createHash("sha256").update(bytes).digest("hex"),
-  });
+  const { bytes, sha256 } = validateFile(target, size);
+  if (filename === "hafsData_v2-0.json") {
+    const report = validateQuranFile(target);
+    console.log(`Validated Quran data: ${report.verses} verses, ${report.suras} suras, ${report.pages} pages`);
+    const expected = process.env.QURAN_EXPECTED_SHA256?.toLowerCase();
+    if (expected && expected !== sha256) {
+      throw new Error("Quran SHA-256 does not match the authoritative checksum");
+    }
+    if (!expected) {
+      console.warn("QURAN_EXPECTED_SHA256 was not provided; publisher-level checksum still needs verification.");
+    }
+  }
+  checksums.push({ filename, bytes, sha256 });
+  console.log(`Verified: ${filename} (${Math.round(bytes / 1024)} KiB)`);
+}
+const pdfjsPath = join(output, "pdfjs");
+if (!existsSync(join(pdfjsPath, "cmaps")) ||
+    !existsSync(join(pdfjsPath, "standard_fonts"))) {
+  throw new Error("Missing local PDF.js resources; run scripts/prepare-pdf-assets.mjs first");
+}
+if (!existsSync(join(output, "book.pdf")) || statSync(join(output, "book.pdf")).size < 1000) {
+  throw new Error("The principal /book.pdf has not been staged");
 }
 writeFileSync(
   join(assetsDir, "manifest.json"),
-  JSON.stringify({ format: 1, createdAt: new Date().toISOString(), assets: checksums }, null, 2),
+  JSON.stringify({ format: 2, createdAt: new Date().toISOString(), assets: checksums }, null, 2),
 );
-console.log(`Prepared ${checksums.length} local mobile assets for Android.`);
+console.log(`Prepared ${checksums.length} verified local assets for Android.`);
