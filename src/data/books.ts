@@ -1,3 +1,4 @@
+import { contentAssetUrl } from "@/lib/content-asset-url";
 import wardAsset from "@/assets/books/ward-tuli.pdf.asset.json";
 import sirahAsset from "@/assets/books/sirah-khaliliyya.pdf.asset.json";
 import kashfAsset from "@/assets/books/kashf-al-ghita.pdf.asset.json";
@@ -58,7 +59,7 @@ export const books: Book[] = [
     description:
       "ورد روحاني يومي يجمع أذكار الاستغفار والتوبة على طريقة السادة الخليلية، ليُعين السالك على تطهير القلب والعودة إلى الله بخشوع.",
     cover: coverWard,
-    pdfUrl: wardAsset.url,
+    pdfUrl: contentAssetUrl(wardAsset),
     category: "awrad",
   },
   {
@@ -68,7 +69,7 @@ export const books: Book[] = [
     description:
       "سيرة مباركة لأحد أعيان الطريقة الخليلية، تحكي محطات من حياته الروحية والعلمية، وتقدم للقارئ نموذجاً حياً للإخلاص والتصوف العملي.",
     cover: coverSirah,
-    pdfUrl: sirahAsset.url,
+    pdfUrl: contentAssetUrl(sirahAsset),
     category: "sirah",
   },
   {
@@ -78,7 +79,7 @@ export const books: Book[] = [
     description:
       "رسالة روحانية تكشف عن أسرار الصبر والبلاء، وتبيّن كيف تكون المصيبة باب رحمة للمؤمن، بقلم عارف يرى الأحداث بعين الإيمان.",
     cover: coverKashf,
-    pdfUrl: kashfAsset.url,
+    pdfUrl: contentAssetUrl(kashfAsset),
     category: "maarif",
   },
   {
@@ -87,7 +88,7 @@ export const books: Book[] = [
     description:
       "مجموعة من القصائد والنفحات المحمدية التي تُنشد على طريقة الخليلية، لتنير مجالس الذكر وتُحيي في القلب محبة النبي ﷺ.",
     cover: coverNafahatKh,
-    pdfUrl: nafahatKhAsset.url,
+    pdfUrl: contentAssetUrl(nafahatKhAsset),
     category: "madaih",
   },
   {
@@ -97,7 +98,7 @@ export const books: Book[] = [
     description:
       "كتاب يجمع سيرة ومآثر ومواعظ شيخ الطريقة الخليلية، يُرشد السالك إلى مكارم الأخلاق وأسس التربية الروحية على الخط العلوي.",
     cover: coverMurabbi,
-    pdfUrl: murabbiAsset.url,
+    pdfUrl: contentAssetUrl(murabbiAsset),
     category: "sirah",
   },
   {
@@ -106,7 +107,7 @@ export const books: Book[] = [
     description:
       "كتاب يستعرض مناقب وفضائل سادة الطريقة الخليلية، ويُبرز مناقب أهل البيت والصالحين من مشايخها، مجمعاً بين التاريخ والتزكية.",
     cover: coverManaqib,
-    pdfUrl: manaqibAsset.url,
+    pdfUrl: contentAssetUrl(manaqibAsset),
     category: "manaqib",
   },
   {
@@ -116,7 +117,7 @@ export const books: Book[] = [
     description:
       "موسوعة روحانية خليلية تتناول المعارف الصوفية والآداب السلوكية والمقامات والأحوال، لتكون منهلاً صافياً للسالك على طريق الحق.",
     cover: coverManahil,
-    pdfUrl: manahilAsset.url,
+    pdfUrl: contentAssetUrl(manahilAsset),
     category: "maarif",
   },
 ];
