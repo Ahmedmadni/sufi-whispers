@@ -17,6 +17,18 @@ on:
       - "vite.mobile.config.ts"
       - "package.json"
       - "bun.lock"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/android-debug.yml"
+      - "scripts/android-dev.mjs"
+      - "scripts/prepare-mobile-assets.mjs"
+      - "scripts/mobile-integrity.mjs"
+      - "scripts/verify-mobile-bundle.mjs"
+      - "mobile/**"
+      - "vite.mobile.config.ts"
+      - "package.json"
+      - "bun.lock"
 
 permissions:
   contents: read
@@ -37,11 +49,22 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
-      - name: Install Android SDK
+      # GitHub-hosted Ubuntu already ships the Android command-line tools.
+      # setup-android@v3 currently attempts to install the obsolete SDK
+      # package "tools", which fails before Gradle can start.
+      - name: Install Android SDK using hosted command-line tools
+        shell: bash
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDK_MANAGER="$(command -v sdkmanager || true)"
+          if [ -z "$SDK_MANAGER" ]; then
+            SDK_MANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -1)"
+          fi
+          test -x "$SDK_MANAGER" || { echo "sdkmanager is missing"; exit 1; }
+          echo "Android SDK root: $SDK_ROOT"
+          yes | "$SDK_MANAGER" --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
+          "$SDK_MANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0" "platform-tools"
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Check Quran and media validation logic
