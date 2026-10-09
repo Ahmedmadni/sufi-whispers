@@ -83,6 +83,7 @@ export function useDhikr() {
   const [running, setRunning] = useState(false);
   const [sessionMs, setSessionMs] = useState(0);
   const sessionStart = useRef<number | null>(null);
+  const sessionNameId = useRef<string | null>(null);
   const sessionCount = useRef(0);
 
   useEffect(() => {
@@ -105,6 +106,7 @@ export function useDhikr() {
   const startSession = useCallback(() => {
     if (sessionStart.current) return;
     sessionStart.current = Date.now();
+    sessionNameId.current = DHIKR_NAMES[state.activeIndex]?.id ?? null;
     sessionCount.current = 0;
     setSessionMs(0);
     setRunning(true);
@@ -117,19 +119,22 @@ export function useDhikr() {
         names: { ...s.names, [active.id]: { ...np, startedAt: np.startedAt ?? Date.now() } },
       });
     });
-  }, []);
+  }, [state.activeIndex]);
 
   const stopSession = useCallback(() => {
     const start = sessionStart.current;
+    const nameId = sessionNameId.current;
     sessionStart.current = null;
+    sessionNameId.current = null;
     setRunning(false);
-    if (!start) return;
-    const delta = Date.now() - start;
+    if (start === null) return;
+    const delta = Math.max(0, Date.now() - start);
     setSessionMs(0);
     setState((s) => {
-      const active = DHIKR_NAMES[s.activeIndex]!;
-      const np = s.names[active.id] ?? emptyName();
-      return { ...s, names: { ...s.names, [active.id]: { ...np, elapsedMs: np.elapsedMs + delta } } };
+      // Credit the original name, even if the selected name changed mid-session.
+      const id = nameId ?? DHIKR_NAMES[s.activeIndex]!.id;
+      const np = s.names[id] ?? emptyName();
+      return { ...s, names: { ...s.names, [id]: { ...np, elapsedMs: np.elapsedMs + delta } } };
     });
   }, []);
 
@@ -174,6 +179,8 @@ export function useDhikr() {
   const reset = useCallback(() => {
     setState(initial());
     sessionStart.current = null;
+    sessionNameId.current = null;
+    sessionCount.current = 0;
     setRunning(false);
     setSessionMs(0);
   }, []);
