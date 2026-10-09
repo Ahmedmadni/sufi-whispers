@@ -13,6 +13,11 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        command: [test, typecheck, build]
+    name: quality (${{ matrix.command }})
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -20,11 +25,7 @@ jobs:
           bun-version: latest
       - name: Install packages
         run: bun install --frozen-lockfile
-      - name: Regression tests
-        run: bun run test
+      - name: Run ${{ matrix.command }}
+        run: bun run ${{ matrix.command }}
         env:
           TZ: Asia/Riyadh
-      - name: TypeScript
-        run: bun run typecheck
-      - name: Production build
-        run: bun run build
