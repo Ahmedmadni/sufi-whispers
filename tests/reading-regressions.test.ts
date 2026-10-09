@@ -6,6 +6,9 @@ describe("local calendar rollover", () => {
   test("formats the device-local date", () => {
     expect(localDateKey(new Date(2026, 9, 9, 23, 45))).toBe("2026-10-09");
   });
+  test("does not roll over to a UTC day before local midnight", () => {
+    expect(localDateKey(new Date(2026, 0, 1, 0, 15))).toBe("2026-01-01");
+  });
   test("subtracts a calendar day across a month boundary", () => {
     expect(previousLocalDateKey(new Date(2026, 2, 1, 0, 15))).toBe("2026-02-28");
   });
