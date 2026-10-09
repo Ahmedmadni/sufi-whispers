@@ -9,29 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ShaykhRouteImport } from './routes/shaykh'
-import { Route as LibraryRouteImport } from './routes/library'
-import { Route as DhikrRouteImport } from './routes/dhikr'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as QuranIndexRouteImport } from './routes/quran.index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as DhikrRouteImport } from './routes/dhikr'
+import { Route as LibraryRouteImport } from './routes/library'
+import { Route as ShaykhRouteImport } from './routes/shaykh'
 import { Route as BooksBookIdRouteImport } from './routes/books.$bookId'
-import { Route as QuranSurahSuraNoRouteImport } from './routes/quran.surah.$suraNo'
+import { Route as QuranIndexRouteImport } from './routes/quran.index'
 import { Route as QuranPagePageRouteImport } from './routes/quran.page.$page'
+import { Route as QuranSurahSuraNoRouteImport } from './routes/quran.surah.$suraNo'
 
-const ShaykhRoute = ShaykhRouteImport.update({
-  id: '/shaykh',
-  path: '/shaykh',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LibraryRoute = LibraryRouteImport.update({
-  id: '/library',
-  path: '/library',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DhikrRoute = DhikrRouteImport.update({
-  id: '/dhikr',
-  path: '/dhikr',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -39,14 +29,19 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DhikrRoute = DhikrRouteImport.update({
+  id: '/dhikr',
+  path: '/dhikr',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuranIndexRoute = QuranIndexRouteImport.update({
-  id: '/quran/',
-  path: '/quran/',
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShaykhRoute = ShaykhRouteImport.update({
+  id: '/shaykh',
+  path: '/shaykh',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksBookIdRoute = BooksBookIdRouteImport.update({
@@ -54,14 +49,19 @@ const BooksBookIdRoute = BooksBookIdRouteImport.update({
   path: '/books/$bookId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuranSurahSuraNoRoute = QuranSurahSuraNoRouteImport.update({
-  id: '/quran/surah/$suraNo',
-  path: '/quran/surah/$suraNo',
+const QuranIndexRoute = QuranIndexRouteImport.update({
+  id: '/quran/',
+  path: '/quran/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QuranPagePageRoute = QuranPagePageRouteImport.update({
   id: '/quran/page/$page',
   path: '/quran/page/$page',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuranSurahSuraNoRoute = QuranSurahSuraNoRouteImport.update({
+  id: '/quran/surah/$suraNo',
+  path: '/quran/surah/$suraNo',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -149,25 +149,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/shaykh': {
-      id: '/shaykh'
-      path: '/shaykh'
-      fullPath: '/shaykh'
-      preLoaderRoute: typeof ShaykhRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/library': {
-      id: '/library'
-      path: '/library'
-      fullPath: '/library'
-      preLoaderRoute: typeof LibraryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dhikr': {
-      id: '/dhikr'
-      path: '/dhikr'
-      fullPath: '/dhikr'
-      preLoaderRoute: typeof DhikrRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -177,18 +163,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/dhikr': {
+      id: '/dhikr'
+      path: '/dhikr'
+      fullPath: '/dhikr'
+      preLoaderRoute: typeof DhikrRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quran/': {
-      id: '/quran/'
-      path: '/quran'
-      fullPath: '/quran/'
-      preLoaderRoute: typeof QuranIndexRouteImport
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shaykh': {
+      id: '/shaykh'
+      path: '/shaykh'
+      fullPath: '/shaykh'
+      preLoaderRoute: typeof ShaykhRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books/$bookId': {
@@ -198,11 +191,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BooksBookIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quran/surah/$suraNo': {
-      id: '/quran/surah/$suraNo'
-      path: '/quran/surah/$suraNo'
-      fullPath: '/quran/surah/$suraNo'
-      preLoaderRoute: typeof QuranSurahSuraNoRouteImport
+    '/quran/': {
+      id: '/quran/'
+      path: '/quran'
+      fullPath: '/quran/'
+      preLoaderRoute: typeof QuranIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/quran/page/$page': {
@@ -210,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/quran/page/$page'
       fullPath: '/quran/page/$page'
       preLoaderRoute: typeof QuranPagePageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quran/surah/$suraNo': {
+      id: '/quran/surah/$suraNo'
+      path: '/quran/surah/$suraNo'
+      fullPath: '/quran/surah/$suraNo'
+      preLoaderRoute: typeof QuranSurahSuraNoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
