@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Play,
@@ -109,7 +109,7 @@ function DhikrPage() {
         </header>
 
         {/* ورد الوقت الحالي */}
-        <section className="glass rounded-2xl p-4 sm:p-6 text-center">
+        <section className="glass dhikr-stage rounded-2xl p-4 sm:p-6 text-center">
           <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground font-body">
             <Clock className="w-3.5 h-3.5" />
             <span>{wird.window}</span>
@@ -126,16 +126,25 @@ function DhikrPage() {
           )}
 
           {/* العدّاد */}
-          <button
-            type="button"
-            onClick={() => bump(1)}
-            className="mt-5 mx-auto flex h-32 w-32 sm:h-36 sm:w-36 items-center justify-center rounded-full glass-gold text-gold-soft glow-gold active:scale-95 transition-transform"
-            aria-label="زيادة العدّ"
+          <div
+            className="dhikr-dial mt-6"
+            style={{
+              "--dhikr-progress": `${wird.phase === "asma" ? Math.min(100, Math.max(0, pct * 100)) : 0}%`,
+            } as CSSProperties}
           >
-            <span className="font-display text-2xl sm:text-3xl">
-              {formatNumber(wird.phase === "asma" ? d.activeProgress.count : dailyCount)}
-            </span>
-          </button>
+            <button
+              type="button"
+              onClick={() => bump(1)}
+              className="dhikr-dial__button"
+              aria-label="زيادة العدّ مرة واحدة"
+            >
+              <TasbihIcon className="h-6 w-6 opacity-80" />
+              <span className="dhikr-dial__number font-display text-2xl sm:text-3xl">
+                {formatNumber(wird.phase === "asma" ? d.activeProgress.count : dailyCount)}
+              </span>
+              <span className="dhikr-dial__hint">اضغط للتسبيح</span>
+            </button>
+          </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             {[10, 33, 100, 1000].map((n) => (
@@ -191,8 +200,7 @@ function DhikrPage() {
         </section>
 
         {/* التقدّم في الاسم الحالي */}
-        {wird.phase === "asma" || true ? (
-          <section className="glass rounded-2xl p-4 sm:p-6">
+        <section className="glass rounded-2xl p-4 sm:p-6">
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-display text-gold-soft text-base sm:text-lg">
                 تقدّمك في اسم «{d.active.name}»
@@ -224,8 +232,7 @@ function DhikrPage() {
               المتبقّي لإتمام الاسم: {formatNumber(d.stats.remaining)} مرة — إجمالي ما ذكرتَه في كل
               الأسماء: {formatNumber(d.stats.totalCount)} مرة خلال {formatDuration(d.stats.totalElapsed)}.
             </p>
-          </section>
-        ) : null}
+        </section>
 
         {/* الأسماء الثلاثة عشر */}
         <section className="glass rounded-2xl p-4 sm:p-6">
@@ -309,7 +316,6 @@ function DhikrPage() {
           </div>
         </section>
 
-        <AnimatePresence />
       </main>
 
       <SiteFooter />
