@@ -11,10 +11,14 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "mobile:prepare": "node scripts/prepare-pdf-assets.mjs && node scripts/prepare-mobile-assets.mjs",
-    "mobile:build": "bun run mobile:prepare && vite build --config vite.mobile.config.ts",
+    "mobile:build": "bun run mobile:prepare && vite build --config vite.mobile.config.ts && bun run mobile:verify",
     "mobile:preview": "vite preview --config vite.mobile.config.ts",
     "test": "bun test",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test:integrity": "node --test tests/mobile-integrity.test.mjs",
+    "mobile:verify": "node scripts/verify-mobile-bundle.mjs",
+    "mobile:android:setup": "node scripts/android-dev.mjs",
+    "mobile:android:apk": "node scripts/android-dev.mjs --apk"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
