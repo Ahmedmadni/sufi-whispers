@@ -28,6 +28,7 @@ export function validateQuranDataset(data: unknown): ValidationReport {
   const ayaCursor = new Map<number, number>();
   let lastPage = 0;
   let prevPage = 0;
+  const uniquePages = new Set<number>();
 
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
@@ -54,6 +55,7 @@ export function validateQuranDataset(data: unknown): ValidationReport {
     if (r.page < prevPage) errors.push(`${where}: تسلسل الصفحات غير تصاعدي (${prevPage} ← ${r.page})`);
     prevPage = r.page;
     lastPage = Math.max(lastPage, r.page);
+    uniquePages.add(r.page);
 
     if (suraOrder[suraOrder.length - 1] !== r.sura_no) {
       if (suraOrder.includes(r.sura_no)) errors.push(`${where}: سجلات السورة ${r.sura_no} غير متجاورة`);
@@ -75,6 +77,7 @@ export function validateQuranDataset(data: unknown): ValidationReport {
   if (suraOrder.length !== 114) errors.push(`عدد السور = ${suraOrder.length} (المتوقع 114)`);
   if (rows.length !== 6236) errors.push(`عدد السجلات = ${rows.length} (المتوقع 6236)`);
   if (lastPage !== 604) errors.push(`آخر صفحة = ${lastPage} (المتوقع 604)`);
+  if (uniquePages.size !== 604) errors.push(`عدد صفحات المصحف غير مكتمل = ${uniquePages.size} (المتوقع 604 صفحة)`);
 
   return {
     ok: errors.length === 0,
