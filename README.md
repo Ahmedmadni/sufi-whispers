@@ -1,3 +1,50 @@
+# رحاب الخليلية — موقع ومشروع تطبيق Android
+
+تطبيق عربي RTL مبني باستخدام **React 19 + TypeScript + TanStack Router/Start + Tailwind CSS**، ويضم المصحف الشريف ومكتبة الكتب الخليلية والأذكار. هذا هو الكود الفعلي؛ أما البرومبت الإنجليزي الموجود أسفل الملف فهو مرجع تصميم تاريخي **وليس** وصفًا لحزمة Next.js المستخدمة حاليًا.
+
+**الموقع:** https://sufi-whispers.lovable.app
+
+## التشغيل
+
+```sh
+bun install --frozen-lockfile
+bun run dev
+bun run test
+bun run typecheck
+bun run build
+```
+
+## تجهيز نسخة Android (Capacitor 8)
+
+تحتاج **Node 22+** و **Bun**، ولإصدار APK تحتاج **Android Studio وAndroid SDK API 36 وJava/Gradle**.
+
+```sh
+# فحص المنطق الحرج للعمل دون إنترنت، دون أي اتصال بالويب
+bun run test:integrity
+
+# إعداد الملفات الأصلية للمصحف والخط والكتب ثم حزم SPA مستقلة
+bun run mobile:build
+
+# تثبيت Capacitor 8 وإنشاء مشروع android/ ومزامنة الملفات
+bun run mobile:android:setup
+
+# إنتاج APK تجريبي بعد توفر SDK
+bun run mobile:android:apk
+```
+
+- **مهم:** الملفات `.asset.json` داخل المستودع مجرد مؤشرات لموارد Lovable، وليست الكتب أو المصحف نفسه. يجلب `mobile:build` الأصول من Lovable إن كانت متاحة، أو يعيد استخدام ملفات أصلية موجودة في `mobile/.public/mobile-assets`.
+- يتحقق البناء من ترتيب الآيات والسور، وتوقيع ملفات PDF والخطوط، والأحجام وتجزئة SHA-256 لكل ملف، ثم يتحقق من أن الحزمة النهائية مكتملة.
+- يوصى بتحديد `QURAN_EXPECTED_SHA256` للتأكد من مطابقة بيانات المصحف للأصل الرسمي المعتمد قبل نشر التطبيق.
+- يظل بناء موقع TanStack Start/Cloudflare منفصلًا عن بناء Android.
+- يوجد مسار يدوي ضمن GitHub Actions باسم **Android Debug APK** ينشئ ملف APK كـArtifact **عند نجاح المشغّل والبناء**؛ لن ينشره في متجر التطبيقات تلقائيًا.
+- لم يتم بعد إثبات نجاح Build أو إنشاء APK على جهاز فعلي ضمن أدوات الصيانة؛ لا تعتبر المشروع جاهزًا للنشر دون هذه الاختبارات.
+
+راجع [خطة أندرويد](docs/ANDROID_ROADMAP.md) و[التصميم البصري](docs/VISUAL_DESIGN.md).
+
+---
+
+## مرجع الفكرة والتصميم الأولي (قديم)
+
 # Remix of Sufi Sanctuary
 
 يمكنك استخدام البرومبت التالي مباشرة داخل Lovable AI لإنشاء الموقع بالكامل بجودة Ultra Premium مع هوية صوفية إسلامية فاخرة:
