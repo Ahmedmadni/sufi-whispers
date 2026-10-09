@@ -112,9 +112,7 @@ function HomePage() {
       <ResumeBar />
 
       {/* ============ WIRD OF THE HOUR ============ */}
-      <section className="mx-auto w-full max-w-5xl px-3 sm:px-6 pt-6" dir="rtl">
-        <DhikrCard />
-      </section>
+      <DhikrCard />
 
 
 
