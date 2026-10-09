@@ -127,7 +127,7 @@ function SurahPage() {
         )}
 
         {current && (
-          <article className="mt-4 glass rounded-2xl px-3 sm:px-5 py-5">
+          <article className="mushaf-sheet mt-4 rounded-2xl px-4 sm:px-7 py-6 sm:py-8">
             {pageIdx === 0 && hasBasmala(sura.no) && (
               <p className="mushaf-text mb-4 text-center text-[1.05rem] sm:text-[1.2rem] text-gold-soft [text-align-last:center]">
                 {BASMALA}

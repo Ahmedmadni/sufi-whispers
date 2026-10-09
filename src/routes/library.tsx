@@ -94,10 +94,16 @@ function LibraryPage() {
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <section className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
-        <div className="text-center mb-6 sm:mb-10">
-          <h1 className="font-display text-gold-soft text-2xl sm:text-3xl mb-2">المكتبة</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground font-body">اختر كتاباً للقراءة</p>
-        </div>
+        <header className="library-banner mb-6 sm:mb-10 text-center">
+          <p className="rihab-eyebrow justify-center">رحاب الخليلية · مكتبة التراث</p>
+          <h1 className="relative mt-3 font-display text-[#e8c788] text-2xl sm:text-4xl leading-relaxed">
+            المكتبة الخليلية
+          </h1>
+          <div className="rihab-ornament my-3" aria-hidden="true">✦</div>
+          <p className="relative mx-auto max-w-xl text-sm sm:text-base leading-7 text-[#f4ead7]/85 font-body">
+            تصفّح {books.length} من مؤلفات ومدائح وأوراد الطريق الخليلي، واختر كتابك لتواصل القراءة.
+          </p>
+        </header>
 
         <div className="relative max-w-md mx-auto mb-6 sm:mb-8">
           <label htmlFor="book-search" className="sr-only">
@@ -126,8 +132,8 @@ function LibraryPage() {
         </div>
 
         <div
-          role="tablist"
-          aria-label="تصنيفات الكتب"
+          role="group"
+          aria-label="تصفية الكتب حسب التصنيف"
           dir="rtl"
           className="flex flex-wrap justify-center gap-2 mb-6 sm:mb-8"
         >
@@ -138,10 +144,9 @@ function LibraryPage() {
               <button
                 key={c.key}
                 type="button"
-                role="tab"
-                aria-selected={isActive}
+                aria-pressed={isActive}
                 onClick={() => setActiveCategory(c.key)}
-                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-body border transition-all ${
+                className={`library-filter px-3 py-1.5 rounded-full text-xs sm:text-sm font-body border transition-all ${
                   isActive
                     ? "bg-gold/20 border-gold/60 text-gold-soft shadow-sm"
                     : "bg-background/40 border-gold/20 text-muted-foreground hover:border-gold/40 hover:text-gold-soft"
@@ -197,9 +202,9 @@ function LibraryPage() {
                     triggerRef.current = e.currentTarget;
                     setSelectedBook(b);
                   }}
-                  className="group flex flex-col items-center text-center"
+                  className="book-card group flex flex-col items-center text-center"
                 >
-                  <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg group-hover:shadow-2xl group-active:scale-[0.98] transition-all">
+                  <div className="book-art relative w-full aspect-[3/4] group-active:scale-[0.98]">
                     <BookCover
                       src={b.cover}
                       alt={b.title}
@@ -212,7 +217,7 @@ function LibraryPage() {
                       </span>
                     </div>
                   </div>
-                  <h2 className="mt-2.5 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-tight text-balance line-clamp-2 break-words">
+                  <h2 className="book-card__label mt-3 w-full px-1 font-display text-gold-soft text-sm sm:text-base leading-relaxed text-balance line-clamp-2 break-words">
                     {b.title}
                   </h2>
                   {b.subtitle && (
@@ -247,7 +252,7 @@ function LibraryPage() {
                   </DialogClose>
 
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-center sm:items-start">
-                    <div className="relative w-32 sm:w-40 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-lg shrink-0">
+                    <div className="book-art relative w-32 sm:w-40 aspect-[3/4] shrink-0">
                       <BookCover
                         src={selectedBook.cover}
                         alt={selectedBook.title}

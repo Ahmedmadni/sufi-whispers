@@ -1,0 +1,347 @@
+/* رحاب الخليلية — visual experience v1.
+   Enhances existing photographs, original covers and editorial typography.
+   Motion is decorative only; all reading and navigation work without it. */
+
+/* Shared atmosphere */
+.rihab-section {
+  position: relative;
+  isolation: isolate;
+}
+.rihab-section::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 12% 10%, rgb(211 171 98 / .08), transparent 42%),
+    radial-gradient(ellipse at 88% 75%, rgb(36 85 72 / .13), transparent 38%);
+}
+.rihab-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  font: 600 .72rem/1.5 var(--font-body);
+  color: var(--gold-soft);
+  letter-spacing: .03em;
+}
+.rihab-eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.rihab-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .8rem;
+  color: var(--gold-soft);
+  opacity: .72;
+  font-size: 1.05rem;
+  line-height: 1;
+  user-select: none;
+}
+.rihab-ornament::before, .rihab-ornament::after {
+  content: "";
+  height: 1px;
+  width: clamp(1.7rem, 9vw, 5rem);
+  background: linear-gradient(90deg, transparent, var(--gold));
+  opacity: .65;
+}
+.rihab-ornament::after { transform: rotate(180deg); }
+
+/* Cinematic hero atmosphere using only the assets already owned by the project. */
+.hero-sequence {
+  min-height: min(650px, calc(100svh - 4rem));
+  background: #101d1a;
+}
+.hero-sequence::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 72% 24%, rgb(211 171 98 / .16), transparent 35%),
+    linear-gradient(0deg, rgb(10 29 25 / .85), transparent 32%);
+}
+.hero-geometry {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: .16;
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 38px, rgb(211 171 98 / .12) 39px 40px),
+    repeating-linear-gradient(-45deg, transparent 0 38px, rgb(211 171 98 / .10) 39px 40px);
+  -webkit-mask-image: linear-gradient(90deg, transparent 30%, black);
+  mask-image: linear-gradient(90deg, transparent 30%, black);
+}
+.hero-glow {
+  position: absolute;
+  z-index: 2;
+  width: min(58vw, 720px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  top: -42%;
+  right: -15%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgb(232 199 136 / .13), transparent 64%);
+  animation: rihab-breathe 12s ease-in-out infinite alternate;
+}
+.hero-callout {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: .5rem;
+  color: #edcd95;
+  background: rgb(9 33 28 / .72);
+  border: 1px solid rgb(232 199 136 / .35);
+  border-radius: 100px;
+  padding: .42rem .85rem;
+  font: 500 .73rem/1.6 var(--font-body);
+  backdrop-filter: blur(8px);
+}
+.hero-links a {
+  transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+}
+.hero-links a:focus-visible { outline: 2px solid #e8c788; outline-offset: 3px; }
+
+/* Book covers get depth and a soft gold reflection without altering photos. */
+.book-art {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgb(211 171 98 / .28);
+  border-radius: .7rem;
+  box-shadow: 0 12px 26px rgb(0 0 0 / .22), 4px 4px 0 rgb(211 171 98 / .07);
+  background: #173328;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: transform .45s cubic-bezier(.2,.8,.25,1), box-shadow .45s ease, border-color .3s ease;
+}
+.book-art::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 7%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(0 0 0 / .26), rgb(255 255 255 / .12) 35%, transparent);
+  mix-blend-mode: soft-light;
+}
+.book-art::after {
+  content: "";
+  position: absolute;
+  inset: -80% 0;
+  z-index: 2;
+  pointer-events: none;
+  transform: translateX(170%) rotate(16deg);
+  opacity: 0;
+  background: linear-gradient(90deg, transparent 44%, rgb(255 240 193 / .15) 50%, transparent 56%);
+  transition: transform .8s ease, opacity .5s ease;
+}
+.book-card {
+  min-width: 0;
+  border-radius: .9rem;
+}
+.book-card:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 5px;
+}
+.book-card__label { transition: color .25s ease; }
+.book-card:hover .book-card__label, .book-card:focus-visible .book-card__label { color: var(--gold-soft); }
+.book-card__meta { letter-spacing: .02em; }
+
+/* Library title styling and search palette. */
+.library-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.2rem;
+  background: linear-gradient(130deg, rgb(18 51 40 / .95), rgb(10 28 24 / .85));
+  border: 1px solid rgb(211 171 98 / .24);
+  padding: clamp(1.15rem, 4vw, 2.4rem);
+  box-shadow: inset 0 1px rgb(255 255 255 / .04), 0 18px 40px rgb(0 0 0 / .1);
+}
+.library-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .14;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 28px, rgb(232 199 136 / .2) 29px 30px),
+    repeating-linear-gradient(-45deg, transparent 0 28px, rgb(232 199 136 / .2) 29px 30px);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black);
+  mask-image: linear-gradient(90deg, transparent, black);
+}
+.library-filter {
+  min-height: 2.65rem;
+  transition: background-color .2s, transform .2s, border-color .2s;
+}
+.library-filter:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Interactive dhikr counter: smooth, readable, battery-friendly. */
+.dhikr-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% -25%, rgb(211 171 98 / .12), transparent 70%),
+    linear-gradient(160deg, rgb(20 57 45 / .65), rgb(10 26 22 / .34));
+}
+.dhikr-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .17;
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 40px, rgb(211 171 98 / .1) 41px 42px),
+    repeating-linear-gradient(-45deg, transparent 0 40px, rgb(211 171 98 / .1) 41px 42px);
+}
+.dhikr-dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 164px;
+  aspect-ratio: 1;
+  margin-inline: auto;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--gold) var(--dhikr-progress, 0%), rgb(211 171 98 / .14) 0);
+  padding: 5px;
+  box-shadow: 0 0 35px rgb(211 171 98 / .10);
+  transition: box-shadow .2s ease;
+}
+.dhikr-dial__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .2rem;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1px solid rgb(211 171 98 / .33);
+  background: radial-gradient(circle at 40% 22%, #275541, #0e2923 74%);
+  color: #f5d49e;
+  box-shadow: inset 0 4px 15px rgb(255 255 255 / .04), inset 0 -10px 20px rgb(0 0 0 / .2);
+  transition: transform .13s ease, background-color .2s ease;
+}
+.dhikr-dial__button:active { transform: scale(.945); }
+.dhikr-dial__button:focus-visible { outline: 2px solid var(--gold); outline-offset: 7px; }
+.dhikr-dial__number { font-variant-numeric: tabular-nums; line-height: 1.1; }
+.dhikr-dial__hint { font: 400 .7rem/1.4 var(--font-body); opacity: .78; }
+
+/* Mobile nav: warm active states and no layout jumps. */
+.bottom-nav a { position: relative; min-height: 50px; }
+.bottom-nav a:focus-visible { outline: 2px solid var(--gold); outline-offset: -3px; border-radius: .5rem; }
+.bottom-nav a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  bottom: .12rem;
+  left: 38%;
+  right: 38%;
+  height: 2px;
+  border-radius: 9px;
+  background: var(--gold);
+}
+.bottom-nav a[aria-current="page"] .bottom-nav-fab { box-shadow: 0 0 20px rgb(211 171 98 / .45); }
+
+/* Light mode: preserve contrast for books and dhikr on parchment. */
+.light .library-banner { background: linear-gradient(130deg, #f1e4cc, #e5d2ad); }
+.light .library-banner h1, .light .library-banner .rihab-eyebrow { color: #4b3922; }
+.light .dhikr-stage { background: linear-gradient(145deg, #f3e8d3, #e6d6bd); }
+.light .dhikr-stage::before { opacity: .25; }
+.light .book-art { box-shadow: 0 12px 30px rgb(64 44 19 / .18); }
+
+/* Only transform cards on true hover devices. */
+@media (hover: hover) and (pointer: fine) {
+  .book-card:hover .book-art, .book-card:focus-visible .book-art {
+    transform: perspective(800px) rotateY(-4deg) translateY(-6px);
+    box-shadow: 0 21px 36px rgb(0 0 0 / .32), 5px 5px 0 rgb(211 171 98 / .1);
+    border-color: rgb(232 199 136 / .6);
+  }
+  .book-card:hover .book-art::after { transform: translateX(-160%) rotate(16deg); opacity: 1; }
+  .hero-links a:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgb(0 0 0 / .26); }
+  .library-filter:hover { transform: translateY(-2px); }
+}
+@media (max-width: 640px) {
+  .hero-sequence { min-height: min(620px, calc(100svh - 3.75rem)); }
+  .hero-glow { width: 110vw; top: -15%; right: -45%; }
+  .hero-geometry { opacity: .1; }
+  .hero-callout { font-size: .68rem; }
+  .dhikr-dial { width: 154px; }
+  .library-banner { border-radius: .9rem; }
+}
+@keyframes rihab-breathe {
+  from { opacity: .42; transform: scale(.96); }
+  to { opacity: 1; transform: scale(1.07); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow { animation: none !important; }
+  .book-art, .book-art::after, .hero-links a, .library-filter, .dhikr-dial__button {
+    transition: none !important;
+  }
+  .book-card:hover .book-art, .book-card:focus-visible .book-art { transform: none !important; }
+}
+
+/* Faster first paint: don't leave the photography hidden for 2 seconds.
+   Existing motion settings in the main stylesheet are still respected. */
+.hero-scene { animation-delay: .45s; }
+.hero-intro { animation-delay: .8s; animation-duration: .4s; }
+.hero-logo-draw img { animation-duration: .7s; animation-delay: .05s; }
+.hero-logo-sheen { animation-duration: .85s; animation-delay: .1s; }
+.hero-typewriter {
+  animation: type-in .55s steps(28) .12s forwards, caret .28s step-end .12s 2;
+}
+.light .library-banner p { color: #594a35; }
+
+/* Reading canvas — editorial clarity is prioritized over decoration. */
+.mushaf-sheet {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(211 171 98 / .28);
+  box-shadow: 0 20px 45px rgb(0 0 0 / .13), inset 0 1px rgb(232 199 136 / .08);
+  background:
+    linear-gradient(150deg, rgb(211 171 98 / .035), transparent 30%),
+    color-mix(in oklab, var(--background) 88%, var(--gold) 12%);
+}
+.mushaf-sheet::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: .55rem;
+  border: 1px solid rgb(211 171 98 / .13);
+  border-radius: .7rem;
+}
+.mushaf-sheet .mushaf-text {
+  position: relative;
+  z-index: 1;
+  line-height: 2.65;
+}
+.reader-surface {
+  border: 1px solid rgb(211 171 98 / .24);
+  background:
+    radial-gradient(ellipse at 50% -20%, rgb(211 171 98 / .12), transparent 55%),
+    color-mix(in oklab, var(--background) 94%, var(--gold) 6%);
+}
+.reader-toolbar { border: 1px solid rgb(211 171 98 / .18); }
+.reader-toolbar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.reader-paper { box-shadow: 0 18px 38px rgb(0 0 0 / .24); }
+.light .mushaf-sheet {
+  background: #fff9eb;
+  border-color: rgb(145 105 49 / .25);
+  box-shadow: 0 12px 35px rgb(63 48 24 / .11);
+}
+.light .reader-surface { background: #f6efdf; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-scene, .hero-intro, .hero-logo-draw img, .hero-logo-sheen, .hero-typewriter {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+  }
+  .hero-intro { visibility: hidden; opacity: 0; }
+  .hero-scene { opacity: 1; }
+}

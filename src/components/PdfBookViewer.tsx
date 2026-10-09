@@ -249,7 +249,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       )}
 
       {/* Controls */}
-      <div className="glass rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
+      <div className="glass reader-toolbar rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
         <form onSubmit={onSubmit} className="flex items-center gap-1.5 min-w-0">
           <div className="relative">
             <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold/60 pointer-events-none" />
@@ -359,7 +359,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className="glass rounded-xl p-1 flex flex-col justify-center items-center min-h-[70vh] bg-velvet/30 touch-pan-y select-none overflow-x-auto"
+        className="reader-surface rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
       >
         <Document
           key={bookId}
@@ -406,7 +406,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 }}
               />
             }
-            className="shadow-xl rounded-lg overflow-hidden"
+            className="reader-paper rounded-lg overflow-hidden"
           />
           <div
             aria-hidden
@@ -433,7 +433,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       </div>
 
       {/* Bottom pager */}
-      <div className="glass rounded-xl p-2 mt-2 flex items-center justify-between gap-2">
+      <div className="glass reader-toolbar rounded-xl p-2 mt-2 flex items-center justify-between gap-2">
         <button
           onClick={() => goTo(page - 1)}
           disabled={page <= 1}

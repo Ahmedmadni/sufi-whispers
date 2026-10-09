@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Clock, ChevronLeft } from "lucide-react";
 import { TasbihIcon } from "@/components/TasbihIcon";
 import { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { useDhikr, formatNumber } from "@/lib/dhikr-store";
 
 /** بطاقة «ورد هذه الساعة» في الصفحة الرئيسية. */
 export function DhikrCard() {
+  const reducedMotion = useReducedMotion();
   const { hydrated, active, activeProgress, state } = useDhikr();
   // Fixed initial date keeps SSR and first client render identical (no hydration mismatch)
   const [wird, setWird] = useState(() => currentWird(new Date(2000, 0, 1, 12)));
@@ -23,7 +24,7 @@ export function DhikrCard() {
   return (
     <section dir="rtl" className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-4 sm:py-6">
       <motion.div
-        initial={{ opacity: 0, y: 14 }}
+        initial={reducedMotion ? false : { opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.5 }}
