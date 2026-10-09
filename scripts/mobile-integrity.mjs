@@ -62,6 +62,16 @@ export function validateFile(source, expectedSize) {
     throw new Error(`Asset length mismatch: ${source} expected ${expectedSize}, got ${size}`);
   }
   const bytes = readFileSync(source);
+  if (source.endsWith(".pdf") &&
+      !bytes.subarray(0, Math.min(bytes.length, 1024)).includes(Buffer.from("%PDF-"))) {
+    throw new Error(`PDF file signature is invalid: ${source}`);
+  }
+  if (source.endsWith(".ttf")) {
+    const fontSignature = bytes.subarray(0, 4).toString("hex");
+    if (!["00010000", "4f54544f", "74727565", "74746366"].includes(fontSignature)) {
+      throw new Error(`Font file signature is invalid: ${source}`);
+    }
+  }
   return {
     bytes: size,
     sha256: createHash("sha256").update(bytes).digest("hex"),
