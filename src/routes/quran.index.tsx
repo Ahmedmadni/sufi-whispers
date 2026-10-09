@@ -61,10 +61,15 @@ function QuranIndexPage() {
     <div className="min-h-screen flex flex-col" dir="rtl">
       <SiteHeader />
       <main className="flex-1 w-full max-w-4xl mx-auto px-3 sm:px-5 py-5">
-        <header className="text-center">
-          <h1 className="font-display text-2xl sm:text-3xl text-gradient-gold">المصحف الشريف</h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body">
-            بالرسم العثماني — رواية حفص عن عاصم
+        <header className="mushaf-index-hero text-center">
+          <span className="mushaf-index-hero__eyebrow">رحاب الخليلية · نور القرآن</span>
+          <div className="rihab-ornament my-3" aria-hidden="true">✦</div>
+          <h1 className="font-display text-2xl sm:text-4xl text-[#e8c788] leading-[1.7]">المصحف الشريف</h1>
+          <p className="mt-1.5 text-xs sm:text-base text-[#f4ead7]/90 font-body leading-8">
+            برواية حفص عن عاصم · بالرسم العثماني الأصيل
+          </p>
+          <p className="mt-1 text-[11px] text-[#e8c788]/80 font-body">
+            ١١٤ سورة · ٦٠٤ صفحات · خط عثماني قابل للتكبير
           </p>
         </header>
 

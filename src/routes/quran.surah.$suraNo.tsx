@@ -4,13 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { MushafSurahOpening, openingVerses } from "@/components/MushafSurahOpening";
+import { MushafReadingToolbar, useMushafView } from "@/components/MushafReadingToolbar";
 import {
   SURA_INDEX,
   quranQueryOptions,
   getSura,
   saveReadingPosition,
-  BASMALA,
-  hasBasmala,
 } from "@/lib/quran";
 
 export const Route = createFileRoute("/quran/surah/$suraNo")({
@@ -48,6 +48,7 @@ function SurahPage() {
   const { sura } = Route.useLoaderData();
   const { data, isLoading, error, refetch } = useQuery(quranQueryOptions);
   const [pageIdx, setPageIdx] = useState(0);
+  const { view, update, paperStyle } = useMushafView();
 
   const ayat = useMemo(() => (data ? getSura(data, sura.no) : []), [data, sura.no]);
 
@@ -106,7 +107,7 @@ function SurahPage() {
           </Link>
         </div>
 
-        <header className="mt-4 text-center glass-gold rounded-2xl py-4 px-3">
+        <header className="quran-surah-top mt-4 text-center rounded-2xl py-4 px-3">
           <h1 className="font-display text-xl sm:text-2xl text-gradient-gold">
             سورة {sura.nameAr}
           </h1>
@@ -135,15 +136,23 @@ function SurahPage() {
           </div>
         )}
 
+        <MushafReadingToolbar view={view} onChange={update} />
+
         {current && (
-          <article className="mushaf-sheet mt-4 rounded-2xl px-4 sm:px-7 py-6 sm:py-8">
-            {pageIdx === 0 && hasBasmala(sura.no) && (
-              <p className="mushaf-text mb-4 text-center text-[1.05rem] sm:text-[1.2rem] text-gold-soft [text-align-last:center]">
-                {BASMALA}
-              </p>
+          <article
+            className={`mushaf-sheet mushaf-premium ${view.parchment ? "mushaf-parchment" : "mushaf-midnight"} mt-4 rounded-2xl px-4 sm:px-7 py-6 sm:py-8`}
+            style={paperStyle}
+            aria-label={`سورة ${sura.nameAr}، صفحة ${current.page}`}
+          >
+            {pageIdx === 0 && (
+              <MushafSurahOpening
+                suraName={sura.nameAr}
+                suraNo={sura.no}
+                firstAyaText={sura.no === 1 ? current.list[0]?.aya_text : undefined}
+              />
             )}
-            <div className="mushaf-text text-[1.05rem] sm:text-[1.2rem] text-foreground">
-              {current.list.map((a) => (
+            <div className="mushaf-text mushaf-verses">
+              {openingVerses(sura.no, current.list, pageIdx === 0).map((a) => (
                 <span key={a.id} id={`aya-${a.aya_no}`} className="inline">
                   {a.aya_text}{" "}
                 </span>

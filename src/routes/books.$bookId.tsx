@@ -32,7 +32,7 @@ export const Route = createFileRoute("/books/$bookId")({
       <SiteHeader />
       <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6">
         <p className="font-display text-gold-soft">لم يُعثر على الكتاب</p>
-        <Link to="/" className="text-sm text-gold-soft underline">
+        <Link to="/library" className="text-sm text-gold-soft underline">
           العودة إلى المكتبة
         </Link>
       </div>
@@ -85,10 +85,10 @@ function BookPage() {
       <section className="flex-1 w-full max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
         <div
           dir="rtl"
-          className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 mb-2 px-1"
+          className="reader-book-header grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 mb-3 rounded-xl px-4 py-3"
         >
           <Link
-            to="/"
+            to="/library"
             className="shrink-0 inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"
           >
             <ChevronRight className="w-3.5 h-3.5 shrink-0" />
