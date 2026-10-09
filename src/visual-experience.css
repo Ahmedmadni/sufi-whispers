@@ -287,3 +287,61 @@
   }
   .book-card:hover .book-art, .book-card:focus-visible .book-art { transform: none !important; }
 }
+
+/* Faster first paint: don't leave the photography hidden for 2 seconds.
+   Existing motion settings in the main stylesheet are still respected. */
+.hero-scene { animation-delay: .45s; }
+.hero-intro { animation-delay: .8s; animation-duration: .4s; }
+.hero-logo-draw img { animation-duration: .7s; animation-delay: .05s; }
+.hero-logo-sheen { animation-duration: .85s; animation-delay: .1s; }
+.hero-typewriter {
+  animation: type-in .55s steps(28) .12s forwards, caret .28s step-end .12s 2;
+}
+.light .library-banner p { color: #594a35; }
+
+/* Reading canvas — editorial clarity is prioritized over decoration. */
+.mushaf-sheet {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(211 171 98 / .28);
+  box-shadow: 0 20px 45px rgb(0 0 0 / .13), inset 0 1px rgb(232 199 136 / .08);
+  background:
+    linear-gradient(150deg, rgb(211 171 98 / .035), transparent 30%),
+    color-mix(in oklab, var(--background) 88%, var(--gold) 12%);
+}
+.mushaf-sheet::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: .55rem;
+  border: 1px solid rgb(211 171 98 / .13);
+  border-radius: .7rem;
+}
+.mushaf-sheet .mushaf-text {
+  position: relative;
+  z-index: 1;
+  line-height: 2.65;
+}
+.reader-surface {
+  border: 1px solid rgb(211 171 98 / .24);
+  background:
+    radial-gradient(ellipse at 50% -20%, rgb(211 171 98 / .12), transparent 55%),
+    color-mix(in oklab, var(--background) 94%, var(--gold) 6%);
+}
+.reader-toolbar { border: 1px solid rgb(211 171 98 / .18); }
+.reader-toolbar button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.reader-paper { box-shadow: 0 18px 38px rgb(0 0 0 / .24); }
+.light .mushaf-sheet {
+  background: #fff9eb;
+  border-color: rgb(145 105 49 / .25);
+  box-shadow: 0 12px 35px rgb(63 48 24 / .11);
+}
+.light .reader-surface { background: #f6efdf; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-scene, .hero-intro, .hero-logo-draw img, .hero-logo-sheen, .hero-typewriter {
+    animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
+  }
+  .hero-intro { visibility: hidden; opacity: 0; }
+  .hero-scene { opacity: 1; }
+}
