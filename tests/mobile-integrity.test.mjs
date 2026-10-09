@@ -29,7 +29,13 @@ describe("offline Quran integrity gate", () => {
     const result = validateQuranData(fixture());
     assert.deepEqual(result, { verses: 6236, suras: 114, pages: 604 });
   });
-  it("rejects missing verses even if the row count stays unchanged", () => {
+  it("rejects a missing interior page even when the last page is 604", () => {
+    const rows = fixture();
+    for (const verse of rows) if (verse.page === 200) verse.page = 201;
+    assert.equal(rows.at(-1).page, 604);
+    assert.throws(() => validateQuranData(rows), /all 604 pages/);
+  });
+    it("rejects missing verses even if the row count stays unchanged", () => {
     const rows = fixture();
     rows[9].aya_no = 300;
     assert.throws(() => validateQuranData(rows), /aya order/);

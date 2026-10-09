@@ -12,6 +12,7 @@ export function validateQuranData(input) {
   }
   const pairs = new Set();
   const suras = new Set();
+  const pages = new Set();
   let previousPage = 0;
   let currentSura = 1;
   let nextAya = 1;
@@ -45,10 +46,11 @@ export function validateQuranData(input) {
     if (pairs.has(key)) throw new Error(`Duplicate Quran verse ${key}`);
     pairs.add(key);
     suras.add(sura_no);
+    pages.add(page);
     previousPage = page;
   }
-  if (suras.size !== 114 || previousPage !== 604) {
-    throw new Error("Quran must contain 114 ordered suras ending on page 604");
+  if (suras.size !== 114 || previousPage !== 604 || pages.size !== 604) {
+    throw new Error("Quran must contain 114 ordered suras and all 604 pages");
   }
   return { verses: pairs.size, suras: suras.size, pages: previousPage };
 }

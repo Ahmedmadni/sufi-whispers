@@ -1,8 +1,22 @@
 name: Android Debug APK
 
-# Manual workflow: never publish an untested package automatically.
+# Build debug APK for relevant main-branch changes; never publish to a store.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/android-debug.yml"
+      - "scripts/android-dev.mjs"
+      - "scripts/prepare-mobile-assets.mjs"
+      - "scripts/mobile-integrity.mjs"
+      - "scripts/verify-mobile-bundle.mjs"
+      - "src/lib/quran.ts"
+      - "src/lib/quran-validate.ts"
+      - "mobile/**"
+      - "vite.mobile.config.ts"
+      - "package.json"
+      - "bun.lock"
 
 permissions:
   contents: read

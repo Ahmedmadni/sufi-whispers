@@ -46,7 +46,7 @@ export const Route = createFileRoute("/quran/surah/$suraNo")({
 
 function SurahPage() {
   const { sura } = Route.useLoaderData();
-  const { data, isLoading, error } = useQuery(quranQueryOptions);
+  const { data, isLoading, error, refetch } = useQuery(quranQueryOptions);
   const [pageIdx, setPageIdx] = useState(0);
 
   const ayat = useMemo(() => (data ? getSura(data, sura.no) : []), [data, sura.no]);
@@ -79,7 +79,7 @@ function SurahPage() {
     }
   }, [current, sura]);
 
-  const goNext = () => setPageIdx((i) => Math.min(i + 1, pages.length - 1));
+  const goNext = () => setPageIdx((i) => Math.min(i + 1, Math.max(0, pages.length - 1)));
   const goPrev = () => setPageIdx((i) => Math.max(i - 1, 0));
 
   const prev = SURA_INDEX.find((s) => s.no === sura.no - 1);
@@ -121,9 +121,18 @@ function SurahPage() {
           </p>
         )}
         {error && (
-          <p className="text-center text-xs text-destructive font-body py-10">
-            تعذّر تحميل نص المصحف، تحقّق من الاتصال ثم أعد المحاولة.
-          </p>
+          <div role="alert" className="mx-auto my-6 max-w-md rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-6 text-center">
+            <p className="text-sm text-destructive font-body leading-7">
+              تعذّر تحميل المصحف أو التحقق من سلامة ملفه. لم يتم عرض نص غير موثوق.
+            </p>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="mt-4 rounded-lg border border-gold/40 px-4 py-2 text-sm font-body text-gold-soft focus-visible:outline-2 focus-visible:outline-gold"
+            >
+              إعادة تحميل المصحف
+            </button>
+          </div>
         )}
 
         {current && (

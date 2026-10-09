@@ -1,6 +1,7 @@
 import datasetAsset from "@/data/quran/hafsData_v2-0.json.asset.json";
 import { contentAssetUrl } from "@/lib/content-asset-url";
 import { SURA_INDEX } from "@/data/quran/suras";
+import { validateQuranDataset } from "@/lib/quran-validate";
 
 /**
  * Official dataset: KFGQPC Uthmanic Hafs data v2.0
@@ -42,6 +43,12 @@ export async function loadQuran(): Promise<Aya[]> {
       return r.json() as Promise<Aya[]>;
     })
     .then((data) => {
+      // Validate CDN and packaged Quran data before displaying a single verse.
+      // Never reconstruct or silently edit the original Uthmanic text.
+      const report = validateQuranDataset(data);
+      if (!report.ok) {
+        throw new Error("ملف المصحف غير مكتمل أو تالف. لا يمكن عرضه بأمان.");
+      }
       cache = data;
       inflight = null;
       return data;

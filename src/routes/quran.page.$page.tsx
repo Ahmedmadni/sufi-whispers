@@ -42,7 +42,7 @@ export const Route = createFileRoute("/quran/page/$page")({
 function QuranPageView() {
   const { page } = Route.useLoaderData();
   const navigate = useNavigate();
-  const { data, isLoading, error } = useQuery(quranQueryOptions);
+  const { data, isLoading, error, refetch } = useQuery(quranQueryOptions);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const ayat = useMemo(() => (data ? getPage(data, page) : []), [data, page]);
@@ -139,9 +139,18 @@ function QuranPageView() {
           </p>
         )}
         {error && (
-          <p className="text-center text-xs text-destructive font-body py-10">
-            تعذّر تحميل نص المصحف، تحقّق من الاتصال ثم أعد المحاولة.
-          </p>
+          <div role="alert" className="mx-auto my-6 max-w-md rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-6 text-center">
+            <p className="text-sm text-destructive font-body leading-7">
+              تعذّر تحميل المصحف أو التحقق من سلامة ملفه. لم يتم عرض نص غير موثوق.
+            </p>
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="mt-4 rounded-lg border border-gold/40 px-4 py-2 text-sm font-body text-gold-soft focus-visible:outline-2 focus-visible:outline-gold"
+            >
+              إعادة تحميل المصحف
+            </button>
+          </div>
         )}
 
         {ayat.length > 0 && (
