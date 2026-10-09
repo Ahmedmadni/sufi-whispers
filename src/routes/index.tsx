@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { BookOpen, Facebook, Sparkles, Feather, BookMarked, Star } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -98,6 +98,7 @@ const QUICK_LINKS = [
 ];
 
 function HomePage() {
+  const reducedMotion = useReducedMotion();
   const featured = books.slice(0, 4);
 
   return (
@@ -156,7 +157,7 @@ function HomePage() {
           {featured.map((b, i) => (
             <motion.div
               key={b.id}
-              initial={{ opacity: 0, y: 16 }}
+              initial={reducedMotion ? false : { opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.45, delay: Math.min(i, 3) * 0.06 }}
