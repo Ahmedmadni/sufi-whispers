@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DHIKR_NAMES, NAME_TARGET, type WirdPhase } from "@/data/dhikr";
+import { localDateKey, previousLocalDateKey } from "@/lib/local-calendar";
 
 const KEY = "rihab-dhikr-v1";
 
@@ -25,7 +26,7 @@ export type DhikrState = {
 const emptyName = (): NameProgress => ({ count: 0, elapsedMs: 0, startedAt: null, completedAt: null });
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey();
 }
 
 function initial(): DhikrState {
@@ -68,7 +69,7 @@ function save(s: DhikrState) {
 function bumpStreak(s: DhikrState): DhikrState {
   const d = today();
   if (s.lastActiveDate === d) return s;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterday = previousLocalDateKey();
   return {
     ...s,
     streak: s.lastActiveDate === yesterday ? s.streak + 1 : 1,
