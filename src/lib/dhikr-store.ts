@@ -95,6 +95,23 @@ export function useDhikr() {
     if (hydrated) save(state);
   }, [state, hydrated]);
 
+  // Roll over the displayed counters while the app stays open, and when it
+  // resumes from the background after a date change.
+  useEffect(() => {
+    const rollover = () => {
+      const date = today();
+      setState((current) => current.daily.date === date
+        ? current
+        : { ...current, daily: { date, salawat: 0, istighfar: 0 } });
+    };
+    const timer = window.setInterval(rollover, 60_000);
+    document.addEventListener("visibilitychange", rollover);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", rollover);
+    };
+  }, []);
+
   useEffect(() => {
     if (!running) return;
     const id = setInterval(() => {
