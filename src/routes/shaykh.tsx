@@ -72,40 +72,62 @@ function ShaykhPage() {
         </header>
 
         <section className="glass rounded-2xl px-5 py-5">
-          <h2 className="font-display text-lg text-gold-soft">شيخ الجمعية</h2>
+          <h2 className="font-display text-lg text-gold-soft">الاسم والنسب الشريف</h2>
           <p className="mt-2 text-sm sm:text-base text-foreground/85 font-body leading-8">
-            تسير الجمعية الخليلية الإسلامية تحت لواء شيخها فضيلة العارف بالله سيدي
-            الشيخ صالح أحمد الشافعي محمد محمد أبو خليل؛ جامعاً بين علوم الشريعة
-            وأذواق الحقيقة، قائماً على تربية المريدين بالكتاب والسنّة على منهاج
-            السلف من أهل الله، ذوقاً ومقاماً، وأدباً وحالاً.
+            هو فضيلة الشيخ صالح بن العارف بالله الشيخ أحمد الشافعي بن محمد بن محمد
+            أبو خليل، شيخ الجمعية الخليلية الإسلامية ونقيب السادة الأشراف بمدينة
+            الزقازيق. ينحدر من الدوحة النبوية المباركة جامعاً بين النسبين الشريفين؛
+            إذ يتصل نسب والده بسيدنا الإمام الحسين، ونسب والدته بسيدنا الإمام الحسن
+            رضي الله عنهما.
+          </p>
+        </section>
+
+        <section className="mt-4 glass rounded-2xl px-5 py-5">
+          <h2 className="font-display text-lg text-gold-soft">المولد والنشأة</h2>
+          <p className="mt-2 text-sm sm:text-base text-foreground/85 font-body leading-8">
+            وُلد في التاسع من سبتمبر سنة ١٩٥٨م بكفر النحال في مدينة الزقازيق بمحافظة
+            الشرقية، في بيتٍ قام على العلم والذكر والتصوف السنّي؛ فجدّه العارف بالله
+            سيدي محمد محمد أبو خليل مؤسس المدرسة الخليلية، ووالده العارف بالله الشيخ
+            أحمد الشافعي أبو خليل. نشأ ملازماً لمجالس والده، متشرباً آداب السلوك
+            ومحبة سيدنا رسول الله ﷺ وآل بيته، حتى آلت إليه راية التربية ورعاية
+            الساحة الخليلية والجمعية.
+          </p>
+        </section>
+
+        <section className="mt-4 glass rounded-2xl px-5 py-5">
+          <h2 className="font-display text-lg text-gold-soft">الساحة الخليلية ومجالسها</h2>
+          <p className="mt-2 text-sm sm:text-base text-foreground/85 font-body leading-8">
+            مقرّه مسجد وساحة سيدي أبو خليل بالزقازيق، بجوار أضرحة مشايخ السلسلة
+            الخليلية، ويقصدها المريدون والمحبون من محافظات مصر وخارجها. وتُعقد فيها
+            مجالس الذكر والعلم والمدح النبوي، وتُحيا المناسبات الإسلامية كالمولد
+            النبوي الشريف والإسراء والمعراج وليلة النصف من شعبان.
           </p>
         </section>
 
         <section className="mt-4 glass rounded-2xl px-5 py-5">
           <h2 className="font-display text-lg text-gold-soft">منهجه في التربية والسلوك</h2>
           <ul className="mt-2 space-y-2 text-sm sm:text-base text-foreground/85 font-body leading-8 list-disc pr-5">
-            <li>تصحيح العقيدة والعبادة على هدي الكتاب والسنّة وفهم سلف الأمة.</li>
-            <li>تزكية النفس بالذكر والأوراد والمحاسبة، وترك ما لا يعني.</li>
-            <li>محبّة سيّد السادات ﷺ وآل بيته الكرام، وإحياء السنن والمدائح النبوية.</li>
-            <li>الأدب مع الله ومع الخلق، ورفق في الدعوة، وخدمة الناس ونفعهم.</li>
+            <li>الاستمساك بالكتاب والسنّة؛ فالتصوف الصادق عملٌ بالشريعة ظاهراً وتحقّقٌ بالتزكية باطناً.</li>
+            <li>الاستغراق في محبة سيدنا النبي ﷺ وآل بيته، والإكثار من الصلاة عليه ومدحه مع الأدب التام.</li>
+            <li>الأدب مع الله ومع الخلق، وإطعام الطعام، وإعانة المحتاجين وتفريج الكرب.</li>
           </ul>
         </section>
 
         <section className="mt-4 glass rounded-2xl px-5 py-5">
-          <h2 className="font-display text-lg text-gold-soft">مجالسه</h2>
-          <p className="mt-2 text-sm sm:text-base text-foreground/85 font-body leading-8">
-            مجالسُ ذكرٍ وعلمٍ ومدحٍ لسيّد الأنام ﷺ، يتخلّلها شرحُ الأوراد وآداب
-            الطريق، وتربيةٌ عمليّة على التقوى والصدق والإخلاص، وردُّ القلوب إلى
-            حضرة مولاها.
-          </p>
+          <h2 className="font-display text-lg text-gold-soft">نظام الأوراد اليومية</h2>
+          <ul className="mt-2 space-y-2 text-sm sm:text-base text-foreground/85 font-body leading-8 list-disc pr-5">
+            <li><strong className="text-gold-soft">من الفجر إلى العصر:</strong> الصلاة على سيدنا النبي ﷺ بالصيغ الخليلية.</li>
+            <li><strong className="text-gold-soft">من العصر إلى المغرب:</strong> الاستغفار والتضرع بورد الاستغفار في توبة الأبرار.</li>
+            <li><strong className="text-gold-soft">من المغرب إلى الفجر:</strong> الذكر بأسماء الله الحسنى، مائة ألف مرة لكل اسم قبل الانتقال لما بعده.</li>
+          </ul>
         </section>
 
         <section className="mt-4 glass-gold rounded-2xl px-5 py-5">
           <h2 className="font-display text-lg text-gold-soft">من آثار الطريق الخليلي</h2>
           <p className="mt-2 text-sm sm:text-base text-foreground/85 font-body leading-8">
-            جامع النفحات، وورد الاستغفار، والسيرة الخليلية، والمناقب الخليلية،
-            والمناهل الخليلية، والنفحات الخليلية، والمربّي، وكشف الغطاء عن أهل
-            البلاء — وجميعها متاحة للقراءة داخل المكتبة.
+            كشف الغطاء عن أهل البلاء لفضيلة الشيخ صالح أبو خليل، وورد الاستغفار في
+            توبة الأبرار، والنفحات الخليلية، والمناهل الخليلية، والسيرة الخليلية،
+            والمربّي، والمناقب الخليلية — وجميعها متاحة للقراءة داخل المكتبة.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
