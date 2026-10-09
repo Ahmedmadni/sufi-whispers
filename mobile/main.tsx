@@ -3,6 +3,7 @@ import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "../src/router";
 import "../src/styles.css";
 import "../src/visual-experience.css";
+import "../src/premium-ui.css";
 import "./mobile.css";
 
 const mount = document.getElementById("root");
