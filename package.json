@@ -18,7 +18,8 @@
     "test:integrity": "node --test tests/mobile-integrity.test.mjs",
     "mobile:verify": "node scripts/verify-mobile-bundle.mjs",
     "mobile:android:setup": "node scripts/android-dev.mjs",
-    "mobile:android:apk": "node scripts/android-dev.mjs --apk"
+    "mobile:android:apk": "node scripts/android-dev.mjs --apk",
+    "mobile:assets:audit": "node scripts/audit-mobile-assets.mjs"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
