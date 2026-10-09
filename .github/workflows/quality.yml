@@ -10,6 +10,13 @@ on:
       - main
 
 jobs:
+  runner-smoke:
+    name: runner availability
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check GitHub-hosted runner
+        run: echo "GitHub Actions runner started successfully"
   quality:
     runs-on: ubuntu-latest
     timeout-minutes: 20
