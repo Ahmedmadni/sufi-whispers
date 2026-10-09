@@ -147,3 +147,27 @@ pre-generated here.
    without any executed steps, including a standalone `echo` job.
 4. Complete native compile, install on actual Android hardware, verify
    offline Quran / book reading, and sign a release AAB.
+
+## Phase 5 — Android runtime routing and content audit
+
+- `src/router.tsx`: Android uses `createHashHistory()` to preserve nested
+  navigation under the packaged `index.html` URL, including after app relaunch.
+  The website still uses normal SSR pathname routes.
+- `vite.mobile.config.ts`: TanStack Router's Vite plugin regenerates the
+  route tree from `src/routes` before producing the Android SPA bundle;
+  the route tree no longer depends on stale checked-in generation when mobile
+  builds run.
+- `node scripts/audit-mobile-assets.mjs` or
+  `bun run mobile:assets:audit`: produces a deterministic offline report
+  of original Lovable media assets, reporting READY / MISSING / CORRUPT
+  without attempting network downloads.
+- Pure integrity logic was exercised against six Node 22 test scenarios in
+  an isolated local copy. **This is not a successful full production build.**
+
+### Operational blocker
+
+The private repository's GitHub-hosted Actions job still fails **before
+running any steps**, including `runner availability`, with no job log.
+This is a GitHub Actions runner/account/policy issue to investigate through
+the repository Actions tab or billing/runner settings, and cannot be proven
+fixed simply by altering app code.
