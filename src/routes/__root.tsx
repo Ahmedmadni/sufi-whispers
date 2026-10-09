@@ -92,6 +92,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  // TanStack Start renders <html>/<body> for SSR; the standalone Android SPA
+  // mounts inside #root and must not nest another HTML document.
+  if (import.meta.env.VITE_MOBILE === "true") return <>{children}</>;
   return (
     <html lang="ar" dir="rtl" suppressHydrationWarning>
       <head>

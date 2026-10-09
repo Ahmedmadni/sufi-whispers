@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
@@ -18,12 +20,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+// Bundle the worker with the application instead of relying on a CDN at runtime.
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
+// Optional PDF.js resources are prepared locally by scripts/prepare-pdf-assets.mjs.
 const pdfOptions = {
-  cMapUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/cmaps/`,
+  cMapUrl: "/pdfjs/cmaps/",
   cMapPacked: true,
-  standardFontDataUrl: `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/standard_fonts/`,
+  standardFontDataUrl: "/pdfjs/standard_fonts/",
 };
 
 type Props = {
@@ -45,36 +49,54 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   // Higher values reduce accidental navigation.
   const SENS_KEY = "reader.swipeThreshold";
   const [swipeThreshold, setSwipeThreshold] = useState<number>(80);
+  const [swipeLoaded, setSwipeLoaded] = useState(false);
   useEffect(() => {
-    const v = Number(localStorage.getItem(SENS_KEY));
-    if (v && v >= 30 && v <= 200) setSwipeThreshold(v);
+    try {
+      const v = Number(localStorage.getItem(SENS_KEY));
+      if (v >= 30 && v <= 200) setSwipeThreshold(v);
+    } catch {
+      // Storage may be unavailable in restricted browser contexts.
+    }
+    setSwipeLoaded(true);
   }, []);
   useEffect(() => {
-    localStorage.setItem(SENS_KEY, String(swipeThreshold));
-  }, [swipeThreshold]);
+    if (!swipeLoaded) return;
+    try {
+      localStorage.setItem(SENS_KEY, String(swipeThreshold));
+    } catch {
+      // Keep the in-memory setting if persistence is disabled.
+    }
+  }, [swipeThreshold, swipeLoaded]);
 
   // Resume last reading position per book
   const POS_KEY = `reader.page.${bookId}`;
-  const restored = useRef(false);
+  const [restoredBookId, setRestoredBookId] = useState<string | null>(null);
   useEffect(() => {
-    restored.current = false;
+    let saved = 1;
     try {
-      const v = Number(localStorage.getItem(`reader.page.${bookId}`));
-      if (v && v >= 1) setPage(v);
-      else setPage(1);
+      saved = parseSavedPage(localStorage.getItem(POS_KEY));
     } catch {
-      /* ignore */
+      // Fall back to the first page when storage is blocked.
     }
-    restored.current = true;
-  }, [bookId]);
+    setNumPages(0);
+    setPage(saved);
+    setRestoredBookId(bookId);
+  }, [bookId, POS_KEY]);
   useEffect(() => {
-    if (!restored.current) return;
-    try {
-      localStorage.setItem(POS_KEY, String(page));
-    } catch {
-      /* ignore */
+    // Do not overwrite a bookmark with the default first page before restoration,
+    // or with an out-of-range page before PDF metadata has loaded.
+    if (restoredBookId !== bookId || numPages < 1) return;
+    const validPage = clampPage(page, numPages);
+    if (validPage !== page) {
+      setPage(validPage);
+      return;
     }
-  }, [POS_KEY, page]);
+    try {
+      localStorage.setItem(POS_KEY, String(validPage));
+    } catch {
+      // Reader remains usable without persistent storage.
+    }
+  }, [bookId, restoredBookId, POS_KEY, page, numPages]);
 
   useEffect(() => {
     setInput(String(page));
@@ -92,18 +114,23 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     const update = () => {
       if (containerRef.current) {
         const w = containerRef.current.clientWidth - 8;
-        setPageWidth(Math.min(900, Math.max(280, w)));
+        setPageWidth(Math.min(900, Math.max(200, w)));
       }
     };
     update();
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    if (observer && containerRef.current) observer.observe(containerRef.current);
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   const goTo = useCallback(
     (p: number) => {
-      const clamped = Math.max(1, Math.min(numPages || 1, p));
-      setPage(clamped);
+      if (numPages < 1) return;
+      setPage(clampPage(p, numPages));
     },
     [numPages]
   );
@@ -150,6 +177,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+          target?.closest('input, textarea, select, [contenteditable="true"]')) return;
       if (e.key === "ArrowLeft") goTo(page + 1); // RTL: left = next
       else if (e.key === "ArrowRight") goTo(page - 1);
     };
@@ -329,11 +359,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className="glass rounded-xl p-1 flex flex-col justify-center items-center min-h-[70vh] bg-velvet/30 touch-pan-y select-none"
+        className="glass rounded-xl p-1 flex flex-col justify-center items-center min-h-[70vh] bg-velvet/30 touch-pan-y select-none overflow-x-auto"
       >
         <Document
+          key={bookId}
           file={PDF_URL}
-          onLoadSuccess={({ numPages: n }) => setNumPages(n)}
+          onLoadSuccess={({ numPages: n }) => {
+            setNumPages(n);
+            setPage((current) => clampPage(current, n));
+          }}
           options={pdfOptions}
           loading={
             <div className="flex flex-col items-center gap-3 py-8 w-full">

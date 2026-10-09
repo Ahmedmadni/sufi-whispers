@@ -1,4 +1,5 @@
 import datasetAsset from "@/data/quran/hafsData_v2-0.json.asset.json";
+import { contentAssetUrl } from "@/lib/content-asset-url";
 import { SURA_INDEX } from "@/data/quran/suras";
 
 /**
@@ -23,7 +24,7 @@ export type Aya = {
   aya_text_emlaey: string;
 };
 
-export const QURAN_DATASET_URL = datasetAsset.url;
+export const QURAN_DATASET_URL = contentAssetUrl(datasetAsset);
 export const QURAN_DATASET_NAME = "hafsData_v2-0.json";
 export const QURAN_SOURCE = "مجمع الملك فهد لطباعة المصحف الشريف — KFGQPC Hafs v2.0";
 export const MAX_PAGE = 604;

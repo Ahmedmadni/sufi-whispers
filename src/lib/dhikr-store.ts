@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DHIKR_NAMES, NAME_TARGET, type WirdPhase } from "@/data/dhikr";
+import { localDateKey, previousLocalDateKey } from "@/lib/local-calendar";
 
 const KEY = "rihab-dhikr-v1";
 
@@ -25,7 +26,7 @@ export type DhikrState = {
 const emptyName = (): NameProgress => ({ count: 0, elapsedMs: 0, startedAt: null, completedAt: null });
 
 function today() {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey();
 }
 
 function initial(): DhikrState {
@@ -68,7 +69,7 @@ function save(s: DhikrState) {
 function bumpStreak(s: DhikrState): DhikrState {
   const d = today();
   if (s.lastActiveDate === d) return s;
-  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const yesterday = previousLocalDateKey();
   return {
     ...s,
     streak: s.lastActiveDate === yesterday ? s.streak + 1 : 1,
@@ -82,6 +83,7 @@ export function useDhikr() {
   const [running, setRunning] = useState(false);
   const [sessionMs, setSessionMs] = useState(0);
   const sessionStart = useRef<number | null>(null);
+  const sessionNameId = useRef<string | null>(null);
   const sessionCount = useRef(0);
 
   useEffect(() => {
@@ -92,6 +94,23 @@ export function useDhikr() {
   useEffect(() => {
     if (hydrated) save(state);
   }, [state, hydrated]);
+
+  // Roll over the displayed counters while the app stays open, and when it
+  // resumes from the background after a date change.
+  useEffect(() => {
+    const rollover = () => {
+      const date = today();
+      setState((current) => current.daily.date === date
+        ? current
+        : { ...current, daily: { date, salawat: 0, istighfar: 0 } });
+    };
+    const timer = window.setInterval(rollover, 60_000);
+    document.addEventListener("visibilitychange", rollover);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", rollover);
+    };
+  }, []);
 
   useEffect(() => {
     if (!running) return;
@@ -104,6 +123,7 @@ export function useDhikr() {
   const startSession = useCallback(() => {
     if (sessionStart.current) return;
     sessionStart.current = Date.now();
+    sessionNameId.current = DHIKR_NAMES[state.activeIndex]?.id ?? null;
     sessionCount.current = 0;
     setSessionMs(0);
     setRunning(true);
@@ -116,19 +136,22 @@ export function useDhikr() {
         names: { ...s.names, [active.id]: { ...np, startedAt: np.startedAt ?? Date.now() } },
       });
     });
-  }, []);
+  }, [state.activeIndex]);
 
   const stopSession = useCallback(() => {
     const start = sessionStart.current;
+    const nameId = sessionNameId.current;
     sessionStart.current = null;
+    sessionNameId.current = null;
     setRunning(false);
-    if (!start) return;
-    const delta = Date.now() - start;
+    if (start === null) return;
+    const delta = Math.max(0, Date.now() - start);
     setSessionMs(0);
     setState((s) => {
-      const active = DHIKR_NAMES[s.activeIndex]!;
-      const np = s.names[active.id] ?? emptyName();
-      return { ...s, names: { ...s.names, [active.id]: { ...np, elapsedMs: np.elapsedMs + delta } } };
+      // Credit the original name, even if the selected name changed mid-session.
+      const id = nameId ?? DHIKR_NAMES[s.activeIndex]!.id;
+      const np = s.names[id] ?? emptyName();
+      return { ...s, names: { ...s.names, [id]: { ...np, elapsedMs: np.elapsedMs + delta } } };
     });
   }, []);
 
@@ -173,6 +196,8 @@ export function useDhikr() {
   const reset = useCallback(() => {
     setState(initial());
     sessionStart.current = null;
+    sessionNameId.current = null;
+    sessionCount.current = 0;
     setRunning(false);
     setSessionMs(0);
   }, []);

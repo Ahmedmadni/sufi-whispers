@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -47,10 +47,10 @@ function QuranPageView() {
 
   const ayat = useMemo(() => (data ? getPage(data, page) : []), [data, page]);
 
-  const go = (target: number) => {
+  const go = useCallback((target: number) => {
     if (target < 1 || target > MAX_PAGE) return;
     navigate({ to: "/quran/page/$page", params: { page: String(target) } });
-  };
+  }, [navigate]);
 
   useEffect(() => {
     if (ayat.length > 0) {
@@ -66,12 +66,15 @@ function QuranPageView() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
+          target?.closest('input, textarea, select, [contenteditable="true"]')) return;
       if (e.key === "ArrowLeft") go(page + 1);
-      if (e.key === "ArrowRight") go(page - 1);
+      else if (e.key === "ArrowRight") go(page - 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  });
+  }, [go, page]);
 
   /** Consecutive runs of ayat belonging to the same sura on this page. */
   const groups = useMemo(() => {

@@ -103,7 +103,7 @@ function BookPage() {
         </div>
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
-            <PdfBookViewer pdfUrl={book.pdfUrl} bookId={book.id} />
+            <PdfBookViewer key={book.id} pdfUrl={book.pdfUrl} bookId={book.id} />
           </Suspense>
         ) : (
           <BookPreview book={book} />

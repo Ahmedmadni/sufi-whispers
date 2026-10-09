@@ -1,0 +1,20 @@
+/* Android WebView-safe spacing and locally bundled Quran font. */
+@font-face {
+  font-family: "UthmanicHafs";
+  src: url("/mobile-assets/uthmanic_hafs_v20.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior-y: contain;
+}
+button, input, a {
+  -webkit-tap-highlight-color: transparent;
+}
