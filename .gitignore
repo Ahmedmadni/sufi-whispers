@@ -33,3 +33,12 @@ dist-ssr
 
 # Generated PDF.js offline assets (copied from node_modules)
 public/pdfjs/
+
+# Standalone Android web bundle and staged binary content
+dist-mobile/
+mobile/.public/
+
+# Generated Android build artifacts (keep the Android source project tracked)
+android/.gradle/
+android/build/
+android/app/build/
