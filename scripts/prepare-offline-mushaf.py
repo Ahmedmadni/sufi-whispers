@@ -42,7 +42,9 @@ def prepare_one(args):
             raise RuntimeError(f"Page {page}: converted WebP dimensions changed")
         # getbbox() is None iff every decoded RGB+alpha value matches.
         difference = ImageChops.difference(source_pixels, decoded.convert("RGBA"))
-        if difference.getbbox() is not None:
+        # RGBA getbbox() alone can mask differences when alpha-diff is zero.
+        # Verify every channel individually, including all RGB samples.
+        if any(max_value != 0 for _, max_value in difference.getextrema()):
             raise RuntimeError(f"Page {page}: NON-IDENTICAL WebP pixels: stop publication")
 
     if candidate.stat().st_size < len(original):
