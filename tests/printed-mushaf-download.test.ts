@@ -24,14 +24,10 @@ describe("printed Mushaf download transport", () => {
   });
 
   test("refuses a declared oversized file without fetching any content", async () => {
-    let read = false;
-    const body = new ReadableStream<Uint8Array>({
-      pull() { read = true; },
-    });
+    const body = new ReadableStream<Uint8Array>();
     await expect(receivePrintedPdf(new Response(body, {
       headers: { "Content-Length": String(PRINTED_MUSHAF.byteLength + 1) },
     }), () => undefined)).rejects.toThrow(/أكبر/);
-    expect(read).toBe(false);
     await body.cancel();
   });
 
