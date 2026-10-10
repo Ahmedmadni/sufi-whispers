@@ -20,7 +20,7 @@ export type OfflinePrintedMushafManifest = {
   format: 1;
   sourceSha256: string;
   pageCount: number;
-  pages: Record<string, { name: string; bytes: number; sha256: string }>;
+  pages: Record<string, { name: string; bytes: number; sha256: string; crop?: [number, number, number, number] }>;
 };
 
 export const MOBILE_OFFLINE_MUSHAF_URL = "/printed-mushaf/manifest.json";
@@ -41,7 +41,9 @@ export function validateOfflineMushafManifest(value: unknown): OfflinePrintedMus
     const stem = String(page).padStart(3, "0");
     if (!entry || ![stem + ".png", stem + ".webp"].includes(entry.name) ||
       !Number.isInteger(entry.bytes) || entry.bytes <= 0 ||
-      !/^[a-f0-9]{64}$/.test(entry.sha256)) {
+      !/^[a-f0-9]{64}$/.test(entry.sha256) ||
+      (entry.crop !== undefined && (!Array.isArray(entry.crop) ||
+        entry.crop.length !== 4 || entry.crop.some((n) => !Number.isInteger(n) || n < 0 || n > 250)))) {
       throw new Error(`ملف الصفحة ${page} غير مدرج بشكل صحيح داخل التطبيق.`);
     }
   }
@@ -54,6 +56,18 @@ export function offlinePrintedPageImageUrl(
   const entry = manifest.pages[String(clampMushafPage(page))];
   if (!entry) throw new Error("صفحة المصحف المحلي غير متوفرة.");
   return "/printed-mushaf/pages/" + entry.name;
+}
+
+
+/** Trim only scanned WHITE gutters at render time; pixels/art remain unchanged. */
+export function getPrintedPageCrop(
+  page: number,
+  manifest?: OfflinePrintedMushafManifest | null,
+): [number, number, number, number] {
+  const original = manifest?.pages[String(clampMushafPage(page))]?.crop;
+  if (original) return original;
+  // Conservative web fallback: all original page ornaments remain intact.
+  return page % 2 ? [19, 0, 38, 0] : [38, 0, 19, 0];
 }
 
 export const PRINTED_PAGE_IMAGE_WIDTH = 957;
