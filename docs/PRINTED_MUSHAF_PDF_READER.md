@@ -38,7 +38,7 @@ Workflow: `.github/workflows/publish-printed-mushaf.yml`
 The verified originals are published to the public **mushaf-pages**
 branch in the same project. Example immutable source image path:
 `pages/001.png`, `pages/604.png`. The image browser URL is currently:
-`https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/mushaf-pages/pages/001.png`
+`https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/0b944b349fd28295803a0a96fbf2906a14286245/pages/001.png`
 
 The independent original PDF outline maps 114 suras in
 `src/data/quran/printed-pdf-pages.ts` (PDF page number = printed page + 3).
