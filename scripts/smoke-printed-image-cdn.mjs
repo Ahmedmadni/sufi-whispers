@@ -4,7 +4,7 @@
  */
 import { createHash } from "node:crypto";
 
-const BASE = "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/mushaf-pages";
+const BASE = "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/0b944b349fd28295803a0a96fbf2906a14286245";
 const EXPECTED_SOURCE = "2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28";
 const TOTAL_PAGES = 604;
 
