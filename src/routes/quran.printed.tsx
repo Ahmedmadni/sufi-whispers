@@ -58,6 +58,7 @@ function PrintedMushafReader() {
   const [searchText, setSearchText] = useState("");
   const [suraFilter, setSuraFilter] = useState("");
   const [pdf, setPdf] = useState<Blob | null>(null);
+  const [storageCorrupt, setStorageCorrupt] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [busy, setBusy] = useState<"download" | "import" | "delete" | null>(null);
   const [progress, setProgress] = useState(0);
@@ -70,6 +71,8 @@ function PrintedMushafReader() {
   const [showPanel, setShowPanel] = useState(true);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const uploadRef = useRef<HTMLInputElement>(null);
+  const downloadAbortRef = useRef<AbortController | null>(null);
+  const gestureStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -79,15 +82,24 @@ function PrintedMushafReader() {
     } catch { /* reader works without saved preferences */ }
     getOfflinePrintedMushaf()
       .then((saved) => { if (mounted) setPdf(saved); })
-      .catch((e: unknown) => { if (mounted) setError(e instanceof Error ? e.message : "لا يمكن الوصول إلى التخزين المحلي."); })
+      .catch((e: unknown) => {
+        if (mounted) {
+          setStorageCorrupt(true);
+          setError(e instanceof Error ? e.message : "لا يمكن الوصول إلى التخزين المحلي.");
+        }
+      })
       .finally(() => { if (mounted) setInitializing(false); });
-    return () => { mounted = false; };
+    return () => { mounted = false; downloadAbortRef.current?.abort(); };
   }, []);
 
+  // Never overwrite yesterday's saved place just by opening the home link.
   useEffect(() => {
     setDraftPage(String(page));
-    try { localStorage.setItem(PRINTED_LAST_PAGE_KEY, String(page)); } catch { /* optional */ }
   }, [page]);
+
+  useEffect(() => {
+    if (window.matchMedia?.("(max-width: 768px)").matches) setShowPanel(false);
+  }, []);
 
   useEffect(() => {
     const node = pdfContainerRef.current;
@@ -105,6 +117,7 @@ function PrintedMushafReader() {
 
   const go = useCallback((value: number) => {
     const target = clampMushafPage(value);
+    try { localStorage.setItem(PRINTED_LAST_PAGE_KEY, String(target)); } catch { /* optional */ }
     void navigate({ to: "/quran/printed", search: { page: target } });
   }, [navigate]);
 
@@ -149,26 +162,37 @@ function PrintedMushafReader() {
     try {
       const saved = await saveOfflinePrintedMushaf(file);
       setPdf(saved);
+      setStorageCorrupt(false);
     } catch (e) {
       setError(e instanceof Error ? e.message : "فشل التحقق من ملف المصحف.");
     } finally { setBusy(null); if (uploadRef.current) uploadRef.current.value = ""; }
   };
 
   const download = async () => {
+    const controller = new AbortController();
+    downloadAbortRef.current = controller;
     setBusy("download"); setProgress(0); setError(""); setPdfError("");
     try {
-      const saved = await downloadOfflinePrintedMushaf(setProgress);
-      setPdf(saved);
+      const saved = await downloadOfflinePrintedMushaf(setProgress, controller.signal);
+      if (!controller.signal.aborted) {
+        setPdf(saved);
+        setStorageCorrupt(false);
+      }
     } catch (e) {
-      setError(e instanceof Error
-        ? `${e.message} إذا منع المتصفح الاتصال بالمصدر، نزّل الملف من الرابط الرسمي ثم استورده.`
-        : "تعذر تنزيل الملف. يمكن استيراده من الجهاز.");
-    } finally { setBusy(null); }
+      setError(e instanceof DOMException && e.name === "AbortError"
+        ? "تم إلغاء تنزيل المصحف دون حفظ ملف ناقص."
+        : e instanceof Error
+          ? `${e.message} إذا تعذّر الاتصال بالمصدر، نزّل الملف من الرابط ثم استورده.`
+          : "تعذر تنزيل الملف. يمكن استيراده من الجهاز.");
+    } finally {
+      if (downloadAbortRef.current === controller) downloadAbortRef.current = null;
+      setBusy(null);
+    }
   };
 
   const removeDownload = async () => {
     setBusy("delete"); setError("");
-    try { await deleteOfflinePrintedMushaf(); setPdf(null); setPdfError(""); }
+    try { await deleteOfflinePrintedMushaf(); setPdf(null); setPdfError(""); setStorageCorrupt(false); }
     catch (e) { setError(e instanceof Error ? e.message : "تعذّر حذف النسخة المحلية."); }
     finally { setBusy(null); }
   };
@@ -300,7 +324,14 @@ function PrintedMushafReader() {
                   {busy === "download" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CloudDownload className="h-4 w-4" />}
                   {busy === "download" ? `جارٍ التنزيل… ${Math.round(progress * 100)}٪` : "تنزيل المصحف وحفظه"}
                 </button>
-                {busy === "download" && <progress className="printed-reader__progress" max={1} value={progress} aria-label="تقدم تنزيل المصحف" />}
+                {busy === "download" && (
+                  <div className="flex flex-col items-center gap-2">
+                    <progress className="printed-reader__progress" max={1} value={progress} aria-label="تقدم تنزيل المصحف" />
+                    <button type="button" className={smallButton} onClick={() => downloadAbortRef.current?.abort()}>
+                      إلغاء التنزيل
+                    </button>
+                  </div>
+                )}
                 <p className="text-xs text-muted-foreground font-body">أو استورد ملف PDF الأصلي الذي لديك، وسنتحقق من بصمته قبل فتحه.</p>
                 <input ref={uploadRef} type="file" accept=".pdf,application/pdf" className="sr-only"
                   aria-label="اختيار ملف PDF الأصلي" onChange={(e) => void importFile(e.target.files?.[0])} />
@@ -310,6 +341,12 @@ function PrintedMushafReader() {
                   <Download className="h-3 w-3 inline" /> رابط ملف النسخة الأصلية للتنزيل اليدوي
                 </a>
                 <p className="text-xs font-body text-muted-foreground">لن يُعرض ملف غير مطابق للبصمة المحفوظة.</p>
+                {storageCorrupt && (
+                  <button type="button" className={smallButton} disabled={busy !== null}
+                    onClick={() => void removeDownload()}>
+                    <Trash2 className="h-4 w-4" /> حذف الملف التالف من التخزين
+                  </button>
+                )}
               </div>
             ) : (
               <>
@@ -325,7 +362,22 @@ function PrintedMushafReader() {
                     <Trash2 className="h-4 w-4" /> حذف النسخة المحفوظة
                   </button>
                 </div>
-                <div className="printed-reader__canvas-scroll" ref={pdfContainerRef}>
+                <div className="printed-reader__canvas-scroll" ref={pdfContainerRef}
+                  onTouchStart={(e) => {
+                    if (zoom !== 1 || e.touches.length !== 1) { gestureStartRef.current = null; return; }
+                    gestureStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                  }}
+                  onTouchEnd={(e) => {
+                    const start = gestureStartRef.current;
+                    gestureStartRef.current = null;
+                    if (!start || zoom !== 1 || e.changedTouches.length !== 1) return;
+                    const dx = e.changedTouches[0].clientX - start.x;
+                    const dy = e.changedTouches[0].clientY - start.y;
+                    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+                    go(page + (dx < 0 ? 1 : -1));
+                  }}
+                  onTouchCancel={() => { gestureStartRef.current = null; }}
+                >
                   <Document file={pdf} options={PDF_OPTIONS} loading={<div className="printed-reader__empty"><LoaderCircle className="animate-spin h-6 w-6" /> جارٍ فتح المصحف…</div>}
                     onLoadSuccess={({ numPages }) => {
                       if (numPages !== PRINTED_MUSHAF.documentPages) {
