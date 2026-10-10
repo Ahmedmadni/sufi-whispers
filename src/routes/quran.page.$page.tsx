@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MushafSurahOpening, openingVerses } from "@/components/MushafSurahOpening";
+import { MushafPrintedPageFrame } from "@/components/MushafPrintedPageFrame";
 import { MushafReadingToolbar, useMushafView } from "@/components/MushafReadingToolbar";
 import {
   MAX_PAGE,
@@ -157,10 +158,12 @@ function QuranPageView() {
         <MushafReadingToolbar view={view} onChange={update} />
 
         {ayat.length > 0 && (
-          <article
-            className={`mushaf-sheet mushaf-premium ${view.parchment ? "mushaf-parchment" : "mushaf-midnight"} mt-3 rounded-2xl px-4 sm:px-7 py-6 sm:py-8`}
+          <MushafPrintedPageFrame
+            page={page}
+            suraName={ayat[0].sura_name_ar}
+            juz={ayat[0].jozz}
+            night={!view.parchment}
             style={paperStyle}
-            aria-label={`صفحة ${page} من المصحف الشريف`}
           >
             {groups.map((g) => (
               <div key={`${g.suraNo}-${g.list[0].id}`} className="mt-4 first:mt-0">
@@ -180,11 +183,7 @@ function QuranPageView() {
                 </div>
               </div>
             ))}
-            <div className="rihab-ornament mt-6" aria-hidden="true">✦</div>
-            <p className="mt-3 text-center text-[11px] text-gold-soft/70 font-body">
-              صفحة {page} من {MAX_PAGE}
-            </p>
-          </article>
+          </MushafPrintedPageFrame>
         )}
 
         <nav className="mt-5 flex items-center justify-between gap-2">
