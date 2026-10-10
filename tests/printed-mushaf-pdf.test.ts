@@ -4,6 +4,7 @@ import { PRINTED_PDF_SURA_START_PAGES } from "../src/data/quran/printed-pdf-page
 import {
   PRINTED_MUSHAF, toPdfPage, toMushafPage, clampMushafPage,
   parsePrintedBookmarks, togglePrintedBookmark, parseLastPrintedPage, suraAtMushafPage,
+  surasOnMushafPage, matchesSuraFilter,
 } from "../src/lib/printed-mushaf";
 
 describe("Madinah printed PDF — independently validated page mapping", () => {
@@ -37,6 +38,13 @@ describe("Madinah printed PDF — independently validated page mapping", () => {
     }
     expect(clampMushafPage(Infinity)).toBe(1);
     expect(suraAtMushafPage(1).no).toBe(1);
+  });
+
+  test("page 604 displays all three final suras; name filtering ignores tashkeel only in the index", () => {
+    expect(surasOnMushafPage(604).map((s) => s.no)).toEqual([112, 113, 114]);
+    expect(matchesSuraFilter(SURA_INDEX[0].nameAr, "الفاتحة")).toBe(true);
+    expect(matchesSuraFilter(SURA_INDEX[1].nameAr, "البقره")).toBe(false);
+    expect(matchesSuraFilter(SURA_INDEX[1].nameAr, "البقرة")).toBe(true);
   });
 
   test("bookmarks are unique, validated and kept in stable recent-first order", () => {
