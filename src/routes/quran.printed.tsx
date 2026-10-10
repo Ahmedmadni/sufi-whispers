@@ -71,12 +71,13 @@ function PrintedMushafReader() {
   // Only fetch the current page and its two immediate neighbours.
   // Browser caching handles repeat visits; no PDF file needs to be downloaded.
   useEffect(() => {
+    if (imageLoading || imageError) return;
     for (const adjacent of adjacentPrintedPages(page)) {
       const nearby = new Image();
       nearby.decoding = "async";
       nearby.src = printedPageImageUrl(adjacent);
     }
-  }, [page]);
+  }, [page, imageLoading, imageError]);
 
   // Never overwrite yesterday's saved place just by opening the home link.
   useEffect(() => {
