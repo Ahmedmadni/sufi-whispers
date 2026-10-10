@@ -77,3 +77,33 @@ unchanged Uthmanic dataset, not OCR.
   labels, zoom, low-storage warning and PDF import/download fallback.
 - Actual one-click mirror availability cannot be established without
   testing the public host in an Android WebView environment.
+
+
+## Reliability upgrade — V7
+
+- Cached PDF is **cryptographically reverified on every reopen** before
+  being handed to PDF.js. Checking IndexedDB metadata alone cannot prove
+  saved bytes still match the user-approved 1441H PDF.
+- Cached-file validation errors are distinguishable from storage APIs being
+  unavailable; corrupted copies get an explicit local delete/reimport action.
+- Download stream is passed directly to `Response(stream).blob()` with
+  bounded progress tracking, avoiding an extra manually joined 62 MiB
+  `Uint8Array`. The eventual SHA-256 check still temporarily allocates an
+  `ArrayBuffer`, as required by WebCrypto.
+- The user can **cancel a download**; aborted or oversize/incomplete files
+  must not be saved as verified.
+- Swipe left/right at 100% zoom changes pages. Swipe navigation is disabled
+  while zoomed, to preserve touch-based panning.
+- Side tools start collapsed on narrow screens and are expanded using the
+  index, bookmarks or search controls.
+- Simply opening a link to the printed Quran no longer overwrites the
+  last-read position. The position is saved only after explicit page
+  navigation; the resume control can return to the prior session's position.
+- `tests/printed-mushaf-download.test.ts` checks byte-for-byte transport,
+  progress events, unsupported HTTP responses, declared oversize content,
+  and cancellation.
+
+**Remaining device-only verification:** browser IndexedDB quotas and
+eviction policy, Android WebView `ReadableStream` behavior and external
+mirror CORS cannot be claimed successful from static or CI builds alone.
+The manual import fallback stays in place.
