@@ -4,6 +4,14 @@ const DB = "rihab-verified-printed-quran-v1";
 const STORE = "verified-pdf";
 const KEY = "madina-hafs-green-1441";
 
+/** An invalid cached copy must be removed, not rendered or trusted. */
+export class PrintedMushafCorruptError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PrintedMushafCorruptError";
+  }
+}
+
 type SavedDocument = {
   key: string;
   pdf: Blob;
@@ -43,14 +51,14 @@ export async function getOfflinePrintedMushaf(): Promise<Blob | null> {
       saved.bytes !== PRINTED_MUSHAF.byteLength ||
       !(saved.pdf instanceof Blob) ||
       saved.pdf.size !== PRINTED_MUSHAF.byteLength) {
-    throw new Error("النسخة المحلية غير مطابقة لبيانات المصحف المعتمد؛ احذف الملف وأعد استيراد الأصل.");
+    throw new PrintedMushafCorruptError("النسخة المحلية غير مطابقة لبيانات المصحف المعتمد؛ احذف الملف وأعد استيراد الأصل.");
   }
   // Re-check actual bytes on reopen. IndexedDB metadata alone cannot prove
   // that an existing cached PDF still matches its trusted source.
   try {
     await verifyPdf(saved.pdf);
   } catch {
-    throw new Error("المصحف المحفوظ لم يجتز فحص سلامة SHA-256. أعد استيراد الملف الأصلي.");
+    throw new PrintedMushafCorruptError("المصحف المحفوظ لم يجتز فحص سلامة SHA-256. أعد استيراد الملف الأصلي.");
   }
   return saved.pdf;
 }
