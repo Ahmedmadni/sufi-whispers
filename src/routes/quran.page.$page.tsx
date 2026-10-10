@@ -5,13 +5,14 @@ import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MushafSurahOpening, openingVerses } from "@/components/MushafSurahOpening";
+import { MushafPrintedPageFrame } from "@/components/MushafPrintedPageFrame";
+import { groupMushafPage } from "@/lib/mushaf-page-layout";
 import { MushafReadingToolbar, useMushafView } from "@/components/MushafReadingToolbar";
 import {
   MAX_PAGE,
   quranQueryOptions,
   getPage,
   saveReadingPosition,
-  type Aya,
 } from "@/lib/quran";
 
 export const Route = createFileRoute("/quran/page/$page")({
@@ -77,22 +78,8 @@ function QuranPageView() {
     return () => window.removeEventListener("keydown", onKey);
   }, [go, page]);
 
-  /** Consecutive runs of ayat belonging to the same sura on this page. */
-  const groups = useMemo(() => {
-    const out: { suraNo: number; suraNameAr: string; startsSura: boolean; list: Aya[] }[] = [];
-    for (const a of ayat) {
-      const last = out[out.length - 1];
-      if (last && last.suraNo === a.sura_no) last.list.push(a);
-      else
-        out.push({
-          suraNo: a.sura_no,
-          suraNameAr: a.sura_name_ar,
-          startsSura: a.aya_no === 1,
-          list: [a],
-        });
-    }
-    return out;
-  }, [ayat]);
+  /** Group adjacent canonical verses for headings; text stays untouched. */
+  const groups = useMemo(() => groupMushafPage(ayat), [ayat]);
 
   const suraNames = useMemo(
     () => Array.from(new Set(ayat.map((a) => a.sura_name_ar))),
@@ -157,10 +144,12 @@ function QuranPageView() {
         <MushafReadingToolbar view={view} onChange={update} />
 
         {ayat.length > 0 && (
-          <article
-            className={`mushaf-sheet mushaf-premium ${view.parchment ? "mushaf-parchment" : "mushaf-midnight"} mt-3 rounded-2xl px-4 sm:px-7 py-6 sm:py-8`}
+          <MushafPrintedPageFrame
+            page={page}
+            suraName={ayat[0].sura_name_ar}
+            juz={ayat[0].jozz}
+            night={!view.parchment}
             style={paperStyle}
-            aria-label={`صفحة ${page} من المصحف الشريف`}
           >
             {groups.map((g) => (
               <div key={`${g.suraNo}-${g.list[0].id}`} className="mt-4 first:mt-0">
@@ -180,11 +169,7 @@ function QuranPageView() {
                 </div>
               </div>
             ))}
-            <div className="rihab-ornament mt-6" aria-hidden="true">✦</div>
-            <p className="mt-3 text-center text-[11px] text-gold-soft/70 font-body">
-              صفحة {page} من {MAX_PAGE}
-            </p>
-          </article>
+          </MushafPrintedPageFrame>
         )}
 
         <nav className="mt-5 flex items-center justify-between gap-2">

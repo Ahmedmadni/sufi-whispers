@@ -17,9 +17,11 @@ describe("printed Quran surah opening", () => {
       suraNo: 1, suraName: "الفاتحة", firstAyaText: verses[0].aya_text,
     }));
     expect(html).toContain("بسم الله اختبار");
-    expect(html).toContain("mushaf-basmala");
-    expect(html).toContain("mushaf-basmala__cartouche");
-    expect((html.match(/mushaf-illumination-wing/g) || []).length).toBeGreaterThanOrEqual(2);
+    expect(html).toContain('data-testid="signature-basmala"');
+    expect(html).toContain("mushaf-signature-frame__center");
+    expect(html).toContain("mushaf-signature-frame__text");
+    expect((html.match(/<svg/g) || []).length).toBe(4);
+    expect((html.match(/mushaf-signature-wing/g) || []).length).toBeGreaterThanOrEqual(2);
     expect(html).not.toContain("mushaf-basmala__corner");
     expect((html.match(/بسم الله اختبار/g) || []).length).toBe(1);
   });
@@ -29,7 +31,7 @@ describe("printed Quran surah opening", () => {
     const markup = renderToStaticMarkup(createElement(MushafSurahOpening, {
       suraNo: 1, suraName: "الفاتحة", firstAyaText: original,
     }));
-    expect(markup).toContain("mushaf-basmala__ayah-mark");
+    expect(markup).toContain("mushaf-signature-frame__ayah-mark");
     expect(markup).toContain("\uFC00");
     expect(markup).toContain("بِسۡمِ");
     expect((markup.match(/\uFC00/g) || []).length).toBe(1);
@@ -38,13 +40,24 @@ describe("printed Quran surah opening", () => {
     expect(openingVerses(1, [{ aya_no: 1, aya_text: original } as Aya], true)).toEqual([]);
   });
 
-    test("never injects a basmala into At-Tawbah", () => {
+  test("never injects a basmala into At-Tawbah", () => {
     const html = renderToStaticMarkup(createElement(MushafSurahOpening, {
       suraNo: 9, suraName: "التوبة",
     }));
     expect(html).toContain("التوبة");
-    expect(html).not.toContain("mushaf-basmala");
+    expect(html).not.toContain("mushaf-signature-frame");
     expect(html).not.toContain("بِسْمِ");
+  });
+
+  test("original signature artwork remains decoration, not Quran text", () => {
+    const html = renderToStaticMarkup(createElement(MushafSurahOpening, {
+      suraNo: 2, suraName: "البقرة",
+    }));
+    expect(html).toContain('data-testid="signature-surah-title"');
+    expect(html).toContain("mushaf-signature-rosette");
+    expect(html).toContain("mushaf-signature-wing--mirrored");
+    expect(html).toContain('aria-hidden="true"');
+    expect((html.match(/mushaf-signature-frame__text/g) || []).length).toBe(1);
   });
 
   test("adds a single decorative basmala for other suras without removing their verses", () => {
@@ -52,7 +65,7 @@ describe("printed Quran surah opening", () => {
     const html = renderToStaticMarkup(createElement(MushafSurahOpening, {
       suraNo: 112, suraName: "الإخلاص",
     }));
-    expect(html).toContain("mushaf-basmala");
+    expect(html).toContain("mushaf-signature-frame");
     expect(html).toContain("بِسْمِ");
     expect(openingVerses(112, [first], true)).toEqual([first]);
     expect(openingVerses(1, [first], false)).toEqual([first]);

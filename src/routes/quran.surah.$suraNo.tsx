@@ -5,6 +5,7 @@ import { ChevronRight, ChevronLeft, ChevronDown } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { MushafSurahOpening, openingVerses } from "@/components/MushafSurahOpening";
+import { MushafPrintedPageFrame } from "@/components/MushafPrintedPageFrame";
 import { MushafReadingToolbar, useMushafView } from "@/components/MushafReadingToolbar";
 import {
   SURA_INDEX,
@@ -139,10 +140,12 @@ function SurahPage() {
         <MushafReadingToolbar view={view} onChange={update} />
 
         {current && (
-          <article
-            className={`mushaf-sheet mushaf-premium ${view.parchment ? "mushaf-parchment" : "mushaf-midnight"} mt-4 rounded-2xl px-4 sm:px-7 py-6 sm:py-8`}
+          <MushafPrintedPageFrame
+            page={current.page}
+            suraName={sura.nameAr}
+            juz={current.list[0]?.jozz}
+            night={!view.parchment}
             style={paperStyle}
-            aria-label={`سورة ${sura.nameAr}، صفحة ${current.page}`}
           >
             {pageIdx === 0 && (
               <MushafSurahOpening
@@ -158,10 +161,7 @@ function SurahPage() {
                 </span>
               ))}
             </div>
-            <p className="mt-6 text-center text-[11px] text-gold-soft/70 font-body">
-              صفحة {current.page} — {pageIdx + 1} من {pages.length}
-            </p>
-          </article>
+          </MushafPrintedPageFrame>
         )}
 
         {pages.length > 1 && (
