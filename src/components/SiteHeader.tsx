@@ -35,7 +35,7 @@ export function SiteHeader() {
           <Link to="/library" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
             المكتبة
           </Link>
-          <Link to="/quran" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
+          <Link to="/quran/printed" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
             المصحف
           </Link>
           <Link to="/shaykh" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
