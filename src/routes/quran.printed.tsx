@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowRight, BookOpen, Bookmark, BookmarkCheck, Check, ChevronLeft,
+  ArrowRight, Bookmark, BookmarkCheck, Check, ChevronLeft,
   ChevronRight, Copy, List, LoaderCircle, Minus, Plus, RefreshCcw,
   Search, X,
 } from "lucide-react";
@@ -30,7 +30,7 @@ type Pinch = { startDistance: number; startZoom: number };
 
 function validPage(raw: unknown): number {
   const text = typeof raw === "number" ? String(raw) : raw;
-  return typeof text === "string" && /^[1-9]\\d*$/.test(text)
+  return typeof text === "string" && /^[1-9]\d*$/.test(text)
     ? clampMushafPage(Number(text)) : 1;
 }
 
@@ -230,7 +230,7 @@ function PrintedMushafReader() {
     }
   };
 
-  const beginTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+  const beginTouch = (event: TouchEvent<HTMLDivElement>) => {
     if (event.touches.length === 2) {
       pinch.current = {
         startDistance: distanceBetweenTouches(event.touches[0], event.touches[1]),
@@ -243,13 +243,13 @@ function PrintedMushafReader() {
     }
   };
 
-  const moveTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+  const moveTouch = (event: TouchEvent<HTMLDivElement>) => {
     if (event.touches.length !== 2 || !pinch.current) return;
     const size = distanceBetweenTouches(event.touches[0], event.touches[1]);
     setZoom(pinchReaderZoom(pinch.current.startZoom, pinch.current.startDistance, size));
   };
 
-  const finishTouch = (event: React.TouchEvent<HTMLDivElement>) => {
+  const finishTouch = (event: TouchEvent<HTMLDivElement>) => {
     if (event.touches.length > 0) return;
     if (pinched.current) {
       pinched.current = false;
