@@ -11,6 +11,8 @@ import {
   Flame,
   Check,
   Clock,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -24,6 +26,7 @@ import {
 } from "@/data/dhikr";
 import { useDhikr, formatDuration, formatNumber, MILESTONES } from "@/lib/dhikr-store";
 import { TasbihIcon } from "@/components/TasbihIcon";
+import { DHIKR_SOUND_PREF, playDhikrTap } from "@/lib/dhikr-sound";
 
 const TITLE = "لوحة الذكر — الجمعية الخليلية الإسلامية";
 const DESCRIPTION =
@@ -49,6 +52,16 @@ function DhikrPage() {
   const d = useDhikr();
   const [wird, setWird] = useState(() => currentWird());
   const [manual, setManual] = useState("");
+  const [soundOn, setSoundOn] = useState(true);
+  useEffect(() => {
+    try { setSoundOn(localStorage.getItem(DHIKR_SOUND_PREF) !== "off"); } catch { /* optional */ }
+  }, []);
+  const changeSound = () => {
+    const next = !soundOn;
+    setSoundOn(next);
+    try { localStorage.setItem(DHIKR_SOUND_PREF, next ? "on" : "off"); } catch { /* optional */ }
+    if (next) playDhikrTap();
+  };
   const lastMilestone = useRef(0);
 
   useEffect(() => {
@@ -85,7 +98,8 @@ function DhikrPage() {
     } else {
       d.addDaily(wird.phase === "salawat" ? "salawat" : "istighfar", n);
     }
-    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
+    if (soundOn) playDhikrTap();
+    if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
   }
 
   const dailyCount = wird.phase === "salawat" ? d.state.daily.salawat : d.state.daily.istighfar;
@@ -124,6 +138,12 @@ function DhikrPage() {
           {wird.phase === "asma" && (
             <p className="mt-1 text-xs text-muted-foreground font-body">{d.active.meaning}</p>
           )}
+
+          <button type="button" onClick={changeSound} aria-pressed={soundOn}
+            className="mt-3 inline-flex min-h-10 items-center gap-2 rounded-full border border-gold/30 px-3 py-1.5 text-xs font-body text-gold-soft">
+            {soundOn ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            {soundOn ? "صوت اللمس: يعمل" : "صوت اللمس: مغلق"}
+          </button>
 
           {/* العدّاد */}
           <div
