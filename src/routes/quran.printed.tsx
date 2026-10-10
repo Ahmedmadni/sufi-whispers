@@ -1,25 +1,20 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { PrintedPdfCanvasProps } from "@/components/PrintedPdfCanvas";
+import { adjacentPrintedPages, printedPageImageUrl, PRINTED_PAGE_IMAGE_HEIGHT, PRINTED_PAGE_IMAGE_WIDTH } from "@/lib/printed-mushaf-pages";
 import {
   Bookmark, BookmarkCheck, BookOpen, Check, ChevronLeft, ChevronRight,
-  CloudDownload, Download, FileUp, List, LoaderCircle, Minus, Plus,
-  Search, Trash2,
+  List, LoaderCircle, Minus, Plus, Search, RefreshCcw,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SURA_INDEX, quranQueryOptions, searchQuran } from "@/lib/quran";
 import {
-  PRINTED_MUSHAF, PRINTED_BOOKMARK_KEY, PRINTED_LAST_PAGE_KEY,
+  PRINTED_BOOKMARK_KEY, PRINTED_LAST_PAGE_KEY,
   clampMushafPage, parseLastPrintedPage, parsePrintedBookmarks,
-  suraAtMushafPage, surasOnMushafPage, matchesSuraFilter, toPdfPage, togglePrintedBookmark,
+  suraAtMushafPage, surasOnMushafPage, matchesSuraFilter, togglePrintedBookmark,
   type PrintedBookmark,
 } from "@/lib/printed-mushaf";
-import {
-  deleteOfflinePrintedMushaf, downloadOfflinePrintedMushaf,
-  getOfflinePrintedMushaf, saveOfflinePrintedMushaf, PrintedMushafCorruptError,
-} from "@/lib/printed-mushaf-storage";
 
 type Tab = "index" | "bookmarks" | "search";
 
@@ -50,41 +45,38 @@ function PrintedMushafReader() {
   const [activeTab, setActiveTab] = useState<Tab>("index");
   const [searchText, setSearchText] = useState("");
   const [suraFilter, setSuraFilter] = useState("");
-  const [pdf, setPdf] = useState<Blob | null>(null);
-  const [PdfCanvas, setPdfCanvas] = useState<ComponentType<PrintedPdfCanvasProps> | null>(null);
-  const [storageCorrupt, setStorageCorrupt] = useState(false);
-  const [initializing, setInitializing] = useState(true);
-  const [busy, setBusy] = useState<"download" | "import" | "delete" | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState("");
-  const [pdfError, setPdfError] = useState("");
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [frameWidth, setFrameWidth] = useState(430);
   const [draftPage, setDraftPage] = useState(String(page));
   const [lastPage, setLastPage] = useState(1);
   const [showPanel, setShowPanel] = useState(true);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
-  const uploadRef = useRef<HTMLInputElement>(null);
-  const downloadAbortRef = useRef<AbortController | null>(null);
   const gestureStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
-    let mounted = true;
     try {
       setBookmarks(parsePrintedBookmarks(localStorage.getItem(PRINTED_BOOKMARK_KEY)));
       setLastPage(parseLastPrintedPage(localStorage.getItem(PRINTED_LAST_PAGE_KEY)));
-    } catch { /* reader works without saved preferences */ }
-    getOfflinePrintedMushaf()
-      .then((saved) => { if (mounted) setPdf(saved); })
-      .catch((e: unknown) => {
-        if (mounted) {
-          setStorageCorrupt(e instanceof PrintedMushafCorruptError);
-          setError(e instanceof Error ? e.message : "لا يمكن الوصول إلى التخزين المحلي.");
-        }
-      })
-      .finally(() => { if (mounted) setInitializing(false); });
-    return () => { mounted = false; downloadAbortRef.current?.abort(); };
+    } catch { /* optional local reader preferences */ }
   }, []);
+
+  useEffect(() => {
+    setImageError(false);
+    setImageLoading(true);
+  }, [page, retry]);
+
+  // Only fetch the current page and its two immediate neighbours.
+  // Browser caching handles repeat visits; no PDF file needs to be downloaded.
+  useEffect(() => {
+    for (const adjacent of adjacentPrintedPages(page)) {
+      const nearby = new Image();
+      nearby.decoding = "async";
+      nearby.src = printedPageImageUrl(adjacent);
+    }
+  }, [page]);
 
   // Never overwrite yesterday's saved place just by opening the home link.
   useEffect(() => {
@@ -94,21 +86,6 @@ function PrintedMushafReader() {
   useEffect(() => {
     if (window.matchMedia?.("(max-width: 768px)").matches) setShowPanel(false);
   }, []);
-
-  // The scanner imports pdfjs-dist, which accesses DOMMatrix at module load.
-  // Browser-only dynamic import is essential: SSR must never evaluate it.
-  useEffect(() => {
-    if (!pdf) return;
-    let active = true;
-    void import("@/components/PrintedPdfCanvas")
-      .then(({ default: Canvas }) => {
-        if (active) setPdfCanvas(() => Canvas);
-      })
-      .catch((error: unknown) => {
-        if (active) setPdfError(`تعذّر تحميل قارئ المصحف: ${error instanceof Error ? error.message : "خطأ غير متوقع"}`);
-      });
-    return () => { active = false; };
-  }, [pdf]);
 
   useEffect(() => {
     const node = pdfContainerRef.current;
@@ -122,7 +99,7 @@ function PrintedMushafReader() {
     }
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
-  }, [pdf, initializing]);
+  }, []);
 
   const go = useCallback((value: number) => {
     const target = clampMushafPage(value);
@@ -163,49 +140,6 @@ function PrintedMushafReader() {
     String(s.no) === suraFilter.trim()
   ), [suraFilter]);
 
-  const importFile = async (file?: File) => {
-    if (!file) return;
-    setBusy("import");
-    setError("");
-    setPdfError("");
-    try {
-      const saved = await saveOfflinePrintedMushaf(file);
-      setPdf(saved);
-      setStorageCorrupt(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "فشل التحقق من ملف المصحف.");
-    } finally { setBusy(null); if (uploadRef.current) uploadRef.current.value = ""; }
-  };
-
-  const download = async () => {
-    const controller = new AbortController();
-    downloadAbortRef.current = controller;
-    setBusy("download"); setProgress(0); setError(""); setPdfError("");
-    try {
-      const saved = await downloadOfflinePrintedMushaf(setProgress, controller.signal);
-      if (!controller.signal.aborted) {
-        setPdf(saved);
-        setStorageCorrupt(false);
-      }
-    } catch (e) {
-      setError(e instanceof DOMException && e.name === "AbortError"
-        ? "تم إلغاء تنزيل المصحف دون حفظ ملف ناقص."
-        : e instanceof Error
-          ? `${e.message} إذا تعذّر الاتصال بالمصدر، نزّل الملف من الرابط ثم استورده.`
-          : "تعذر تنزيل الملف. يمكن استيراده من الجهاز.");
-    } finally {
-      if (downloadAbortRef.current === controller) downloadAbortRef.current = null;
-      setBusy(null);
-    }
-  };
-
-  const removeDownload = async () => {
-    setBusy("delete"); setError("");
-    try { await deleteOfflinePrintedMushaf(); setPdf(null); setPdfError(""); setStorageCorrupt(false); }
-    catch (e) { setError(e instanceof Error ? e.message : "تعذّر حذف النسخة المحلية."); }
-    finally { setBusy(null); }
-  };
-
   const selectTab = (tab: Tab) => { setActiveTab(tab); setShowPanel(true); };
   const jumpFromPanel = (target: number) => {
     go(target);
@@ -221,7 +155,7 @@ function PrintedMushafReader() {
           <div>
             <p className="text-xs text-gold-soft/80 font-body">مصحف المدينة النبوية · طبعة ١٤٤١هـ</p>
             <h1 className="font-display text-xl sm:text-3xl text-gold-soft mt-1">المصحف المطبوع</h1>
-            <p className="text-xs text-muted-foreground font-body mt-1.5">الصفحات الأصلية كما طُبعت، دون إعادة صفّ أو تعديل للنص القرآني.</p>
+            <p className="text-xs text-muted-foreground font-body mt-1.5">اعرض صفحات المصحف المطبوع مباشرة دون تنزيل أو رفع أي ملفات.</p>
           </div>
           <Link to="/quran" className={smallButton}><BookOpen className="h-4 w-4" /> القراءة النصية</Link>
         </header>
@@ -316,100 +250,73 @@ function PrintedMushafReader() {
               <span className="text-sm font-display text-gold-soft">صفحة {page} من ٦٠٤</span>
               <span className="text-xs font-body text-muted-foreground">
               {surasOnMushafPage(page).length > 1 ? "سور " : "سورة "}
-              {surasOnMushafPage(page).map((s) => s.nameAr).join(" • ")} · PDF {toPdfPage(page)}
+              {surasOnMushafPage(page).map((s) => s.nameAr).join(" • ")}
             </span>
             </div>
 
-            {initializing ? (
-              <div role="status" className="printed-reader__empty"><LoaderCircle className="h-6 w-6 animate-spin" /> جارٍ تجهيز المصحف…</div>
-            ) : !pdf ? (
-              <div className="printed-reader__empty">
-                <BookOpen className="h-10 w-10 text-gold-soft" />
-                <h2 className="font-display text-xl text-gold-soft">تنزيل المصحف المطبوع</h2>
-                <p className="max-w-md text-center text-sm leading-8 text-muted-foreground font-body">
-                  تُحفظ نسخة مطابقة للملف الذي اعتمدته (نحو ٦٢ ميجابايت) على هذا الجهاز للقراءة دون إنترنت، ولا تُضاف إلى حجم تثبيت التطبيق.
-                </p>
-                <button type="button" className="printed-reader__primary" disabled={busy !== null} onClick={() => void download()}>
-                  {busy === "download" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <CloudDownload className="h-4 w-4" />}
-                  {busy === "download" ? `جارٍ التنزيل… ${Math.round(progress * 100)}٪` : "تنزيل المصحف وحفظه"}
-                </button>
-                {busy === "download" && (
-                  <div className="flex flex-col items-center gap-2">
-                    <progress className="printed-reader__progress" max={1} value={progress} aria-label="تقدم تنزيل المصحف" />
-                    <button type="button" className={smallButton} onClick={() => downloadAbortRef.current?.abort()}>
-                      إلغاء التنزيل
-                    </button>
+            <div className="printed-reader__reader-controls">
+              <div className="flex items-center gap-1">
+                <button type="button" className={smallButton} aria-label="تصغير الصفحة" disabled={zoom <= 1}
+                  onClick={() => setZoom((z) => Math.max(1, +(z - .2).toFixed(2)))}><Minus className="h-4 w-4" /></button>
+                <output className="text-xs text-muted-foreground min-w-11 text-center">{Math.round(zoom * 100)}٪</output>
+                <button type="button" className={smallButton} aria-label="تكبير الصفحة" disabled={zoom >= 1.8}
+                  onClick={() => setZoom((z) => Math.min(1.8, +(z + .2).toFixed(2)))}><Plus className="h-4 w-4" /></button>
+              </div>
+              <span className="text-xs text-muted-foreground font-body">عرض مباشر لصفحات المصحف الأصلية</span>
+            </div>
+            <div className="printed-reader__canvas-scroll" ref={pdfContainerRef}
+              onTouchStart={(e) => {
+                if (zoom !== 1 || e.touches.length !== 1) { gestureStartRef.current = null; return; }
+                gestureStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+              }}
+              onTouchEnd={(e) => {
+                const start = gestureStartRef.current;
+                gestureStartRef.current = null;
+                if (!start || zoom !== 1 || e.changedTouches.length !== 1) return;
+                const dx = e.changedTouches[0].clientX - start.x;
+                const dy = e.changedTouches[0].clientY - start.y;
+                if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+                go(page + (dx < 0 ? 1 : -1));
+              }}
+              onTouchCancel={() => { gestureStartRef.current = null; }}
+            >
+              <div className="printed-reader__page-image" style={{ width: Math.round(frameWidth * zoom) }}>
+                {imageLoading && !imageError && (
+                  <div role="status" className="printed-reader__image-loading">
+                    <LoaderCircle className="animate-spin h-5 w-5" />
+                    جارٍ عرض الصفحة {page}…
                   </div>
                 )}
-                <p className="text-xs text-muted-foreground font-body">أو استورد ملف PDF الأصلي الذي لديك، وسنتحقق من بصمته قبل فتحه.</p>
-                <input ref={uploadRef} type="file" accept=".pdf,application/pdf" className="sr-only"
-                  aria-label="اختيار ملف PDF الأصلي" onChange={(e) => void importFile(e.target.files?.[0])} />
-                <button type="button" className={smallButton} disabled={busy !== null}
-                  onClick={() => uploadRef.current?.click()}><FileUp className="h-4 w-4" /> استيراد PDF من الجهاز</button>
-                <a className="text-xs font-body underline text-gold-soft" href={PRINTED_MUSHAF.sourceUrl} target="_blank" rel="noopener noreferrer">
-                  <Download className="h-3 w-3 inline" /> رابط ملف النسخة الأصلية للتنزيل اليدوي
-                </a>
-                <p className="text-xs font-body text-muted-foreground">لن يُعرض ملف غير مطابق للبصمة المحفوظة.</p>
-                {storageCorrupt && (
-                  <button type="button" className={smallButton} disabled={busy !== null}
-                    onClick={() => void removeDownload()}>
-                    <Trash2 className="h-4 w-4" /> حذف الملف التالف من التخزين
-                  </button>
+                {imageError ? (
+                  <div role="alert" className="printed-reader__empty">
+                    <p className="font-body text-sm text-destructive leading-8">
+                      تعذّر تحميل صورة الصفحة. تأكد من اتصال الإنترنت ثم أعد المحاولة.
+                    </p>
+                    <button type="button" className={smallButton}
+                      onClick={() => { setImageError(false); setImageLoading(true); setRetry((value) => value + 1); }}>
+                      <RefreshCcw className="w-4 h-4" /> إعادة المحاولة
+                    </button>
+                    <Link to="/quran/page/$page" params={{ page: String(page) }} className={smallButton}>
+                      اقرأ الصفحة في الوضع النصي
+                    </Link>
+                  </div>
+                ) : (
+                  <img
+                    key={`${page}-${retry}`}
+                    src={printedPageImageUrl(page)}
+                    alt={`الصفحة ${page} من مصحف المدينة الأصلي بالرسم العثماني`}
+                    width={PRINTED_PAGE_IMAGE_WIDTH}
+                    height={PRINTED_PAGE_IMAGE_HEIGHT}
+                    decoding="async"
+                    loading="eager"
+                    draggable={false}
+                    onLoad={() => { setImageLoading(false); setImageError(false); }}
+                    onError={() => { setImageLoading(false); setImageError(true); }}
+                    className={`printed-reader__original-page ${imageLoading ? "is-loading" : ""}`}
+                  />
                 )}
               </div>
-            ) : (
-              <>
-                <div className="printed-reader__reader-controls">
-                  <div className="flex items-center gap-1">
-                    <button type="button" className={smallButton} aria-label="تصغير الصفحة" disabled={zoom <= 1}
-                      onClick={() => setZoom((z) => Math.max(1, +(z - .2).toFixed(2)))}><Minus className="h-4 w-4" /></button>
-                    <output className="text-xs text-muted-foreground min-w-11 text-center">{Math.round(zoom * 100)}٪</output>
-                    <button type="button" className={smallButton} aria-label="تكبير الصفحة" disabled={zoom >= 1.8}
-                      onClick={() => setZoom((z) => Math.min(1.8, +(z + .2).toFixed(2)))}><Plus className="h-4 w-4" /></button>
-                  </div>
-                  <button type="button" className={smallButton} disabled={busy !== null} onClick={() => void removeDownload()}>
-                    <Trash2 className="h-4 w-4" /> حذف النسخة المحفوظة
-                  </button>
-                </div>
-                <div className="printed-reader__canvas-scroll" ref={pdfContainerRef}
-                  onTouchStart={(e) => {
-                    if (zoom !== 1 || e.touches.length !== 1) { gestureStartRef.current = null; return; }
-                    gestureStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-                  }}
-                  onTouchEnd={(e) => {
-                    const start = gestureStartRef.current;
-                    gestureStartRef.current = null;
-                    if (!start || zoom !== 1 || e.changedTouches.length !== 1) return;
-                    const dx = e.changedTouches[0].clientX - start.x;
-                    const dy = e.changedTouches[0].clientY - start.y;
-                    if (Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
-                    go(page + (dx < 0 ? 1 : -1));
-                  }}
-                  onTouchCancel={() => { gestureStartRef.current = null; }}
-                >
-                  {PdfCanvas ? (
-                    <PdfCanvas
-                      pdf={pdf}
-                      pdfPage={toPdfPage(page)}
-                      width={Math.round(frameWidth * zoom)}
-                      onPageCount={(numPages) => {
-                        if (numPages !== PRINTED_MUSHAF.documentPages) {
-                          setPdfError("عدد صفحات هذا الملف لا يطابق النسخة المعتمدة (640 صفحة).");
-                          setPdf(null);
-                        } else setPdfError("");
-                      }}
-                      onError={setPdfError}
-                    />
-                  ) : (
-                    <div role="status" className="printed-reader__empty">
-                      <LoaderCircle className="h-5 w-5 animate-spin" />
-                      جارٍ تجهيز عارض المصحف…
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-            {(error || pdfError) && <p role="alert" className="printed-reader__error">{error || pdfError}</p>}
+            </div>
             <nav className="printed-reader__pagination" aria-label="التنقل في صفحات المصحف">
               <button type="button" className={smallButton} disabled={page >= 604} onClick={() => go(page + 1)}>
                 <ChevronLeft className="h-4 w-4" /> التالية
