@@ -14,7 +14,7 @@ import { SURA_INDEX, quranQueryOptions, searchQuran } from "@/lib/quran";
 import {
   PRINTED_MUSHAF, PRINTED_BOOKMARK_KEY, PRINTED_LAST_PAGE_KEY,
   clampMushafPage, parseLastPrintedPage, parsePrintedBookmarks,
-  suraAtMushafPage, toPdfPage, togglePrintedBookmark,
+  suraAtMushafPage, surasOnMushafPage, matchesSuraFilter, toPdfPage, togglePrintedBookmark,
   type PrintedBookmark,
 } from "@/lib/printed-mushaf";
 import {
@@ -138,7 +138,7 @@ function PrintedMushafReader() {
   );
   const suras = useMemo(() => SURA_INDEX.filter((s) =>
     !suraFilter.trim() ||
-    s.nameAr.includes(suraFilter.trim()) ||
+    matchesSuraFilter(s.nameAr, suraFilter) ||
     String(s.no) === suraFilter.trim()
   ), [suraFilter]);
 
@@ -175,6 +175,10 @@ function PrintedMushafReader() {
   };
 
   const selectTab = (tab: Tab) => { setActiveTab(tab); setShowPanel(true); };
+  const jumpFromPanel = (target: number) => {
+    go(target);
+    setShowPanel(false);
+  };
   const smallButton = "printed-reader__control inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-gold/30 px-3 text-xs font-body text-foreground disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-gold";
 
   return (
@@ -226,7 +230,7 @@ function PrintedMushafReader() {
                   <ul className="printed-reader__results">
                     {suras.map((s) => (
                       <li key={s.no}>
-                        <button type="button" className="printed-reader__entry" onClick={() => go(s.startPage)}>
+                        <button type="button" className="printed-reader__entry" onClick={() => jumpFromPanel(s.startPage)}>
                           <span className="printed-reader__number">{s.no}</span>
                           <span className="min-w-0 flex-1 text-right">
                             <span className="block font-display text-sm text-gold-soft">{s.nameAr}</span>
@@ -243,7 +247,7 @@ function PrintedMushafReader() {
                 <div className="printed-reader__results">
                   {bookmarks.length === 0 && <p className="text-center text-sm text-muted-foreground font-body py-8">لا توجد إشارات بعد. افتح الصفحة واضغط «حفظ الصفحة».</p>}
                   {bookmarks.map((b) => (
-                    <button type="button" key={b.page} className="printed-reader__entry w-full" onClick={() => go(b.page)}>
+                    <button type="button" key={b.page} className="printed-reader__entry w-full" onClick={() => jumpFromPanel(b.page)}>
                       <BookmarkCheck className="h-4 w-4 text-gold-soft" />
                       <span className="flex-1 text-right text-sm font-body">صفحة {b.page}</span>
                       <span className="text-xs text-muted-foreground">{suraAtMushafPage(b.page).nameAr}</span>
@@ -263,7 +267,7 @@ function PrintedMushafReader() {
                   <ul className="printed-reader__results">
                     {results.map((a) => (
                       <li key={a.id}>
-                        <button type="button" onClick={() => go(a.page)} className="printed-reader__search-result">
+                        <button type="button" onClick={() => jumpFromPanel(a.page)} className="printed-reader__search-result">
                           <span className="mushaf-text block text-right leading-loose text-foreground">{a.aya_text}</span>
                           <span className="block text-[11px] text-gold-soft font-body mt-2">سورة {a.sura_name_ar}، الآية {a.aya_no}، الصفحة {a.page}</span>
                         </button>
@@ -278,7 +282,10 @@ function PrintedMushafReader() {
           <section className="printed-reader__book" aria-label="صفحات المصحف">
             <div className="printed-reader__status">
               <span className="text-sm font-display text-gold-soft">صفحة {page} من ٦٠٤</span>
-              <span className="text-xs font-body text-muted-foreground">سورة {suraAtMushafPage(page).nameAr} · PDF {toPdfPage(page)}</span>
+              <span className="text-xs font-body text-muted-foreground">
+              {surasOnMushafPage(page).length > 1 ? "سور " : "سورة "}
+              {surasOnMushafPage(page).map((s) => s.nameAr).join(" • ")} · PDF {toPdfPage(page)}
+            </span>
             </div>
 
             {initializing ? (
