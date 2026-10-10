@@ -1,0 +1,17 @@
+/**
+ * Independent start-page index extracted from the ORIGINAL 640-page PDF
+ * outline (114 chapter bookmarks), not inferred from Quran search text.
+ * PDF page 4 = printed Mushaf page 1; PDF page 607 = printed page 604.
+ * Source file SHA256: 2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28
+ * Generated from the uploaded PDF TOC (PyMuPDF), not OCR.
+ */
+export const PRINTED_PDF_SURA_START_PAGES = [
+  4,5,53,80,109,131,154,180,190,211,224,238,252,258,265,270,
+  285,296,308,315,325,335,345,353,362,370,380,388,399,407,414,
+  418,421,431,437,443,449,456,461,470,480,486,492,499,502,505,
+  510,514,518,521,523,526,529,531,534,537,540,545,548,552,554,
+  556,557,559,561,563,565,567,569,571,573,575,577,578,580,581,
+  583,585,586,588,589,590,590,592,593,594,594,595,596,597,598,
+  598,599,599,600,600,601,601,602,602,603,603,604,604,604,605,
+  605,605,606,606,606,607,607,607,
+] as const;
