@@ -82,3 +82,51 @@ to locate a PDF or upload any data.
 5. Visual/functional tests on Android device: loading over normal/slow
    data connection, zoom and swipe, search result navigation, bookmarks,
    image failure fallback, and resumed page after restart.
+
+
+## Android fully offline edition — V9 (pixel-perfect compression)
+
+**Android will bundle all 604 pages as local application assets**. This is
+intentional, even if the APK grows; the user never downloads/uploads a Quran
+PDF and every printed page works after installation in airplane mode.
+
+- Source: pinned Git commit `0b944b349fd28295803a0a96fbf2906a14286245`,
+  604 original PNGs extracted from the PDF identified above.
+- `scripts/prepare-offline-mushaf.py` validates each original PNG's
+  per-page SHA-256, renders it to WebP in **lossless** mode with method=6
+  (maximum Pillow/libwebp compression effort), and decodes it back.
+  **Every pixel in all four RGBA channels is compared** against its original.
+  A lossy conversion or changed diacritic is rejected.
+- For pages where WebP is not smaller, the exact original PNG bytes are
+  retained. A manifest maps each numbered page to its smallest verified
+  lossless version.
+- Android build packs files under
+  `/printed-mushaf/pages/{001..604}.{webp|png}` and validates all file
+  sizes and SHA-256 values in `dist-mobile` before Gradle.
+- `src/lib/printed-mushaf-pages.ts` selects **local images on Android**,
+  never a remote URL when the offline manifest is absent or invalid. The
+  website still uses the approved pinned remote originals.
+- Index, bookmarks, search, zoom and other reader features use the same
+  source-driven page numbers, without changing Quran text.
+
+Android GitHub Actions checks out the pinned source images and prepares the
+compressed offline collection *before* invoking `bun run mobile:android:apk`.
+For local custom APK builds, run from the project root:
+
+```bash
+git clone --depth 1 --single-branch --branch mushaf-pages https://github.com/Ahmedmadni/sufi-whispers.git _verified-mushaf-source
+git -C _verified-mushaf-source checkout 0b944b349fd28295803a0a96fbf2906a14286245
+python -m pip install Pillow==11.3.0
+python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
+bun run mobile:android:apk
+```
+
+No Quran font, JSON or printed image is edited by this operation. Although
+WebP is lossless, **the packaged byte representation may differ from the PNG
+original**, so the build gate verifies pixel equality, not identical
+compressed file bytes. This is the strongest fidelity criterion for
+lossless raster image optimization.
+
+Android app size may increase significantly, but its print Quran is then
+fully self-contained and independent of Internet Archive/GitHub during
+reading. Mobile device airplane-mode QA is still required.
