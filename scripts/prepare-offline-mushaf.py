@@ -32,6 +32,27 @@ def prepare_one(args):
         if image.format != "PNG" or image.size != EXPECTED_DIMENSIONS:
             raise RuntimeError(f"Page {page}: unexpected original image encoding/size")
         source_pixels = image.convert("RGBA")
+        # The page scan often has wide, asymmetric WHITE gutters.
+        # Detect all non-white ink/ornaments (minimum RGB < 180); retain
+        # a full 14px safety border around detected artwork.
+        rgb = source_pixels.convert("RGB")
+        red, green, blue = rgb.split()
+        visible = ImageChops.darker(ImageChops.darker(red, green), blue)
+        bbox = visible.point(lambda v: 255 if v < 180 else 0).getbbox()
+        if not bbox:
+            raise RuntimeError(f"Page {page}: source has no visible ink")
+        safety = 14
+        crop = [
+            max(0, bbox[0] - safety),
+            max(0, bbox[1] - safety),
+            max(0, EXPECTED_DIMENSIONS[0] - bbox[2] - safety),
+            max(0, EXPECTED_DIMENSIONS[1] - bbox[3] - safety),
+        ]
+        # Only the visible viewport is trimmed: original source pixels
+        # and original WebP lossless compression remain UNMODIFIED.
+        if any(x < 0 for x in crop):
+            raise RuntimeError("Invalid safe page crop")
+
 
     # Pillow uses libwebp's reversible (lossless) predictor/entropy coding.
     # method=6 is the maximum supported effort without quality reduction.
@@ -60,6 +81,7 @@ def prepare_one(args):
         "name": f"{name}.{extension}",
         "bytes": len(encoded),
         "sha256": sha256(encoded),
+        "crop": crop,
     }
 
 

@@ -9,6 +9,7 @@ on:
       - ".github/workflows/android-debug.yml"
       - "scripts/android-dev.mjs"
       - "scripts/prepare-mobile-assets.mjs"
+      - "scripts/prepare-android-fonts.mjs"
       - "scripts/prepare-offline-mushaf.py"
       - "scripts/mobile-integrity.mjs"
       - "scripts/verify-mobile-bundle.mjs"
@@ -23,6 +24,7 @@ on:
       - ".github/workflows/android-debug.yml"
       - "scripts/android-dev.mjs"
       - "scripts/prepare-mobile-assets.mjs"
+      - "scripts/prepare-android-fonts.mjs"
       - "scripts/prepare-offline-mushaf.py"
       - "scripts/mobile-integrity.mjs"
       - "scripts/verify-mobile-bundle.mjs"
@@ -82,6 +84,8 @@ jobs:
         run: bun run test:integrity
       - name: Install strictly lossless Mushaf image optimizer
         run: python -m pip install Pillow==11.3.0
+      - name: Download and validate premium Arabic fonts for offline Android
+        run: node scripts/prepare-android-fonts.mjs
       - name: Verify and embed all 604 losslessly optimized Quran pages
         run: python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
       - name: Generate Android project and build debug APK

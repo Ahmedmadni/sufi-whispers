@@ -7,7 +7,7 @@ import {
   Search, X,
 } from "lucide-react";
 import {
-  adjacentPrintedPages, printedPageImageUrl,
+  adjacentPrintedPages, printedPageImageUrl, getPrintedPageCrop,
   validateOfflineMushafManifest, MOBILE_OFFLINE_MUSHAF_URL,
   PRINTED_PAGE_IMAGE_HEIGHT, PRINTED_PAGE_IMAGE_WIDTH,
   type OfflinePrintedMushafManifest,
@@ -92,6 +92,9 @@ function PrintedMushafReader() {
 
   const isAndroid = import.meta.env.VITE_MOBILE === "true";
   const source = printedPageImageUrl(page, offlineManifest);
+  const [cutLeft, cutTop, cutRight, cutBottom] = getPrintedPageCrop(page, offlineManifest);
+  const sourceWidth = PRINTED_PAGE_IMAGE_WIDTH - cutLeft - cutRight;
+  const sourceHeight = PRINTED_PAGE_IMAGE_HEIGHT - cutTop - cutBottom;
   const bookmarked = bookmarks.some((mark) => mark.page === page);
 
   useEffect(() => {
@@ -144,7 +147,7 @@ function PrintedMushafReader() {
     if (!node) return;
     const measure = () => setFitWidth(Math.max(200, Math.min(
       node.clientWidth - 4,
-      (node.clientHeight - 4) * PRINTED_PAGE_IMAGE_WIDTH / PRINTED_PAGE_IMAGE_HEIGHT,
+      (node.clientHeight - 4) * sourceWidth / sourceHeight,
     )));
     measure();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
@@ -154,7 +157,7 @@ function PrintedMushafReader() {
       observer?.disconnect();
       if (!observer) window.removeEventListener("resize", measure);
     };
-  }, []);
+  }, [sourceWidth, sourceHeight]);
 
   // Keep the center of the enlarged image within the user's viewport.
   useEffect(() => {
@@ -271,7 +274,7 @@ function PrintedMushafReader() {
   return (
     <div className="printed-immersive" dir="rtl" aria-label="قارئ المصحف بكامل الشاشة">
       <header className="printed-immersive__top">
-        <Link to="/quran" className={button} aria-label="الخروج من القراءة الكاملة إلى فهرس المصحف">
+        <Link to="/" className={button} aria-label="العودة إلى الصفحة الرئيسية">
           <ArrowRight size={18} /> <span className="printed-immersive__optional">خروج</span>
         </Link>
         <div className="printed-immersive__chapter" title={selectedSuras.map((s) => s.nameAr).join(" • ")}>
@@ -295,7 +298,13 @@ function PrintedMushafReader() {
           onTouchStart={beginTouch} onTouchMove={moveTouch}
           onTouchEnd={finishTouch} onTouchCancel={() => { pinch.current = null; pinched.current = false; startSwipe.current = null; }}
           aria-label={`صورة الصفحة ${page}، مرّر إلى اليمين للصفحة التالية، أو قرّب بإصبعين للتكبير`}>
-          <div className="printed-immersive__image" style={{ width: Math.round(fitWidth * zoom) }}>
+
+          <div className="printed-immersive__image"
+            style={{
+              width: Math.round(fitWidth * zoom),
+              height: Math.round(fitWidth * zoom * sourceHeight / sourceWidth),
+              overflow: "hidden",
+            }}>
             {imageLoading && !imageError && !offlineError && (
               <div role="status" className="printed-immersive__loading"><LoaderCircle size={21} className="animate-spin" /> جارٍ عرض الصفحة…</div>
             )}
@@ -303,12 +312,19 @@ function PrintedMushafReader() {
               <div role="alert" className="printed-immersive__failure">
                 <p>{offlineError || (isAndroid ? "تعذّر قراءة صفحة المصحف المدمجة." : "تعذّر تحميل الصفحة. تحقق من الاتصال بالإنترنت.")}</p>
                 {!offlineError && <button className={button} onClick={() => setRetry((n) => n + 1)}><RefreshCcw size={18}/> إعادة المحاولة</button>}
-                <Link className={button} to="/quran/page/$page" params={{ page: String(page) }}>القراءة النصية</Link>
+                <button type="button" className={button} onClick={() => setPanel("copy")}>افتح نص الآيات للنسخ</button>
               </div>
             ) : source ? (
               <img key={`${page}-${retry}`} src={source}
                 alt={`صورة الصفحة ${page} الأصلية من مصحف المدينة`}
                 width={PRINTED_PAGE_IMAGE_WIDTH} height={PRINTED_PAGE_IMAGE_HEIGHT}
+                style={{
+                  position: "absolute", maxWidth: "none",
+                  width: fitWidth * zoom * PRINTED_PAGE_IMAGE_WIDTH / sourceWidth,
+                  height: fitWidth * zoom * PRINTED_PAGE_IMAGE_HEIGHT / sourceWidth,
+                  left: -fitWidth * zoom * cutLeft / sourceWidth,
+                  top: -fitWidth * zoom * cutTop / sourceWidth,
+                }}
                 className={`printed-immersive__original ${imageLoading ? "is-loading" : ""} ${slideDirection === "next" ? "enter-next" : "enter-previous"}`}
                 draggable={false} decoding="async" loading="eager"
                 onLoad={() => { setImageLoading(false); setImageError(false); }}

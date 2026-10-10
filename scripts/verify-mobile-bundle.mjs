@@ -18,6 +18,17 @@ const required = [
 for (const path of required) {
   if (!existsSync(path)) throw new Error(`Mobile build is missing ${path}`);
 }
+const premiumFonts = ["ibm-light.ttf","ibm-regular.ttf","ibm-medium.ttf",
+  "ibm-semibold.ttf","ibm-bold.ttf","cairo-variable.ttf",
+  "amiri-regular.ttf","amiri-bold.ttf","fonts.css"];
+const fontDir = join(assetDir, "fonts");
+for (const name of premiumFonts) {
+  const file = join(fontDir, name);
+  if (!existsSync(file) || statSync(file).size < 300) {
+    throw new Error(`Android premium Arabic font missing: ${name}`);
+  }
+}
+console.log("Verified all premium Arabic fonts are packaged for offline Android.");
 const html = readFileSync(join(dist, "index.html"), "utf8");
 if (!html.includes('id="root"') || !html.includes('lang="ar"')) {
   throw new Error("Mobile HTML lacks the React root or Arabic document language");

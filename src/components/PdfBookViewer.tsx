@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
+import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
@@ -37,6 +38,31 @@ type Props = {
 
 export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat" }: Props) {
   const PDF_URL = pdfUrl;
+  const isOfflineAndroid = import.meta.env.VITE_MOBILE === "true";
+  const [localBytes, setLocalBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
+  const [sourceError, setSourceError] = useState("");
+  const [readerError, setReaderError] = useState("");
+  const [retry, setRetry] = useState(0);
+  useEffect(() => {
+    if (!isOfflineAndroid) return;
+    const controller = new AbortController();
+    setLocalBytes(null);
+    setSourceError("");
+    setReaderError("");
+    void loadLocalBookPdf(PDF_URL, controller.signal).then((bytes) => {
+      if (!controller.signal.aborted) setLocalBytes(bytes);
+    }).catch((error: unknown) => {
+      if (!controller.signal.aborted) setSourceError(
+        error instanceof Error ? error.message : "تعذّر قراءة ملف الكتاب المدمج."
+      );
+    });
+    return () => controller.abort();
+  }, [PDF_URL, isOfflineAndroid, retry]);
+
+  const readerSource = useMemo(
+    () => isOfflineAndroid ? (localBytes ? { data: localBytes } : null) : PDF_URL,
+    [isOfflineAndroid, localBytes, PDF_URL],
+  );
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
@@ -361,14 +387,28 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         }}
         className="reader-surface rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
       >
-        <Document
-          key={bookId}
-          file={PDF_URL}
+        {isOfflineAndroid && !readerSource ? (
+          <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
+            <p>{sourceError || "جارٍ تجهيز النسخة المحلية للكتاب…"}</p>
+            {sourceError && <button type="button" className="mt-3 rounded-lg border border-gold/30 px-4 py-2"
+              onClick={() => setRetry((n) => n + 1)}>إعادة المحاولة</button>}
+          </div>
+        ) : <Document
+          key={`${bookId}-${retry}`}
+          file={readerSource!}
           onLoadSuccess={({ numPages: n }) => {
             setNumPages(n);
             setPage((current) => clampPage(current, n));
           }}
           options={pdfOptions}
+          onLoadError={(error) => {
+            console.error("[Book PDF] failed to open", bookId, error);
+            setReaderError(error instanceof Error ? error.message : String(error));
+          }}
+          onSourceError={(error) => {
+            console.error("[Book PDF] failed to read source", bookId, error);
+            setReaderError(error instanceof Error ? error.message : String(error));
+          }}
           loading={
             <div className="flex flex-col items-center gap-3 py-8 w-full">
               <Skeleton className="w-full max-w-[800px] aspect-[1/1.4] rounded-lg" />
@@ -379,6 +419,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             <div className="text-center py-12 px-4">
               <p className="text-sm text-muted-foreground font-body mb-3">
                 تعذّر تحميل الكتاب.
+                {readerError && <span className="block mt-2 text-xs break-words" dir="ltr">{readerError}</span>}
               </p>
               <a
                 href={PDF_URL}
@@ -429,7 +470,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               />
             ))}
           </div>
-        </Document>
+        </Document>}
       </div>
 
       {/* Bottom pager */}
