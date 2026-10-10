@@ -105,7 +105,6 @@ function PrintedMushafReader() {
 
   const go = useCallback((value: number) => {
     const target = clampMushafPage(value);
-    setLastPage(target);
     void navigate({ to: "/quran/printed", search: { page: target } });
   }, [navigate]);
 
