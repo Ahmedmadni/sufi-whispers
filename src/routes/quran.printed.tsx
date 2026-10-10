@@ -1,7 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { adjacentPrintedPages, printedPageImageUrl, PRINTED_PAGE_IMAGE_HEIGHT, PRINTED_PAGE_IMAGE_WIDTH } from "@/lib/printed-mushaf-pages";
+import {
+  adjacentPrintedPages, printedPageImageUrl,
+  validateOfflineMushafManifest, MOBILE_OFFLINE_MUSHAF_URL,
+  PRINTED_PAGE_IMAGE_HEIGHT, PRINTED_PAGE_IMAGE_WIDTH,
+  type OfflinePrintedMushafManifest,
+} from "@/lib/printed-mushaf-pages";
 import {
   Bookmark, BookmarkCheck, BookOpen, Check, ChevronLeft, ChevronRight,
   List, LoaderCircle, Minus, Plus, Search, RefreshCcw,
@@ -46,6 +51,8 @@ function PrintedMushafReader() {
   const [searchText, setSearchText] = useState("");
   const [suraFilter, setSuraFilter] = useState("");
   const [imageError, setImageError] = useState(false);
+  const [offlineManifest, setOfflineManifest] = useState<OfflinePrintedMushafManifest | null>(null);
+  const [offlineManifestError, setOfflineManifestError] = useState("");
   const [imageLoading, setImageLoading] = useState(true);
   const [retry, setRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -68,16 +75,41 @@ function PrintedMushafReader() {
     setImageLoading(true);
   }, [page, retry]);
 
+  const isMobileOffline = import.meta.env.VITE_MOBILE === "true";
+  useEffect(() => {
+    if (!isMobileOffline) return;
+    const controller = new AbortController();
+    fetch(MOBILE_OFFLINE_MUSHAF_URL, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("لم يتم العثور على صفحات المصحف داخل أصول التطبيق.");
+        return response.json() as Promise<unknown>;
+      })
+      .then((value) => {
+        if (!controller.signal.aborted) {
+          setOfflineManifest(validateOfflineMushafManifest(value));
+          setOfflineManifestError("");
+        }
+      })
+      .catch((error: unknown) => {
+        if (!controller.signal.aborted) {
+          setOfflineManifestError(error instanceof Error ? error.message : "تعذر فتح المصحف دون إنترنت.");
+        }
+      });
+    return () => controller.abort();
+  }, [isMobileOffline]);
+
+  const imageSrc = printedPageImageUrl(page, offlineManifest);
+
   // Only fetch the current page and its two immediate neighbours.
   // Browser caching handles repeat visits; no PDF file needs to be downloaded.
   useEffect(() => {
-    if (imageLoading || imageError) return;
+    if (imageLoading || imageError || offlineManifestError || !imageSrc) return;
     for (const adjacent of adjacentPrintedPages(page)) {
       const nearby = new Image();
       nearby.decoding = "async";
-      nearby.src = printedPageImageUrl(adjacent);
+      nearby.src = printedPageImageUrl(adjacent, offlineManifest);
     }
-  }, [page, imageLoading, imageError]);
+  }, [page, imageLoading, imageError, offlineManifest, offlineManifestError, imageSrc]);
 
   // Never overwrite yesterday's saved place just by opening the home link.
   useEffect(() => {
@@ -263,7 +295,9 @@ function PrintedMushafReader() {
                 <button type="button" className={smallButton} aria-label="تكبير الصفحة" disabled={zoom >= 1.8}
                   onClick={() => setZoom((z) => Math.min(1.8, +(z + .2).toFixed(2)))}><Plus className="h-4 w-4" /></button>
               </div>
-              <span className="text-xs text-muted-foreground font-body">عرض مباشر لصفحات المصحف الأصلية</span>
+              <span className="text-xs text-muted-foreground font-body">
+                {isMobileOffline ? "المصحف كاملًا داخل التطبيق — يعمل دون إنترنت" : "عرض مباشر لصفحات المصحف الأصلية"}
+              </span>
             </div>
             <div className="printed-reader__canvas-scroll" ref={pdfContainerRef}
               onTouchStart={(e) => {
@@ -282,29 +316,35 @@ function PrintedMushafReader() {
               onTouchCancel={() => { gestureStartRef.current = null; }}
             >
               <div className="printed-reader__page-image" style={{ width: Math.round(frameWidth * zoom) }}>
-                {imageLoading && !imageError && (
+                {imageLoading && !imageError && !offlineManifestError && (
                   <div role="status" className="printed-reader__image-loading">
                     <LoaderCircle className="animate-spin h-5 w-5" />
                     جارٍ عرض الصفحة {page}…
                   </div>
                 )}
-                {imageError ? (
+                {(imageError || offlineManifestError) ? (
                   <div role="alert" className="printed-reader__empty">
                     <p className="font-body text-sm text-destructive leading-8">
-                      تعذّر تحميل صورة الصفحة. تأكد من اتصال الإنترنت ثم أعد المحاولة.
+                      {offlineManifestError
+                        ? offlineManifestError
+                        : isMobileOffline
+                          ? "تعذّر قراءة صورة الصفحة من ملفات التطبيق."
+                          : "تعذّر تحميل صورة الصفحة. تأكد من اتصال الإنترنت ثم أعد المحاولة."}
                     </p>
-                    <button type="button" className={smallButton}
-                      onClick={() => { setImageError(false); setImageLoading(true); setRetry((value) => value + 1); }}>
-                      <RefreshCcw className="w-4 h-4" /> إعادة المحاولة
-                    </button>
+                    {!offlineManifestError && (
+                      <button type="button" className={smallButton}
+                        onClick={() => { setImageError(false); setImageLoading(true); setRetry((value) => value + 1); }}>
+                        <RefreshCcw className="w-4 h-4" /> إعادة المحاولة
+                      </button>
+                    )}
                     <Link to="/quran/page/$page" params={{ page: String(page) }} className={smallButton}>
                       اقرأ الصفحة في الوضع النصي
                     </Link>
                   </div>
-                ) : (
+                ) : imageSrc ? (
                   <img
                     key={`${page}-${retry}`}
-                    src={printedPageImageUrl(page)}
+                    src={imageSrc}
                     alt={`الصفحة ${page} من مصحف المدينة الأصلي بالرسم العثماني`}
                     width={PRINTED_PAGE_IMAGE_WIDTH}
                     height={PRINTED_PAGE_IMAGE_HEIGHT}
@@ -315,7 +355,7 @@ function PrintedMushafReader() {
                     onError={() => { setImageLoading(false); setImageError(true); }}
                     className={`printed-reader__original-page ${imageLoading ? "is-loading" : ""}`}
                   />
-                )}
+                ) : null}
               </div>
             </div>
             <nav className="printed-reader__pagination" aria-label="التنقل في صفحات المصحف">
