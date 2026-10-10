@@ -73,6 +73,19 @@ function QuranIndexPage() {
           </p>
         </header>
 
+        <Link to="/quran/printed" search={{ page: last?.page ?? 1 }}
+          className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-gold/30 bg-gradient-to-l from-emerald-deep/25 to-gold/10 p-4 hover:border-gold/60 transition-colors">
+          <span className="flex flex-col gap-1">
+            <span className="font-display text-lg text-gold-soft">المصحف المطبوع — طبعة المدينة ١٤٤١هـ</span>
+            <span className="text-xs font-body text-muted-foreground leading-7">
+              صفحات وإطارات المصحف الأصلية، مع الفهرس والبحث والإشارات المرجعية والقراءة دون إنترنت بعد التنزيل.
+            </span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-emerald-deep px-4 py-2.5 text-xs text-white font-body">
+            <BookOpen className="h-4 w-4" /> افتح المصحف المطبوع
+          </span>
+        </Link>
+
         {last && (
           <Link
             to="/quran/page/$page"
