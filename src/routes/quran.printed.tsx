@@ -87,7 +87,6 @@ function PrintedMushafReader() {
   useEffect(() => {
     setDraftPage(String(page));
     try { localStorage.setItem(PRINTED_LAST_PAGE_KEY, String(page)); } catch { /* optional */ }
-    setLastPage(page);
   }, [page]);
 
   useEffect(() => {
@@ -95,13 +94,18 @@ function PrintedMushafReader() {
     if (!node) return;
     const update = () => setFrameWidth(Math.max(230, Math.min(900, node.clientWidth - 8)));
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(node);
-    return () => observer.disconnect();
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(update);
+      observer.observe(node);
+      return () => observer.disconnect();
+    }
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, [pdf, initializing]);
 
   const go = useCallback((value: number) => {
     const target = clampMushafPage(value);
+    setLastPage(target);
     void navigate({ to: "/quran/printed", search: { page: target } });
   }, [navigate]);
 
