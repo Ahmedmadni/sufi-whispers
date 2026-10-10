@@ -472,3 +472,20 @@
 @media (prefers-reduced-motion: reduce) {
   .printed-immersive__original.enter-next, .printed-immersive__original.enter-previous { animation: none; }
 }
+
+
+/* Printed Mushaf margins are cropped only in the viewport. No PDF or PNG
+   image is modified. Center the surviving original decorative artwork. */
+.printed-immersive__viewport {
+  display: flex;
+  align-items: safe center;
+  justify-content: safe center;
+}
+.printed-immersive__image {
+  flex: none;
+  margin: auto;
+}
+.printed-immersive__original {
+  position: absolute;
+  max-width: none;
+}
