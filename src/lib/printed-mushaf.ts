@@ -43,6 +43,20 @@ export function suraAtMushafPage(page: number) {
   return SURA_INDEX[0];
 }
 
+/** Name filtering never touches canonical Quran verse text. */
+export function matchesSuraFilter(name: string, query: string): boolean {
+  const normalize = (text: string) =>
+    text.replace(/[\u064B-\u065F\u0670]/g, "").replace(/[أإآٱ]/g, "ا").replace(/ى/g, "ي").trim();
+  const q = normalize(query);
+  return !q || normalize(name).includes(q);
+}
+
+/** Collect all suras starting on this page (a page can begin several suras). */
+export function surasOnMushafPage(page: number) {
+  const starting = SURA_INDEX.filter((s) => s.startPage === clampMushafPage(page));
+  return starting.length > 0 ? starting : [suraAtMushafPage(page)];
+}
+
 export type PrintedBookmark = { page: number; createdAt: number };
 export const PRINTED_BOOKMARK_KEY = "rihab:printed-mushaf:bookmarks:v1";
 export const PRINTED_LAST_PAGE_KEY = "rihab:printed-mushaf:last-page:v1";
