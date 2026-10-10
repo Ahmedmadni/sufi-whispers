@@ -108,6 +108,12 @@ function QuranPageView() {
         }}
       >
         <div className="flex items-center justify-between gap-3">
+          <Link to="/quran/printed" search={{ page }}
+            className="inline-flex min-h-9 items-center rounded-lg border border-gold/30 px-3 py-1.5 text-xs text-gold-soft font-body">
+            اعرض الصفحة بالمصحف المطبوع
+          </Link>
+        </div>
+        <div className="flex items-center justify-between gap-3">
           <Link
             to="/quran"
             className="inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"

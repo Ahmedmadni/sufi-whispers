@@ -1,0 +1,200 @@
+/* Madinah printed Mushaf: a separate calm PDF reader without altering the
+   original Quran typography, page artwork or canonical verse strings. */
+.printed-reader { min-width: 0; }
+.printed-reader__heading {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .8rem; margin-bottom: 1.25rem;
+}
+.printed-reader__toolbar {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .5rem;
+  padding: .8rem; margin-bottom: .9rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 24%, transparent);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--background) 92%, var(--gold) 8%);
+}
+.printed-reader__control {
+  background: color-mix(in srgb, var(--card) 92%, var(--gold) 8%);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.printed-reader__control:hover:not(:disabled),
+.printed-reader__saved { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 13%, var(--card)); }
+.printed-reader__saved { color: var(--gold-soft); }
+.printed-reader__layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 290px) minmax(0, 1fr);
+  align-items: start;
+  gap: 1rem;
+}
+.printed-reader__layout--full { grid-template-columns: minmax(0, 1fr); }
+.printed-reader__panel {
+  min-width: 0;
+  position: sticky;
+  top: 5rem;
+  max-height: min(81vh, 850px);
+  display: flex; flex-direction: column;
+  padding: .7rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  border-radius: 1rem;
+  background: var(--card);
+  box-shadow: 0 12px 35px -26px rgb(0 0 0 / .35);
+}
+.printed-reader__tabs {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem;
+  padding: .25rem; background: color-mix(in srgb, var(--gold) 7%, var(--card));
+  border-radius: .65rem;
+}
+.printed-reader__tabs button {
+  border-radius: .5rem; min-height: 2.45rem;
+  font: 500 .76rem/1.5 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: var(--muted-foreground);
+}
+.printed-reader__tabs button.is-active {
+  color: var(--gold-soft);
+  background: var(--card);
+  box-shadow: 0 2px 10px -7px rgb(0 0 0 / .2);
+}
+.printed-reader__input {
+  display: block; width: 100%; min-height: 2.7rem;
+  margin-top: .7rem; padding: .55rem .8rem;
+  font: 400 .82rem/1.7 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: var(--foreground);
+  border: 1px solid color-mix(in srgb, var(--gold) 28%, transparent);
+  border-radius: .6rem;
+  background: var(--background);
+  outline-offset: 3px;
+}
+.printed-reader__input:focus-visible { outline: 2px solid var(--gold); }
+.printed-reader__panel-count {
+  font: 400 .69rem/1.8 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: var(--muted-foreground);
+  margin: .55rem .15rem;
+}
+.printed-reader__results {
+  overflow-y: auto; flex: 1; min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.printed-reader__entry {
+  display: flex; align-items: center; gap: .65rem;
+  width: 100%; min-height: 3.6rem;
+  text-align: right;
+  padding: .48rem .4rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  border-radius: .4rem;
+}
+.printed-reader__entry:hover, .printed-reader__search-result:hover {
+  background: color-mix(in srgb, var(--gold) 8%, var(--card));
+}
+.printed-reader__number {
+  display: inline-flex; justify-content: center; align-items: center;
+  height: 2rem; width: 2rem; flex: none;
+  border: 1px solid color-mix(in srgb, var(--gold) 35%, transparent);
+  border-radius: 50%; font-size: .7rem;
+  color: var(--gold-soft);
+}
+.printed-reader__search-result {
+  text-align: right; display: block; padding: .75rem .5rem;
+  border-bottom: 1px solid var(--border); width: 100%;
+  border-radius: .4rem;
+}
+.printed-reader__search-result .mushaf-text { line-height: 2; font-size: 1rem; }
+.printed-reader__book {
+  min-width: 0; overflow: hidden;
+  padding: .8rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 22%, transparent);
+  border-radius: 1.1rem;
+  background: color-mix(in srgb, var(--card) 90%, var(--gold) 10%);
+}
+.printed-reader__status {
+  display: flex; align-items: center; flex-wrap: wrap;
+  justify-content: space-between; gap: .5rem;
+  padding: .35rem .25rem .8rem;
+}
+.printed-reader__empty {
+  min-height: 21rem;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  gap: 1rem; padding: 1.5rem 1rem;
+  border-radius: .8rem;
+  border: 1px dashed color-mix(in srgb, var(--gold) 40%, transparent);
+  background: var(--background);
+  font-family: "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  text-align: center;
+}
+.printed-reader__primary {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .5rem; padding: .75rem 1rem; min-height: 2.9rem;
+  font: 600 .86rem/1.5 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: #fff8e8; background: #216149;
+  border-radius: .65rem; border: 1px solid #b99451;
+}
+.printed-reader__primary:disabled { opacity: .55; }
+.printed-reader__progress { width: min(100%, 290px); height: .65rem; accent-color: #c19a56; }
+.printed-reader__reader-controls {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: .5rem; padding: .3rem .15rem .75rem;
+}
+.printed-reader__canvas-scroll {
+  direction: ltr;
+  overflow: auto;
+  max-width: 100%;
+  max-height: min(85vh, 1000px);
+  min-height: 10rem;
+  background: #e9e3d8;
+  border: 1px solid #b9a990;
+  border-radius: .45rem;
+  text-align: center;
+  overscroll-behavior: contain;
+}
+.printed-reader__canvas-scroll .react-pdf__Document {
+  display: inline-block;
+  min-width: 0;
+}
+.printed-reader__canvas-scroll .react-pdf__Page {
+  width: max-content;
+  max-width: none;
+  margin: 0 auto;
+}
+.printed-reader__canvas-scroll canvas {
+  display: block; height: auto;
+  box-shadow: 0 6px 19px rgb(0 0 0 / .16);
+}
+.printed-reader__pagination {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: .65rem; margin-top: .8rem;
+}
+.printed-reader__pagination form {
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+}
+.printed-reader__pagination input {
+  width: 4.2rem; min-height: 2.5rem;
+  border: 1px solid color-mix(in srgb, var(--gold) 34%, transparent);
+  border-radius: .5rem; background: var(--background); color: var(--foreground);
+  text-align: center; font-variant-numeric: tabular-nums;
+}
+.printed-reader__resume {
+  display: inline-flex; align-items: center; gap: .35rem;
+  margin: .9rem auto 0;
+  min-height: 2rem;
+  font: 500 .75rem/1.6 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: var(--gold-soft);
+}
+.printed-reader__error {
+  margin-top: .8rem; padding: .8rem;
+  border: 1px solid color-mix(in srgb, var(--destructive) 45%, transparent);
+  background: color-mix(in srgb, var(--destructive) 7%, var(--card));
+  border-radius: .6rem;
+  font: 400 .8rem/1.8 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+  color: var(--destructive);
+}
+@media (max-width: 768px) {
+  .printed-reader__layout { grid-template-columns: minmax(0,1fr); }
+  .printed-reader__panel { position: static; max-height: 19rem; }
+  .printed-reader__book { padding: .5rem; }
+  .printed-reader__toolbar { justify-content: center; }
+  .printed-reader__status { justify-content: center; text-align: center; }
+  .printed-reader__canvas-scroll { max-height: min(76vh, 920px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .printed-reader__control { transition: none; }
+}

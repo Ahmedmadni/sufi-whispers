@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import visualCss from "../visual-experience.css?url";
 import premiumCss from "../premium-ui.css?url";
 import printedMushafCss from "../printed-mushaf.css?url";
+import printedPdfCss from "../printed-pdf-reader.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { SalawatReminder } from "@/components/Salawat";
 import { BottomNav } from "@/components/BottomNav";
@@ -80,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: visualCss },
       { rel: "stylesheet", href: premiumCss },
       { rel: "stylesheet", href: printedMushafCss },
+      { rel: "stylesheet", href: printedPdfCss },
       { rel: "preload", href: "/__l5e/assets-v1/0672fba1-2706-4d5c-a2ab-244997041972/uthmanic_hafs_v20.ttf", as: "font", type: "font/ttf", crossOrigin: "anonymous" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/icon-192.png", type: "image/png" },

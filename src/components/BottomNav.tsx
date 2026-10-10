@@ -18,7 +18,7 @@ export function BottomNav() {
           <Home className="w-[18px] h-[18px]" />
           <span>الرئيسية</span>
         </Link>
-        <Link to="/quran" activeProps={active} className={item}>
+        <Link to="/quran/printed" search={{ page: 1 }} activeProps={active} className={item}>
           <BookMarked className="w-[18px] h-[18px]" />
           <span>المصحف</span>
         </Link>

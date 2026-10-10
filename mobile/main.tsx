@@ -5,6 +5,7 @@ import "../src/styles.css";
 import "../src/visual-experience.css";
 import "../src/premium-ui.css";
 import "../src/printed-mushaf.css";
+import "../src/printed-pdf-reader.css";
 import "./mobile.css";
 
 const mount = document.getElementById("root");
