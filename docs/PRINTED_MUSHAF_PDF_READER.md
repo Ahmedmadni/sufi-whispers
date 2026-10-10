@@ -1,109 +1,84 @@
-# Printed Madinah Mushaf PDF reader (1441H green)
+# Madinah Mushaf — instant printed page reading (V8)
 
-## Source and Quran integrity
+## The user experience (no user downloads or uploads)
 
-The user supplied **MushafMadinaHafsGreen1441.pdf**, published as the
-Madinah Mushaf (Hafs, medium-quality green edition, 1441H).
+From the Quran navigation tab, the reader opens page 1 **immediately**.
+The visitor can move between original printed pages, zoom in, search,
+view the complete 114-surah index, and save or restore bookmarks.
 
-- Local original PDF file size: **65,008,727 bytes** (~62 MiB).
-- SHA-256: `2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28`.
-- Total **640 PDF sheets**.
-- PDF page **4** is Quran page **1** (al-Fatiha).
-- PDF page **607** is Quran page **604** (final Quran page).
-- The original PDF has **114 sura outline/bookmark destinations**; all
-  match the app's existing independently sourced sura start pages at
-  the exact offset `PDF page = Mushaf page + 3`.
-- `src/data/quran/printed-pdf-pages.ts` stores the independent PDF
-  outline mapping so tests can catch index drift.
+There are **no Download Mushaf, Upload PDF, Import, Delete cached file,
+or local storage permission prompts** in the reader.
 
-**Do not use OCR, AI transcription, reflow or image recreation** to
-render the Quran text. This reader displays the exact PDF page as a
-rasterized canvas from PDF.js; search uses the separate original
-`hafsData_v2-0.json` lookup and links to printed page numbers.
-Original Quran text, tashkeel, images and page layout are unchanged.
+One original 957×1368 PNG page is shown at a time, fetched over HTTPS
+and cached by the normal browser image cache when possible. The two
+adjacent pages are prefetched in the background. Slow/offline network
+conditions show a retry control and an existing verified Uthmanic text
+reader link; the app does **not** substitute AI-generated Quran text.
 
-## Loading, offline behavior and bundle size
+## Verification of the original source, not AI reproduction
 
-For this phase the PDF itself is **NOT** committed to GitHub or packaged
-inside Android. This avoids increasing every APK by 62 MB.
+The approved original `MushafMadinaHafsGreen1441.pdf` is exactly:
 
-Users may:
-1. Tap **Download Mushaf** to fetch the identified medium-quality PDF
-   from its original Internet Archive mirror, hash-verify it and store
-   it in browser/Android WebView IndexedDB for offline use.
-2. If the download is blocked by CORS/network conditions, follow the
-   direct source link in a browser, then **Import PDF** once from the
-   device; same SHA-256 validation applies.
-3. Delete the locally stored PDF from the interface, independently of
-   browser-stored reading bookmarks.
+- SHA-256: `2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28`
+- Original PDF size: 65,008,727 bytes (about 62 MiB)
+- 640 PDF pages, with 604 Quran leaves on PDF sheets 4–607
+- Each page already stores a 957×1368 PNG raster source image
 
-The exact public mirror URL:
-https://archive.org/download/MushafMadinaHafsGreen1441/MushafMadinaHafsGreen1441.pdf
+The publisher refuses an unknown SHA, missing page, wrong page count,
+unexpected pixel dimension or unexpected image format. It uses
+`fitz.Document.extract_image(xref)`: this **copies the original
+embedded PNG bytes**, with no OCR, raster rendering, recompression,
+rescaling, textual rewriting or modification of Quran diacritics.
+The generated manifest records the SHA256 and byte size for all 604
+pages.
 
-The historical item description:
-https://archive.org/details/MushafMadinaHafsGreen1441
+Script: `scripts/extract-printed-mushaf-pages.py`
+Workflow: `.github/workflows/publish-printed-mushaf.yml`
 
-**If the mirrored PDF's SHA-256 differs from the uploaded reference,
-the app refuses to display it.** Manual import of the original attached
-file is the fallback. Actual browser CORS, Android storage quota and
-device runtime behavior require device verification.
+The verified originals are published to the public **mushaf-pages**
+branch in the same project. Example immutable source image path:
+`pages/001.png`, `pages/604.png`. The image browser URL is currently:
+`https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/0b944b349fd28295803a0a96fbf2906a14286245/pages/001.png`
 
-Only one PDF page is rendered at a time using the already installed
-`react-pdf` / `pdfjs-dist` worker and the locally packaged font/CMap
-resources. Zoom redraws the current page, not the entire 640-page file.
-The scanned PDF has no selectable text; text search uses the app's
-unchanged Uthmanic dataset, not OCR.
+The independent original PDF outline maps 114 suras in
+`src/data/quran/printed-pdf-pages.ts` (PDF page number = printed page + 3).
+The reader's search queries the unchanged Hafs V2 canonical text,
+navigating to the original scanned page; no OCR is involved.
 
-## UI
+## Bundle size and performance
 
-- `/quran/printed?page=...` — dedicated printed Quran reader with:
-  - 114 sura index, search/filter, jumping to exact PDF page.
-  - Multiple bookmarks (on-device localStorage, page number and timestamp).
-  - Quran text search from the already verified dataset (results jump to
-    their **printed page**, not a guessed pixel highlight in the image).
-  - Last-read page, direct page number jump, arrows and zoom controls.
-  - One-click download and SHA256-verified manual import into IndexedDB.
-  - Reader entry on Quran index and on traditional text-page reader.
-- `/quran` and `/quran/page/...` remain available as the flexible
-  text-based reading mode; they do not rewrite or replace PDF content.
+- APK contains *neither* the 65 MB original PDF *nor* all 604 images.
+  This avoids increasing install size significantly.
+- Images are requested independently. Most regular reading pages are
+  approximately 140–170 KiB; special ornate pages may be larger.
+  Approximate total of all original PNGs is 91 MiB, **but visitors
+  do not retrieve them all**.
+- CSS handles zoom and scroll without re-rasterizing PDF or consuming
+  PDF.js memory in this reader.
+- Browser/Android WebView image cache may retain viewed pages, but
+  **full offline reading is not promised** without installing a
+  deliberately designed and tested offline-cache module.
 
-## Required checks
+## Operational caveat
 
-- `bun run test` includes PDF/page index tests for all **114 suras**.
-- `bun run typecheck`, `bun run build`, `bun run test:integrity`.
-- Android debug APK via `.github/workflows/android-debug.yml`.
-- On-device smoke tests: offline PDF after import, reopen stored PDF,
-  navigate 1, 50, 187, 604, search, save/delete bookmarks, accessibility
-  labels, zoom, low-storage warning and PDF import/download fallback.
-- Actual one-click mirror availability cannot be established without
-  testing the public host in an Android WebView environment.
+GitHub raw file serving is a functional interim image origin. For high
+traffic and predictable CDN caching, move the *identical original PNG
+bytes* and their manifest to GitHub Pages or an owned R2/CDN bucket and
+switch the single `PRINTED_PAGE_IMAGE_BASE` constant. Do not replace
+the images with newly rendered pages unless they undergo a separate
+Quran-content inspection and reference verification.
 
+When a remote page cannot be retrieved, the reader shows an Arabic
+retry button and a verified text reading-mode link. No user is asked
+to locate a PDF or upload any data.
 
-## Reliability upgrade — V7
+## Verification gates
 
-- Cached PDF is **cryptographically reverified on every reopen** before
-  being handed to PDF.js. Checking IndexedDB metadata alone cannot prove
-  saved bytes still match the user-approved 1441H PDF.
-- Cached-file validation errors are distinguishable from storage APIs being
-  unavailable; corrupted copies get an explicit local delete/reimport action.
-- Download stream is passed directly to `Response(stream).blob()` with
-  bounded progress tracking, avoiding an extra manually joined 62 MiB
-  `Uint8Array`. The eventual SHA-256 check still temporarily allocates an
-  `ArrayBuffer`, as required by WebCrypto.
-- The user can **cancel a download**; aborted or oversize/incomplete files
-  must not be saved as verified.
-- Swipe left/right at 100% zoom changes pages. Swipe navigation is disabled
-  while zoomed, to preserve touch-based panning.
-- Side tools start collapsed on narrow screens and are expanded using the
-  index, bookmarks or search controls.
-- Simply opening a link to the printed Quran no longer overwrites the
-  last-read position. The position is saved only after explicit page
-  navigation; the resume control can return to the prior session's position.
-- `tests/printed-mushaf-download.test.ts` checks byte-for-byte transport,
-  progress events, unsupported HTTP responses, declared oversize content,
-  and cancellation.
-
-**Remaining device-only verification:** browser IndexedDB quotas and
-eviction policy, Android WebView `ReadableStream` behavior and external
-mirror CORS cannot be claimed successful from static or CI builds alone.
-The manual import fallback stays in place.
+1. Publish workflow verifies the original SHA and all 604 image assets.
+2. `bun run test` checks 604 unique page URLs, 114 indexed sura starts,
+   boundary clamping and adjacent-page prefetch.
+3. SSR route smoke must pass: `/quran/printed?page=1`.
+4. TypeScript, production build, Quran integrity and Android debug build.
+5. Visual/functional tests on Android device: loading over normal/slow
+   data connection, zoom and swipe, search result navigation, bookmarks,
+   image failure fallback, and resumed page after restart.

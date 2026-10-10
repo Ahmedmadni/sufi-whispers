@@ -8,6 +8,7 @@ on:
     paths:
       - "src/**"
       - "scripts/smoke-web-preview.mjs"
+      - "scripts/smoke-printed-image-cdn.mjs"
       - "vite.config.ts"
       - "package.json"
       - "bun.lock"
@@ -17,6 +18,7 @@ on:
     paths:
       - "src/**"
       - "scripts/smoke-web-preview.mjs"
+      - "scripts/smoke-printed-image-cdn.mjs"
       - "vite.config.ts"
       - "package.json"
       - "bun.lock"
@@ -44,3 +46,5 @@ jobs:
         run: node scripts/smoke-web-preview.mjs
         env:
           TZ: Asia/Riyadh
+      - name: Verify public original Mushaf PNG pages
+        run: node scripts/smoke-printed-image-cdn.mjs

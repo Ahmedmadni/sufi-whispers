@@ -198,3 +198,43 @@
 @media (prefers-reduced-motion: reduce) {
   .printed-reader__control { transition: none; }
 }
+
+/* Original Madinah page image: only the currently requested PNG is displayed.
+   No PDF parsing, source reflow, OCR or full-book download in the reader. */
+.printed-reader__page-image {
+  position: relative;
+  display: block;
+  max-width: none;
+  min-height: 12rem;
+  margin-inline: auto;
+  background: #fbf7ee;
+}
+.printed-reader__original-page {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: none;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity .15s ease;
+}
+.printed-reader__original-page.is-loading { opacity: 0; }
+.printed-reader__image-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  min-height: 12rem;
+  color: #654c2c;
+  font: 500 .8rem/1.7 "IBM Plex Sans Arabic", "Cairo", sans-serif;
+}
+.printed-reader__canvas-scroll .printed-reader__page-image img {
+  box-shadow: 0 6px 19px rgb(0 0 0 / .12);
+}
+@media (prefers-reduced-motion: reduce) {
+  .printed-reader__original-page { transition: none; }
+}
