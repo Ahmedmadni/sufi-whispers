@@ -1,0 +1,56 @@
+name: Publish Original Mushaf Pages
+
+# Publish only original, SHA-verified page images; never rewrite Quran text.
+# This workflow owns a separate public branch for image delivery. App users
+# do not have to download or upload any PDF to read the Quran.
+on:
+  workflow_dispatch:
+  push:
+    branches: [feature/instant-printed-mushaf-pages]
+    paths:
+      - "scripts/extract-printed-mushaf-pages.py"
+      - ".github/workflows/publish-printed-mushaf.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  originals:
+    name: Verify source and publish 604 original PNGs
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF extractor
+        run: pip install --disable-pip-version-check pymupdf==1.26.4
+      - name: Download the exact approved original PDF
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fL --retry 4 --retry-delay 8 --connect-timeout 25 \
+            --max-time 420 \
+            --user-agent 'Mozilla/5.0 (compatible; RihabMushafPublisher/1.0)' \
+            'https://archive.org/download/MushafMadinaHafsGreen1441/MushafMadinaHafsGreen1441.pdf' \
+            -o /tmp/MushafMadinaHafsGreen1441.pdf
+          echo '2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28  /tmp/MushafMadinaHafsGreen1441.pdf' | sha256sum --check
+          test "$(wc -c </tmp/MushafMadinaHafsGreen1441.pdf)" -eq 65008727
+      - name: Extract Quran page images without any transformation
+        run: python scripts/extract-printed-mushaf-pages.py /tmp/MushafMadinaHafsGreen1441.pdf /tmp/published-mushaf
+      - name: Publish public, versioned page images to dedicated branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/published-mushaf
+          git init -b mushaf-pages
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m 'Publish exact source-image pages from verified Madinah Mushaf SHA-256'
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git -c http.postBuffer=524288000 push --force origin HEAD:refs/heads/mushaf-pages
+          echo "Pages available at https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/mushaf-pages/pages/001.png"
