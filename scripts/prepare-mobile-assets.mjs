@@ -96,6 +96,31 @@ for (const asset of descriptors) {
   checksums.push({ filename, bytes, sha256 });
   console.log(`Verified: ${filename} (${Math.round(bytes / 1024)} KiB)`);
 }
+// Bundled printed Quran images are mandatory for ALL Android builds.
+// The separate publisher verifies SHA-256 of 604 original source PNGs
+// and pixel equality of the chosen lossless WebP encodings.
+const localMushafPath = join(output, "printed-mushaf");
+const localMushafManifest = join(localMushafPath, "manifest.json");
+if (!existsSync(localMushafManifest)) {
+  throw new Error(
+    "Offline Mushaf missing: run scripts/prepare-offline-mushaf.py " +
+    "with the pinned original Quran source images before mobile:build.",
+  );
+}
+const offlineMushaf = JSON.parse(readFileSync(localMushafManifest, "utf8"));
+if (offlineMushaf.format !== 1 ||
+    offlineMushaf.sourceSha256 !== "2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28" ||
+    offlineMushaf.pageCount !== 604 || Object.keys(offlineMushaf.pages ?? {}).length !== 604) {
+  throw new Error("Offline Mushaf manifest does not match the approved Quran");
+}
+for (let page = 1; page <= 604; page++) {
+  const item = offlineMushaf.pages[String(page)];
+  if (!item || !existsSync(join(localMushafPath, "pages", item.name))) {
+    throw new Error(`Offline Mushaf missing original page ${page}`);
+  }
+}
+console.log(`Prepared all 604 embedded original Mushaf pages, ${Math.round(offlineMushaf.storedBytes / 1048576)} MiB.`);
+
 const pdfjsPath = join(output, "pdfjs");
 if (!existsSync(join(pdfjsPath, "cmaps")) ||
     !existsSync(join(pdfjsPath, "standard_fonts"))) {
