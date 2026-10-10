@@ -325,7 +325,7 @@ function PrintedMushafReader() {
 
       <footer className="printed-immersive__bottom">
         <button type="button" className={button} disabled={page >= 604} onClick={() => go(page + 1)}
-          aria-label="الصفحة التالية، باتجاه اليمين"><ChevronRight size={20}/> التالية</button>
+          aria-label="الصفحة التالية، باتجاه اليمين"><ChevronRight size={20}/><span className="printed-immersive__direction-label">التالية</span></button>
         <div className="printed-immersive__page-tools">
           <button type="button" className={button} onClick={() => setZoom((z) => clampReaderZoom(z - .3))}
             disabled={zoom <= 1} aria-label="تصغير المصحف"><Minus size={17}/></button>
@@ -341,7 +341,7 @@ function PrintedMushafReader() {
           </form>
         </div>
         <button type="button" className={button} disabled={page <= 1} onClick={() => go(page - 1)}
-          aria-label="الصفحة السابقة، باتجاه اليسار">السابقة <ChevronLeft size={20}/></button>
+          aria-label="الصفحة السابقة، باتجاه اليسار"><span className="printed-immersive__direction-label">السابقة</span><ChevronLeft size={20}/></button>
       </footer>
 
       <aside className={`printed-immersive__drawer ${panel ? "is-open" : ""}`}
