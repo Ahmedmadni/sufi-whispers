@@ -9,7 +9,7 @@ import { PRINTED_MUSHAF, clampMushafPage } from "@/lib/printed-mushaf";
  * The separate public branch is hosted online and is NOT in the APK.
  */
 export const PRINTED_PAGE_IMAGE_BASE =
-  "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/mushaf-pages/pages";
+  "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/0b944b349fd28295803a0a96fbf2906a14286245/pages";
 
 export const PRINTED_PAGE_IMAGE_WIDTH = 957;
 export const PRINTED_PAGE_IMAGE_HEIGHT = 1368;
@@ -31,4 +31,4 @@ export function adjacentPrintedPages(page: number): number[] {
  * If the image CDN is unreachable, provide the existing verified text mode.
  */
 export const PRINTED_PAGE_MANIFEST_URL =
-  "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/mushaf-pages/manifest.json";
+  "https://raw.githubusercontent.com/Ahmedmadni/sufi-whispers/0b944b349fd28295803a0a96fbf2906a14286245/manifest.json";
