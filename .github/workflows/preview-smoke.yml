@@ -1,0 +1,46 @@
+name: Web Preview Smoke
+
+# Detect real SSR/preview failures that TypeScript and optimized builds miss.
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/smoke-web-preview.mjs"
+      - "vite.config.ts"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/preview-smoke.yml"
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/smoke-web-preview.mjs"
+      - "vite.config.ts"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/preview-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    name: SSR preview HTTP smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Start preview and visit key pages
+        run: node scripts/smoke-web-preview.mjs
+        env:
+          TZ: Asia/Riyadh

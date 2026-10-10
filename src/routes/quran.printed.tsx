@@ -1,8 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentType } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Document, Page, pdfjs } from "react-pdf";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import type { PrintedPdfCanvasProps } from "@/components/PrintedPdfCanvas";
 import {
   Bookmark, BookmarkCheck, BookOpen, Check, ChevronLeft, ChevronRight,
   CloudDownload, Download, FileUp, List, LoaderCircle, Minus, Plus,
@@ -22,12 +21,6 @@ import {
   getOfflinePrintedMushaf, saveOfflinePrintedMushaf, PrintedMushafCorruptError,
 } from "@/lib/printed-mushaf-storage";
 
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
-const PDF_OPTIONS = {
-  cMapUrl: "/pdfjs/cmaps/",
-  cMapPacked: true,
-  standardFontDataUrl: "/pdfjs/standard_fonts/",
-};
 type Tab = "index" | "bookmarks" | "search";
 
 function parseRequestedPage(raw: unknown): number {
@@ -58,6 +51,7 @@ function PrintedMushafReader() {
   const [searchText, setSearchText] = useState("");
   const [suraFilter, setSuraFilter] = useState("");
   const [pdf, setPdf] = useState<Blob | null>(null);
+  const [PdfCanvas, setPdfCanvas] = useState<ComponentType<PrintedPdfCanvasProps> | null>(null);
   const [storageCorrupt, setStorageCorrupt] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [busy, setBusy] = useState<"download" | "import" | "delete" | null>(null);
@@ -100,6 +94,21 @@ function PrintedMushafReader() {
   useEffect(() => {
     if (window.matchMedia?.("(max-width: 768px)").matches) setShowPanel(false);
   }, []);
+
+  // The scanner imports pdfjs-dist, which accesses DOMMatrix at module load.
+  // Browser-only dynamic import is essential: SSR must never evaluate it.
+  useEffect(() => {
+    if (!pdf) return;
+    let active = true;
+    void import("@/components/PrintedPdfCanvas")
+      .then(({ default: Canvas }) => {
+        if (active) setPdfCanvas(() => Canvas);
+      })
+      .catch((error: unknown) => {
+        if (active) setPdfError(`تعذّر تحميل قارئ المصحف: ${error instanceof Error ? error.message : "خطأ غير متوقع"}`);
+      });
+    return () => { active = false; };
+  }, [pdf]);
 
   useEffect(() => {
     const node = pdfContainerRef.current;
@@ -378,20 +387,25 @@ function PrintedMushafReader() {
                   }}
                   onTouchCancel={() => { gestureStartRef.current = null; }}
                 >
-                  <Document file={pdf} options={PDF_OPTIONS} loading={<div className="printed-reader__empty"><LoaderCircle className="animate-spin h-6 w-6" /> جارٍ فتح المصحف…</div>}
-                    onLoadSuccess={({ numPages }) => {
-                      if (numPages !== PRINTED_MUSHAF.documentPages) {
-                        setPdfError("عدد صفحات هذا الملف لا يطابق النسخة المعتمدة (640 صفحة).");
-                        setPdf(null);
-                      } else setPdfError("");
-                    }}
-                    onLoadError={(e) => setPdfError(`تعذّر فتح المصحف: ${e.message}`)}
-                    error={<div role="alert" className="printed-reader__empty">تعذّر فتح ملف PDF. يمكنك حذف النسخة وإعادة استيرادها.</div>}
-                  >
-                    <Page pageNumber={toPdfPage(page)} width={Math.round(frameWidth * zoom)} renderTextLayer={false}
-                      renderAnnotationLayer={false} devicePixelRatio={1.5}
-                      loading={<div className="printed-reader__empty"><LoaderCircle className="animate-spin h-5 w-5" /> جارٍ عرض الصفحة…</div>} />
-                  </Document>
+                  {PdfCanvas ? (
+                    <PdfCanvas
+                      pdf={pdf}
+                      pdfPage={toPdfPage(page)}
+                      width={Math.round(frameWidth * zoom)}
+                      onPageCount={(numPages) => {
+                        if (numPages !== PRINTED_MUSHAF.documentPages) {
+                          setPdfError("عدد صفحات هذا الملف لا يطابق النسخة المعتمدة (640 صفحة).");
+                          setPdf(null);
+                        } else setPdfError("");
+                      }}
+                      onError={setPdfError}
+                    />
+                  ) : (
+                    <div role="status" className="printed-reader__empty">
+                      <LoaderCircle className="h-5 w-5 animate-spin" />
+                      جارٍ تجهيز عارض المصحف…
+                    </div>
+                  )}
                 </div>
               </>
             )}
