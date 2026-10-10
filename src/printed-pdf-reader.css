@@ -465,6 +465,7 @@
 @media (max-width: 370px) {
   .printed-immersive__chapter strong { display: none; }
   .printed-immersive__chapter span { font-size: .62rem; }
+  .printed-immersive__direction-label { display: none; }
   .printed-immersive__bottom > .printed-immersive__button { font-size: .68rem; }
   .printed-immersive__page-tools .printed-immersive__button:nth-child(4) { display: none; }
 }
