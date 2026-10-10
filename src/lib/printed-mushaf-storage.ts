@@ -130,5 +130,5 @@ export async function downloadOfflinePrintedMushaf(onProgress: (fraction: number
     binary.set(part, offset);
     offset += part.byteLength;
   }
-  return saveOfflinePrintedMushaf(new Blob([binary], { type: "application/pdf" }));
+  return saveOfflinePrintedMushaf(new Blob([binary.buffer as ArrayBuffer], { type: "application/pdf" }));
 }
