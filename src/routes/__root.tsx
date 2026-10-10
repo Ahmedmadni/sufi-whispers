@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -124,9 +125,17 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useLocation({ select: (location) => location.pathname });
+  // The native SPA has no document transitions unless we supply them.
+  // Keep the immersive Mushaf outside animated ancestors, so fixed viewport
+  // coordinates and touch panning remain exact.
+  const animateMobileRoute = import.meta.env.VITE_MOBILE === "true" &&
+    pathname !== "/quran/printed";
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      {animateMobileRoute
+        ? <div key={pathname} className="rihab-mobile-route"><Outlet /></div>
+        : <Outlet />}
       <BottomNav />
       <SalawatReminder />
       <Toaster position="bottom-center" />
