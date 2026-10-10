@@ -19,7 +19,7 @@ import {
 } from "@/lib/printed-mushaf";
 import {
   deleteOfflinePrintedMushaf, downloadOfflinePrintedMushaf,
-  getOfflinePrintedMushaf, saveOfflinePrintedMushaf,
+  getOfflinePrintedMushaf, saveOfflinePrintedMushaf, PrintedMushafCorruptError,
 } from "@/lib/printed-mushaf-storage";
 
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
@@ -84,7 +84,7 @@ function PrintedMushafReader() {
       .then((saved) => { if (mounted) setPdf(saved); })
       .catch((e: unknown) => {
         if (mounted) {
-          setStorageCorrupt(true);
+          setStorageCorrupt(e instanceof PrintedMushafCorruptError);
           setError(e instanceof Error ? e.message : "لا يمكن الوصول إلى التخزين المحلي.");
         }
       })
