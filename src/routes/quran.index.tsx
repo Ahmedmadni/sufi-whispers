@@ -78,7 +78,7 @@ function QuranIndexPage() {
           <span className="flex flex-col gap-1">
             <span className="font-display text-lg text-gold-soft">المصحف المطبوع — طبعة المدينة ١٤٤١هـ</span>
             <span className="text-xs font-body text-muted-foreground leading-7">
-              صفحات وإطارات المصحف الأصلية، مع الفهرس والبحث والإشارات المرجعية والقراءة دون إنترنت بعد التنزيل.
+              تصفح صفحات المصحف الأصلية مباشرة دون تنزيل أو رفع ملفات، مع الفهرس والبحث والإشارات المرجعية.
             </span>
           </span>
           <span className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-emerald-deep px-4 py-2.5 text-xs text-white font-body">
