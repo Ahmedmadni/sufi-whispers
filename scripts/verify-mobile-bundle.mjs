@@ -54,6 +54,40 @@ for (const path of descriptors) {
   }
   if (filename === "hafsData_v2-0.json") validateQuranFile(file);
 }
+// Fail the Android build unless all 604 printed pages are physically
+// present in the final WebView bundle and match their packed SHA-256.
+const offlineRoot = join(dist, "printed-mushaf");
+const offlineManifestFile = join(offlineRoot, "manifest.json");
+if (!existsSync(offlineManifestFile)) {
+  throw new Error("Android bundle has no packaged offline Mushaf");
+}
+const offlineManifest = JSON.parse(readFileSync(offlineManifestFile, "utf8"));
+if (offlineManifest.format !== 1 ||
+    offlineManifest.sourceSha256 !== "2f0b03925568fca326f47a5ec756df2c3eecc8b29f75471f3a0815a5a3e58d28" ||
+    offlineManifest.pageCount !== 604 ||
+    Object.keys(offlineManifest.pages ?? {}).length !== 604) {
+  throw new Error("Offline Android Quran manifest mismatch");
+}
+let pageBytes = 0;
+for (let page = 1; page <= 604; page++) {
+  const item = offlineManifest.pages[String(page)];
+  const stem = String(page).padStart(3, "0");
+  if (!item || ![stem + ".webp", stem + ".png"].includes(item.name)) {
+    throw new Error(`Offline Quran page index invalid at ${page}`);
+  }
+  const image = join(offlineRoot, "pages", item.name);
+  if (!existsSync(image)) throw new Error(`Offline Quran image ${page} is missing`);
+  const result = validateFile(image, item.bytes);
+  if (result.sha256 !== item.sha256) {
+    throw new Error(`Offline Quran page ${page} hash mismatch`);
+  }
+  pageBytes += item.bytes;
+}
+if (pageBytes !== offlineManifest.storedBytes) {
+  throw new Error("Offline Quran image size accounting mismatch");
+}
+console.log(`Verified all 604 offline Mushaf pages in APK web assets: ${(pageBytes / 1048576).toFixed(2)} MiB.`);
+
 if (statSync(join(dist, "book.pdf")).size < 1000) {
   throw new Error("The main book PDF is empty");
 }
