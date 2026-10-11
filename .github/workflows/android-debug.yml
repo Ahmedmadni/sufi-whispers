@@ -10,6 +10,7 @@ on:
       - "scripts/android-dev.mjs"
       - "scripts/prepare-mobile-assets.mjs"
       - "scripts/prepare-offline-books.py"
+      - "scripts/split-android-apk.py"
       - "scripts/prepare-android-fonts.mjs"
       - "scripts/prepare-offline-mushaf.py"
       - "scripts/mobile-integrity.mjs"
@@ -25,6 +26,8 @@ on:
       - ".github/workflows/android-debug.yml"
       - "scripts/android-dev.mjs"
       - "scripts/prepare-mobile-assets.mjs"
+      - "scripts/prepare-offline-books.py"
+      - "scripts/split-android-apk.py"
       - "scripts/prepare-android-fonts.mjs"
       - "scripts/prepare-offline-mushaf.py"
       - "scripts/mobile-integrity.mjs"
@@ -101,5 +104,50 @@ jobs:
         with:
           name: rihab-android-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
+      # The complete APK is too large to transfer through some connectors.
+      # Five verified chunks permit reassembly with the exact APK SHA-256.
+      - name: Validate Android APK and prepare five download-sized pieces
+        run: python scripts/split-android-apk.py android/app/build/outputs/apk/debug/app-debug.apk android/apk-parts
+      - name: Upload standalone APK part 01
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-apk-part-01
+          path: |
+            android/apk-parts/part-01
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload standalone APK part 02
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-apk-part-02
+          path: |
+            android/apk-parts/part-02
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload standalone APK part 03
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-apk-part-03
+          path: |
+            android/apk-parts/part-03
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload standalone APK part 04
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-apk-part-04
+          path: |
+            android/apk-parts/part-04
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload standalone APK part 05
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-apk-part-05
+          path: |
+            android/apk-parts/part-05
+            android/apk-parts/manifest.json
           if-no-files-found: error
           retention-days: 7
