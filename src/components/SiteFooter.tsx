@@ -6,6 +6,7 @@ import { SalawatRotator } from "@/components/Salawat";
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/groups/alkhaleelih/";
 
 export function SiteFooter() {
+  if (import.meta.env.VITE_MOBILE === "true") return null;
   return (
     <footer className="mt-auto border-t border-gold/15 py-7" dir="rtl">
       <div className="mx-auto max-w-5xl px-4 text-center">
@@ -25,7 +26,7 @@ export function SiteFooter() {
             المصحف
           </Link>
           <Link to="/shaykh" className="text-foreground/75 hover:text-gold-soft transition-colors">
-            نبذة عن الشيخ
+            الطريق
           </Link>
           <Link to="/about" className="text-foreground/75 hover:text-gold-soft transition-colors">
             عن الجمعية
