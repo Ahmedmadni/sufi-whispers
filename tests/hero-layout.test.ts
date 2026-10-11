@@ -4,26 +4,24 @@ import { readFileSync } from "node:fs";
 const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 const polish = readFileSync("src/premium-ui.css", "utf8");
 
-describe("Home hero shadow and navigation placement", () => {
-  test("deeper background photo shadow without changing the original image", () => {
+describe("Home hero shadow and minimal navigation", () => {
+  test("retains cinematic background and original portrait without altering image assets", () => {
     expect(hero).toContain("from-velvet/80 via-velvet/55 to-velvet/95");
     expect(hero).toContain("sm:from-velvet/95 sm:via-velvet/70 sm:to-velvet/45");
     expect(polish).toContain("rgb(7 21 18 / .96)");
     expect(hero).toContain("src={heroNabawi}");
+    expect(hero).toContain("src={shaykhSaleh}");
   });
 
-  test("action buttons are a bottom sibling, not embedded next to the hero text", () => {
-    const contentAt = hero.indexOf('className="hero-content');
-    const lastTextAt = hero.indexOf("الأوراد</span>", contentAt);
-    const actionsAt = hero.indexOf('className="hero-links hero-actions', contentAt);
-    const footerAt = hero.indexOf("</motion.div>", actionsAt);
-    expect(contentAt).toBeGreaterThan(-1);
-    expect(lastTextAt).toBeGreaterThan(contentAt);
-    expect(actionsAt).toBeGreaterThan(lastTextAt);
-    expect(footerAt).toBeGreaterThan(actionsAt);
-    expect(hero).toContain("flex-col justify-between");
-    for (const page of ['/quran', '/library', '/shaykh']) {
-      expect(hero.slice(actionsAt, footerAt)).toContain(`to="${page}"`);
-    }
+  test("navigation only appears in BottomNav; hero no longer duplicates buttons or stars", () => {
+    expect(hero).not.toContain("hero-links hero-actions");
+    expect(hero).not.toContain("to=\"/library\"");
+    expect(hero).not.toContain("to=\"/quran\"");
+    expect(hero).not.toContain("to=\"/shaykh\"");
+    expect(hero).not.toContain("✦");
+    const bottom = readFileSync("src/components/BottomNav.tsx", "utf8");
+    expect(bottom).toContain(">الطريق</span>");
+    expect(bottom).toContain('to="/quran/printed"');
+    expect(bottom).toContain('to="/library"');
   });
 });
