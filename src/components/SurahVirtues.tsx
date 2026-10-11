@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
-import { BookOpen, Star, Sparkles } from "lucide-react";
+import { BookOpen, ChevronDown } from "lucide-react";
 
 type Virtue = {
   suraNo: number;
@@ -76,25 +76,15 @@ export function SurahVirtues() {
       dir="rtl"
       className="relative mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16"
     >
-      <div className="text-center mb-8">
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center justify-center gap-2 mb-2 text-gold-soft"
-        >
-          <Star className="w-4 h-4" />
-          <span className="text-xs sm:text-sm font-body tracking-widest">
-            من نور التنزيل
+      <details className="group rounded-2xl border border-gold/20 bg-background/25 px-3 py-4 sm:px-6">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 text-gold-soft marker:hidden [&::-webkit-details-marker]:hidden">
+          <h2 className="font-display text-lg sm:text-2xl">فضائل السُّور</h2>
+          <span className="flex items-center gap-2 text-xs font-body">
+            اضغط للعرض
+            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
           </span>
-        </motion.div>
-        <h2 className="font-display text-2xl sm:text-3xl text-gradient-gold">
-          فضائل السُّور
-        </h2>
-        <div className="mt-3 mx-auto ornament-divider w-2/3 max-w-sm" />
-      </div>
-
+        </summary>
+        <div className="mt-5">
       <motion.div
         variants={container}
         initial="hidden"
@@ -130,7 +120,6 @@ export function SurahVirtues() {
 
             <div className="relative mt-3 flex items-center justify-between gap-2">
               <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] text-muted-foreground font-body">
-                <Sparkles className="w-3 h-3" />
                 {v.source}
               </span>
               <Link
@@ -155,6 +144,7 @@ export function SurahVirtues() {
           <span>افتح المصحف الشريف</span>
         </Link>
       </div>
+      </details>
     </section>
   );
 }
