@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { loadLocalBookPdf } from "../src/lib/book-pdf-source";
 import { getPrintedPageCrop, validateOfflineMushafManifest, APPROVED_MUSHAF_SHA256 } from "../src/lib/printed-mushaf-pages";
 import { playDhikrTap } from "../src/lib/dhikr-sound";
@@ -49,6 +50,55 @@ describe("Actual Android device regression gates", () => {
     expect(() => validateOfflineMushafManifest({
       format: 1, sourceSha256: APPROVED_MUSHAF_SHA256, pageCount: 604, pages: entry,
     })).toThrow();
+  });
+
+  test("offline Android PDF reader does not render hidden neighboring canvases", () => {
+    const component = readFileSync(new URL("../src/components/PdfBookViewer.tsx", import.meta.url), "utf8");
+    expect(component).toContain("if (!numPages || isOfflineAndroid) return [];");
+    expect(component).toContain("setRetry((n) => n + 1)");
+  });
+
+  test("the first audible tap waits for Android WebAudio to resume", async () => {
+    const holder = globalThis as unknown as { window?: unknown };
+    const previousWindow = holder.window;
+    let startCount = 0;
+    let finishResume: (() => void) | undefined;
+    class SuspendedAudioContext {
+      state = "suspended";
+      currentTime = 0;
+      destination = {};
+      resume(): Promise<void> {
+        return new Promise<void>((resolve) => {
+          finishResume = () => { this.state = "running"; resolve(); };
+        });
+      }
+      createOscillator() {
+        return {
+          type: "sine",
+          frequency: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+          connect() {}, disconnect() {}, stop() {},
+          start() { startCount++; },
+          onended: null as null | (() => void),
+        };
+      }
+      createGain() {
+        return {
+          gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} },
+          connect() {}, disconnect() {},
+        };
+      }
+    }
+    try {
+      holder.window = { AudioContext: SuspendedAudioContext };
+      expect(playDhikrTap()).toBe(true);
+      expect(startCount).toBe(0);
+      expect(finishResume).toBeDefined();
+      finishResume?.();
+      await Promise.resolve();
+      expect(startCount).toBe(1);
+    } finally {
+      holder.window = previousWindow;
+    }
   });
 
   test("audio effects do not crash in non-browser or SSR environments", () => {
