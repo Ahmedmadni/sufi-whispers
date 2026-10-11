@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { getBook, type Book } from "@/data/books";
 
 const PdfBookViewer = lazy(() => import("@/components/PdfBookViewer"));
+const OfflineBookPages = lazy(() => import("@/components/OfflineBookPages"));
 
 export const Route = createFileRoute("/books/$bookId")({
   head: ({ params }) => {
@@ -103,7 +104,11 @@ function BookPage() {
         </div>
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
-            <PdfBookViewer key={book.id} pdfUrl={book.pdfUrl} bookId={book.id} />
+            {import.meta.env.VITE_MOBILE === "true" && book.id !== "nafahat" ? (
+              <OfflineBookPages key={book.id} bookId={book.id} />
+            ) : (
+              <PdfBookViewer key={book.id} pdfUrl={book.pdfUrl} bookId={book.id} />
+            )}
           </Suspense>
         ) : (
           <BookPreview book={book} />
