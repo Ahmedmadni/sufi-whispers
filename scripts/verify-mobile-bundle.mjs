@@ -115,4 +115,31 @@ console.log(`Verified all 604 offline Mushaf pages in APK web assets: ${(pageByt
 if (statSync(join(dist, "book.pdf")).size < 1000) {
   throw new Error("The main book PDF is empty");
 }
+// Fail APK packaging if any of the seven non-primary books lacks an offline page.
+const offlineBooksFile = join(dist, "offline-books/manifest.json");
+if (!existsSync(offlineBooksFile)) throw new Error("Offline book image manifest missing");
+const offlineBooks = JSON.parse(readFileSync(offlineBooksFile, "utf8"));
+if (offlineBooks.version !== 1 || Object.keys(offlineBooks.books ?? {}).length !== 7) {
+  throw new Error("Offline book manifest must include seven books");
+}
+for (const [id, book] of Object.entries(offlineBooks.books)) {
+  if (!Array.isArray(book.pages) || book.pageCount !== book.pages.length || book.pageCount < 1) {
+    throw new Error(`Incomplete offline book: ${id}`);
+  }
+  const original = join(assetDir, book.source);
+  if (!existsSync(original) || validateFile(original).sha256 !== book.sourceSha256) {
+    throw new Error(`Offline book source changed: ${id}`);
+  }
+  for (const [index, page] of book.pages.entries()) {
+    const name = String(index + 1).padStart(4, "0") + ".webp";
+    if (page.name !== name || !Number.isInteger(page.width) || !Number.isInteger(page.height)) {
+      throw new Error(`Offline book page invalid: ${id} page ${index + 1}`);
+    }
+    const file = join(dist, "offline-books", id, name);
+    if (!existsSync(file)) throw new Error(`Offline book page missing: ${id}/${name}`);
+    const check = validateFile(file, page.bytes);
+    if (check.sha256 !== page.sha256) throw new Error(`Offline book page modified: ${id}/${name}`);
+  }
+}
+console.log("Verified all seven offline books and every rendered page.");
 console.log(`Verified self-contained Android web build: ${actual.size} media assets, PDF.js and Quran integrity.`);
