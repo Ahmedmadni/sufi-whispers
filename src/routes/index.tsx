@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, Feather, BookMarked, BookHeart } from "lucide-react";
+import { BookOpen, Facebook, Feather, BookMarked, BookHeart } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ResumeBar } from "@/components/ResumeBar";
@@ -207,7 +207,7 @@ function HomePage() {
         <div className="relative border-t border-gold/35 py-6 sm:py-10">
 
           <div className="relative flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-gold-soft" />
+            <Feather className="w-4 h-4 text-gold-soft" />
             <h2 className="font-display text-gold-soft text-lg sm:text-2xl leading-[1.6]">
               نبذة عن شيخ الطريق
             </h2>
