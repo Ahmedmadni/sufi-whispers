@@ -144,6 +144,7 @@ export function SurahVirtues() {
           <span>افتح المصحف الشريف</span>
         </Link>
       </div>
+      </div>
       </details>
     </section>
   );
