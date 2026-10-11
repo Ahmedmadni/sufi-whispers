@@ -224,13 +224,14 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   };
 
   const neighbors = useMemo<number[]>(() => {
-    if (!numPages) return [];
+    // Hidden PDF canvases can exhaust WebView memory on larger offline books.
+    if (!numPages || isOfflineAndroid) return [];
     const set = new Set<number>();
     [page - 1, page + 1, page - 2, page + 2].forEach((p) => {
       if (p >= 1 && p <= numPages && p !== page) set.add(p);
     });
     return Array.from(set);
-  }, [page, numPages]);
+  }, [page, numPages, isOfflineAndroid]);
 
   const bookmarks = useMemo(() => {
     if (bookId === "nafahat") {
@@ -397,6 +398,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           key={`${bookId}-${retry}`}
           file={readerSource!}
           onLoadSuccess={({ numPages: n }) => {
+            setReaderError("");
             setNumPages(n);
             setPage((current) => clampPage(current, n));
           }}
@@ -421,14 +423,23 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 تعذّر تحميل الكتاب.
                 {readerError && <span className="block mt-2 text-xs break-words" dir="ltr">{readerError}</span>}
               </p>
-              <a
-                href={PDF_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="text-gold-soft underline text-sm"
+              <button
+                type="button"
+                className="rounded-lg border border-gold/30 px-4 py-2 text-sm text-gold-soft"
+                onClick={() => { setReaderError(""); setRetry((n) => n + 1); }}
               >
-                فتحه في نافذة جديدة
-              </a>
+                إعادة المحاولة
+              </button>
+              {!isOfflineAndroid && (
+                <a
+                  href={PDF_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block mt-3 text-gold-soft underline text-sm"
+                >
+                  فتحه في نافذة جديدة
+                </a>
+              )}
             </div>
           }
         >
