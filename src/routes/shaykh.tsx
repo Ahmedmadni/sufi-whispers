@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Facebook, BookOpen, Sparkles } from "lucide-react";
+import { Facebook, BookOpen } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
+import { DeveloperSignature } from "@/components/DeveloperSignature";
 
 const FACEBOOK_GROUP_URL = "https://www.facebook.com/groups/alkhaleelih/";
 const SHAYKH_FULL_NAME =
@@ -57,11 +58,11 @@ function ShaykhPage() {
       <main className="flex-1 w-full max-w-3xl mx-auto px-4 py-8">
         <header className="text-center">
           <div className="mx-auto mb-3 flex w-fit items-center gap-2 rounded-full glass-gold px-4 py-1.5 text-[11px] sm:text-xs font-body text-gold-soft">
-            <Sparkles className="w-3.5 h-3.5" />
+            
             <span>الجمعية الخليلية الإسلامية</span>
           </div>
           <h1 className="font-display text-2xl sm:text-3xl text-gradient-gold leading-[1.6]">
-            نبذة عن شيخ الطريق
+            الطريق الخليلي
           </h1>
           <p className="mt-3 text-sm sm:text-base font-body text-foreground/85 leading-8">
             {SHAYKH_FULL_NAME}
@@ -149,6 +150,7 @@ function ShaykhPage() {
           </div>
         </section>
 
+        <DeveloperSignature />
         <p className="mt-8 text-center text-[11px] text-muted-foreground font-body">
           ﷺ اللهم صلِّ وسلم وبارك على سيدنا محمد وعلى آله وصحبه أجمعين
         </p>

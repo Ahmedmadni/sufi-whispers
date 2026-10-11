@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Facebook } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { FontSizeControl } from "@/components/FontSizeControl";
 import logo from "@/assets/rihab-logo-clean.png";
@@ -39,9 +40,19 @@ export function SiteHeader() {
             المصحف
           </Link>
           <Link to="/shaykh" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
-            الشيخ
+            الطريق
           </Link>
-          <FontSizeControl />
+          <a
+            href="https://www.facebook.com/groups/alkhaleelih/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="مجموعة الجمعية على فيسبوك"
+            title="فيسبوك الجمعية"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gold/20 text-gold-soft hover:bg-gold/10"
+          >
+            <Facebook className="h-[19px] w-[19px]" />
+          </a>
+          {import.meta.env.VITE_MOBILE !== "true" && <FontSizeControl />}
           <ThemeToggle />
         </nav>
       </div>

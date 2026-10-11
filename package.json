@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "mobile:prepare": "node scripts/prepare-pdf-assets.mjs && node scripts/prepare-mobile-assets.mjs",
+    "mobile:prepare": "node scripts/prepare-pdf-assets.mjs && node scripts/prepare-mobile-assets.mjs && python scripts/prepare-offline-books.py mobile/.public/mobile-assets mobile/.public/offline-books",
     "mobile:build": "bun run mobile:prepare && vite build --config vite.mobile.config.ts && bun run mobile:verify",
     "mobile:preview": "vite preview --config vite.mobile.config.ts",
     "test": "bun test",

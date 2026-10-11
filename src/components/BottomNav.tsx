@@ -40,7 +40,7 @@ export function BottomNav() {
         </Link>
         <Link to="/shaykh" activeProps={active} className={item}>
           <Feather className="w-[18px] h-[18px]" />
-          <span>الشيخ</span>
+          <span>الطريق</span>
         </Link>
       </div>
     </nav>

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, Facebook, Sparkles, Feather, BookMarked, Star } from "lucide-react";
+import { BookOpen, Facebook, Feather, BookMarked, BookHeart } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ResumeBar } from "@/components/ResumeBar";
@@ -91,7 +91,7 @@ const QUICK_LINKS = [
   {
     to: "/books/$bookId" as const,
     params: { bookId: "ward" },
-    icon: Star,
+    icon: BookHeart,
     title: "الأوراد والأذكار",
     text: "ورد الاستغفار وأوراد الطريق مع تنقّل سريع بين الأبواب.",
   },
@@ -117,7 +117,7 @@ function HomePage() {
 
 
       {/* ============ QUICK ACCESS ============ */}
-      <section className="rihab-section w-full border-y border-gold/15 bg-secondary/15 py-8 sm:py-12" dir="rtl">
+      {import.meta.env.VITE_MOBILE !== "true" && <section className="rihab-section w-full border-y border-gold/15 bg-secondary/15 py-8 sm:py-12" dir="rtl">
         <div className="mx-auto grid w-full max-w-5xl grid-cols-2 gap-x-5 gap-y-6 px-4 sm:grid-cols-4 sm:gap-7 sm:px-6">
           {QUICK_LINKS.map(({ to, params, icon: Icon, title, text }) => (
             <Link
@@ -136,19 +136,18 @@ function HomePage() {
             </Link>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* ============ FEATURED BOOKS ============ */}
       <section className="rihab-section relative mx-auto w-full max-w-5xl px-4 sm:px-6 py-10 sm:py-16" dir="rtl">
         <div className="text-right mb-7 sm:mb-10">
           <div className="flex items-center gap-2 mb-2 text-gold-soft">
-            <Sparkles className="w-4 h-4" />
             <span className="text-xs sm:text-sm font-body tracking-widest">من نفحات المكتبة</span>
           </div>
           <h2 className="font-display text-xl sm:text-3xl text-gradient-gold leading-[1.6]">
             كتبٌ مختارة
           </h2>
-          <div className="rihab-ornament mt-3 justify-start" aria-hidden="true">✦</div>
+
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
@@ -204,11 +203,11 @@ function HomePage() {
       </Suspense>
 
       {/* ============ SHAYKH ============ */}
-      <section id="shaykh" dir="rtl" className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16">
+      {import.meta.env.VITE_MOBILE !== "true" && <section id="shaykh" dir="rtl" className="mx-auto w-full max-w-5xl px-3 sm:px-6 py-10 sm:py-16">
         <div className="relative border-t border-gold/35 py-6 sm:py-10">
 
           <div className="relative flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-gold-soft" />
+            <Feather className="w-4 h-4 text-gold-soft" />
             <h2 className="font-display text-gold-soft text-lg sm:text-2xl leading-[1.6]">
               نبذة عن شيخ الطريق
             </h2>
@@ -259,7 +258,7 @@ function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </section>}
       <SiteFooter />
     </div>
   );

@@ -439,3 +439,23 @@ body { overflow-x: clip; }
   .hero-actions a { min-height: 44px; }
   .hero-content { padding-block: 1rem; }
 }
+
+/* Restrained geometric Islamic framing; no decorative four-point stars. */
+.library-islamic-frame {
+  border: 1px solid color-mix(in srgb, var(--gold) 63%, transparent);
+  border-radius: .9rem;
+  background:
+    linear-gradient(135deg, transparent 17px, color-mix(in srgb, var(--gold) 13%, transparent) 17px 18px, transparent 18px) top left / 34px 34px no-repeat,
+    linear-gradient(-135deg, transparent 17px, color-mix(in srgb, var(--gold) 13%, transparent) 17px 18px, transparent 18px) top right / 34px 34px no-repeat,
+    linear-gradient(45deg, transparent 17px, color-mix(in srgb, var(--gold) 13%, transparent) 17px 18px, transparent 18px) bottom left / 34px 34px no-repeat,
+    linear-gradient(-45deg, transparent 17px, color-mix(in srgb, var(--gold) 13%, transparent) 17px 18px, transparent 18px) bottom right / 34px 34px no-repeat,
+    color-mix(in srgb, var(--background) 92%, var(--gold) 8%);
+}
+.library-islamic-frame::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  border-radius: .6rem;
+  pointer-events: none;
+}
