@@ -29,7 +29,20 @@ for (const name of premiumFonts) {
   }
 }
 console.log("Verified all premium Arabic fonts are packaged for offline Android.");
+const fontCss = readFileSync(join(fontDir, "fonts.css"), "utf8");
+for (const [family, file] of [
+  ["IBM Plex Sans Arabic", "ibm-regular.ttf"],
+  ["Cairo", "cairo-variable.ttf"],
+  ["Amiri", "amiri-regular.ttf"],
+]) {
+  if (!fontCss.includes(`font-family:"${family}"`) || !fontCss.includes(`/mobile-assets/fonts/${file}`)) {
+    throw new Error(`Android offline font stylesheet does not declare ${family}`);
+  }
+}
 const html = readFileSync(join(dist, "index.html"), "utf8");
+if (!html.includes('href="/mobile-assets/fonts/fonts.css"')) {
+  throw new Error("Android startup does not load its packaged Arabic font stylesheet");
+}
 if (!html.includes('id="root"') || !html.includes('lang="ar"')) {
   throw new Error("Mobile HTML lacks the React root or Arabic document language");
 }
