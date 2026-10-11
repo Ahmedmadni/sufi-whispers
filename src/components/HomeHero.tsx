@@ -1,6 +1,4 @@
-import { Link } from "@tanstack/react-router";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpLeft, BookMarked, BookOpen, Feather } from "lucide-react";
 import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
@@ -65,11 +63,11 @@ export function HomeHero() {
         initial={reducedMotion ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: reducedMotion ? 0 : 0.7, duration: 0.65 }}
-        className="relative z-20 mx-auto flex min-h-[min(610px,calc(100svh-8rem))] max-w-6xl flex-col justify-between px-5 pb-4 pt-8 sm:min-h-[650px] sm:px-8 sm:pb-7 sm:pt-12"
+        className="relative z-20 mx-auto flex min-h-[min(610px,calc(100svh-8rem))] max-w-6xl flex-col justify-center px-5 pb-4 pt-8 sm:min-h-[650px] sm:px-8 sm:pb-7 sm:pt-12"
       >
         <div className="hero-content flex w-full flex-1 flex-col justify-center sm:mr-0 sm:ml-auto sm:w-[57%]">
           <div className="mb-4 sm:mb-7">
-            <span className="hero-callout">✦ رحاب الخليلية · نور المعرفة وهدوء القراءة</span>
+            <span className="hero-callout">رحاب الخليلية · نور المعرفة وهدوء القراءة</span>
           </div>
           <h1 id="home-title" className="max-w-xl font-display text-[clamp(1.7rem,7vw,2.4rem)] font-bold leading-[1.5] text-foreground sm:text-5xl sm:leading-[1.45]">
             الجمعية الخليلية <span className="text-gold-soft">الإسلامية</span>
@@ -80,24 +78,6 @@ export function HomeHero() {
           <p className="mt-2 max-w-md font-body text-sm leading-7 text-foreground/85 sm:mt-5 sm:text-base sm:leading-8">
             المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر.
           </p>
-          <div className="mt-5 flex items-center gap-3 text-[11px] font-body text-[#e8c788]/80 sm:mt-8" aria-label="أقسام رحاب الخليلية">
-            <span>المصحف الشريف</span>
-            <span aria-hidden="true">✦</span>
-            <span>المكتبة</span>
-            <span aria-hidden="true">✦</span>
-            <span>الأوراد</span>
-          </div>
-        </div>
-        <div className="hero-links hero-actions relative mt-5 flex w-full flex-wrap items-center justify-center gap-2 sm:mr-0 sm:ml-auto sm:w-[57%] sm:justify-start sm:gap-3">
-          <Link to="/quran" className="inline-flex min-h-11 items-center gap-2 rounded-sm bg-primary px-4 py-2 font-body text-sm font-semibold text-primary-foreground transition-transform active:translate-y-0.5 sm:min-h-12 sm:px-5 sm:text-base">
-            <BookMarked className="h-4 w-4" /> المصحف الشريف <ArrowUpLeft className="h-4 w-4" />
-          </Link>
-          <Link to="/library" className="inline-flex min-h-11 items-center gap-2 rounded-sm border border-gold/65 bg-velvet/70 px-4 py-2 font-body text-sm font-semibold text-foreground backdrop-blur-sm sm:min-h-12 sm:px-5 sm:text-base">
-            <BookOpen className="h-4 w-4" /> المكتبة
-          </Link>
-          <Link to="/shaykh" className="inline-flex min-h-11 items-center gap-2 border-b border-gold/70 px-2 py-2 font-body text-sm font-semibold text-gold-soft sm:text-base">
-            <Feather className="h-4 w-4" /> نبذة عن الشيخ
-          </Link>
         </div>
       </motion.div>
     </section>
