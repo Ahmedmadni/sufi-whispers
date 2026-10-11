@@ -127,7 +127,7 @@ for (const [id, book] of Object.entries(offlineBooks.books)) {
     throw new Error(`Incomplete offline book: ${id}`);
   }
   const original = join(assetDir, book.source);
-  if (!existsSync(original) || validateFile(original).sha256 !== book.sourceSha256) {
+  if (!existsSync(original) || validateFile(original, statSync(original).size).sha256 !== book.sourceSha256) {
     throw new Error(`Offline book source changed: ${id}`);
   }
   for (const [index, page] of book.pages.entries()) {
