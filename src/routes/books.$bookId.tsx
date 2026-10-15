@@ -43,7 +43,7 @@ export const Route = createFileRoute("/books/$bookId")({
 
 function BookPreview({ book }: { book: Book }) {
   return (
-    <div className="glass rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center min-h-[70vh] bg-velvet/30 animate-fade-in">
+    <div className="glass rounded-2xl p-4 sm:p-8 flex flex-col items-center justify-center min-h-[min(70vh,640px)] bg-velvet/30 animate-fade-in">
       <div className="relative w-40 sm:w-56 aspect-[3/4] rounded-lg overflow-hidden glass-gold shadow-2xl mb-5">
         <img
           src={book.cover}
