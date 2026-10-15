@@ -30,16 +30,16 @@ export function SiteHeader() {
         </Link>
 
         <nav className="flex items-center gap-0.5 sm:gap-2 text-[11px] sm:text-sm font-body" aria-label="التنقل الرئيسي">
-          <Link to="/" activeOptions={{ exact: true }} activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
+          <Link to="/" activeOptions={{ exact: true }} activeProps={activeClass} className={`${linkClass} hidden lg:inline-flex`}>
             الرئيسية
           </Link>
-          <Link to="/library" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
+          <Link to="/library" activeProps={activeClass} className={`${linkClass} hidden lg:inline-flex`}>
             المكتبة
           </Link>
-          <Link to="/quran/printed" search={{ page: 1 }} activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
+          <Link to="/quran/printed" search={{ page: 1 }} activeProps={activeClass} className={`${linkClass} hidden lg:inline-flex`}>
             المصحف
           </Link>
-          <Link to="/shaykh" activeProps={activeClass} className={`${linkClass} hidden md:inline-flex`}>
+          <Link to="/shaykh" activeProps={activeClass} className={`${linkClass} hidden lg:inline-flex`}>
             الطريق
           </Link>
           <a
