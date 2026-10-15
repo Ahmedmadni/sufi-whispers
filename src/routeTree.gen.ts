@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ShaykhRouteImport } from './routes/shaykh'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as LibraryRouteImport } from './routes/library'
 import { Route as DhikrRouteImport } from './routes/dhikr'
 import { Route as AboutRouteImport } from './routes/about'
@@ -20,6 +21,11 @@ import { Route as QuranSurahSuraNoRouteImport } from './routes/quran.surah.$sura
 import { Route as QuranPagePageRouteImport } from './routes/quran.page.$page'
 import { Route as QuranPrintedRouteImport } from './routes/quran.printed'
 
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShaykhRoute = ShaykhRouteImport.update({
   id: '/shaykh',
   path: '/shaykh',
@@ -72,6 +78,7 @@ const QuranPrintedRoute = QuranPrintedRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/settings': typeof SettingsRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dhikr': typeof DhikrRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/quran/surah/$suraNo': typeof QuranSurahSuraNoRoute
 }
 export interface FileRoutesByTo {
+  '/settings': typeof SettingsRoute
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/dhikr': typeof DhikrRoute
@@ -96,6 +104,7 @@ export interface FileRoutesByTo {
   '/quran/surah/$suraNo': typeof QuranSurahSuraNoRoute
 }
 export interface FileRoutesById {
+  '/settings': typeof SettingsRoute
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
@@ -111,6 +120,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/settings'
     | '/'
     | '/about'
     | '/dhikr'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/quran/surah/$suraNo'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/settings'
     | '/'
     | '/about'
     | '/dhikr'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/quran/surah/$suraNo'
   id:
     | '__root__'
+    | '/settings'
     | '/'
     | '/about'
     | '/dhikr'
@@ -148,6 +160,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  SettingsRoute: typeof SettingsRoute
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   DhikrRoute: typeof DhikrRoute
@@ -162,6 +175,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shaykh': {
       id: '/shaykh'
       path: '/shaykh'
@@ -236,6 +256,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  SettingsRoute: SettingsRoute,
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   DhikrRoute: DhikrRoute,
