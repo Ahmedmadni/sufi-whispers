@@ -11,6 +11,7 @@ const assetDir = join(dist, "mobile-assets");
 const required = [
   join(dist, "index.html"),
   join(dist, "book.pdf"),
+  join(dist, "pdfjs/pdf.worker.min.mjs"),
   join(dist, "pdfjs/cmaps"),
   join(dist, "pdfjs/standard_fonts"),
   join(assetDir, "manifest.json"),
