@@ -92,6 +92,28 @@ export function assertSafeAssetDescriptor(descriptor) {
   return { filename, url, size };
 }
 
+/**
+ * Publisher SHA-256 is mandatory for signed/public release builds.
+ * Structural validation by itself does not prove Quran text authenticity.
+ * Debug builds remain possible without a publisher digest, with a warning.
+ */
+export function assertQuranPublisherChecksum(actual, expected, releaseBuild = false) {
+  if (typeof actual !== "string" || !/^[0-9a-f]{64}$/i.test(actual)) {
+    throw new Error("Invalid actual Quran SHA-256 digest");
+  }
+  if (!expected) {
+    if (releaseBuild) throw new Error("Release blocked: QURAN_EXPECTED_SHA256 is required and must be checked against the publisher");
+    return false;
+  }
+  if (!/^[0-9a-f]{64}$/i.test(expected)) {
+    throw new Error("QURAN_EXPECTED_SHA256 must be a valid 64-character SHA-256 digest");
+  }
+  if (actual.toLowerCase() !== expected.toLowerCase()) {
+    throw new Error("Quran SHA-256 does not match the authoritative publisher checksum");
+  }
+  return true;
+}
+
 export function validateQuranFile(path) {
   return validateQuranData(JSON.parse(readFileSync(path, "utf8")));
 }

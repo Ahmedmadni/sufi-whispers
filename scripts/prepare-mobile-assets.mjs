@@ -12,6 +12,7 @@ import { join, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import {
   assertSafeAssetDescriptor,
+  assertQuranPublisherChecksum,
   validateFile,
   validateQuranFile,
 } from "./mobile-integrity.mjs";
@@ -85,12 +86,12 @@ for (const asset of descriptors) {
   if (filename === "hafsData_v2-0.json") {
     const report = validateQuranFile(target);
     console.log(`Validated Quran data: ${report.verses} verses, ${report.suras} suras, ${report.pages} pages`);
-    const expected = process.env.QURAN_EXPECTED_SHA256?.toLowerCase();
-    if (expected && expected !== sha256) {
-      throw new Error("Quran SHA-256 does not match the authoritative checksum");
-    }
-    if (!expected) {
-      console.warn("QURAN_EXPECTED_SHA256 was not provided; publisher-level checksum still needs verification.");
+    const verified = assertQuranPublisherChecksum(
+      sha256, process.env.QURAN_EXPECTED_SHA256,
+      process.env.RELEASE_BUILD === "1",
+    );
+    if (!verified) {
+      console.warn("Debug-only: QURAN_EXPECTED_SHA256 missing. Release publishing is blocked pending independent publisher verification.");
     }
   }
   checksums.push({ filename, bytes, sha256 });

@@ -1,5 +1,7 @@
 # رحاب الخليلية — مسار Android
 
+> **تحديث 15 أكتوبر 2026:** ما أدناه يحتوي على سرد تاريخي لمراحل سابقة، وليس جميع نقاطه قائمة الآن. نُفذت مراحل Android Debug حتى PR #21 على `main`. سجل بناء APK الناجح: https://github.com/Ahmedmadni/sufi-whispers/actions/runs/38146167384. تضم نسخة Debug جميع صفحات المصحف الـ604 والكتب الإضافية السبعة (1040 صفحة)، لكن اعتماد بصمة النص القرآني الخارجية والتجربة على هاتف فعلي وتوقيع Release والتوزيع النهائي ما زالت متبقية. راجع `docs/CURRENT_STATUS.md` للحالة الحالية والبوابات المطلوبة.
+
 ## Boundaries
 
 The production web app currently uses TanStack Start + Cloudflare SSR.
