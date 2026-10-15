@@ -44,7 +44,7 @@
   overflow-wrap: break-word;
 }
 .rihab-mobile-route :where(h1, h2, h3) { text-wrap: balance; }
-.rihab-mobile-route :where(p) { line-height: max(1.65em, normal); }
+.rihab-mobile-route :where(p) { line-height: 1.7; }
 
 /* Clear hierarchy, simple borders and low-elevation native-looking cards. */
 @media (max-width: 767px) {
