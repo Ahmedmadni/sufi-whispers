@@ -5,6 +5,7 @@ import { TasbihIcon } from "@/components/TasbihIcon";
 import { useEffect, useState } from "react";
 import { currentWird, NAME_TARGET } from "@/data/dhikr";
 import { useDhikr, formatNumber } from "@/lib/dhikr-store";
+import { readPrayerTimes } from "@/lib/wird-times";
 
 /** بطاقة «ورد هذه الساعة» في الصفحة الرئيسية. */
 export function DhikrCard() {
@@ -12,11 +13,21 @@ export function DhikrCard() {
   const { hydrated, active, activeProgress, state } = useDhikr();
   // Fixed initial date keeps SSR and first client render identical (no hydration mismatch)
   const [wird, setWird] = useState(() => currentWird(new Date(2000, 0, 1, 12)));
+  const [customTimes, setCustomTimes] = useState(false);
 
   useEffect(() => {
-    setWird(currentWird());
-    const id = setInterval(() => setWird(currentWird()), 60000);
-    return () => clearInterval(id);
+    const refresh = () => {
+      const saved = readPrayerTimes();
+      setCustomTimes(Boolean(saved));
+      setWird(currentWird(new Date(), saved));
+    };
+    refresh();
+    const id = setInterval(refresh, 60000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, []);
 
   const pct = Math.min(100, (activeProgress.count / NAME_TARGET) * 100);
@@ -37,7 +48,7 @@ export function DhikrCard() {
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-body shrink-0">
             <Clock className="w-3.5 h-3.5" />
-            {wird.window}
+            {wird.window}{!customTimes ? " · تقريبية" : ""}
           </span>
         </div>
 
