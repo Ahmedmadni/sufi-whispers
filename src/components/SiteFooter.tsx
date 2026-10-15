@@ -28,6 +28,9 @@ export function SiteFooter() {
           <Link to="/shaykh" className="text-foreground/75 hover:text-gold-soft transition-colors">
             الطريق
           </Link>
+          <Link to="/settings" className="text-foreground/75 hover:text-gold-soft transition-colors">
+            الإعدادات والنسخ الاحتياطي
+          </Link>
           <Link to="/about" className="text-foreground/75 hover:text-gold-soft transition-colors">
             عن الجمعية
           </Link>
