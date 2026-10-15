@@ -11,7 +11,7 @@ export function BottomNav() {
     <nav
       dir="rtl"
       aria-label="التنقّل السريع"
-      className="bottom-nav md:hidden"
+      className="bottom-nav lg:hidden"
     >
       <div className="mx-auto flex max-w-md items-stretch px-2">
         <Link to="/" activeOptions={{ exact: true }} activeProps={active} className={item}>

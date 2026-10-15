@@ -537,8 +537,8 @@
 .bottom-nav-fab:active { transform: scale(0.94); }
 
 /* Keep page content clear of the bar on phones */
-@media (max-width: 767px) {
-  body { padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 1023px) {
+  body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ===== Font scaling (accessibility) ===== */

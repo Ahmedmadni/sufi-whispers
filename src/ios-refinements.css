@@ -1,0 +1,110 @@
+/*
+ * Calm, accessible app surfaces inspired by native mobile UI.
+ * Visual treatments never alter the Quran text or original printed pages.
+ */
+
+/* Light mode: never put dark foreground text on the emerald site header. */
+.light .site-header {
+  background: rgba(255, 252, 244, .97);
+  color: #243b30;
+  border-bottom: 1px solid rgba(40, 72, 53, .14);
+  box-shadow: 0 2px 10px rgba(25, 47, 35, .04);
+}
+.light .site-header .text-muted-foreground { color: #536a5a; }
+.light .site-header a:hover { color: #70521c; }
+.light .site-header .paper-tag { background: #f4f0e5; box-shadow: none; }
+.light .site-header [class*="bg-gold/"] { background-color: rgba(147, 106, 40, .10); }
+
+/* The photographic hero is dark in either UI theme: keep its copy light. */
+.light .hero-sequence .text-foreground,
+.light .hero-sequence .text-foreground\/90,
+.light .hero-sequence .text-foreground\/85 { color: #fff8e8; }
+.light .hero-sequence .text-gold-soft,
+.light .hero-sequence .hero-callout { color: #f2cf90; }
+
+/* Papers and headings use the actual light theme ink colors. */
+.light .reader-book-header { color: #243b30; background: rgba(255, 253, 247, .86); }
+.light .reader-surface, .light .reader-toolbar { color: #243b30; }
+.light .book-card__label { color: #674b22; }
+.light .bottom-nav a { color: #4c6655; }
+.light .bottom-nav a.text-gold-soft { color: #78521c; }
+.light .bottom-nav { border-top-color: rgba(48, 75, 57, .17); }
+
+/* Prevent huge type, long titles and split toolbar controls from overlapping. */
+.site-header { isolation: isolate; }
+.site-header__brand { flex: 0 1 auto; overflow: hidden; }
+.site-header nav { min-width: max-content; }
+.reader-book-header { min-width: 0; }
+.reader-book-header h1 { overflow: hidden; text-overflow: ellipsis; }
+.reader-toolbar { min-width: 0; }
+.reader-toolbar button, .reader-toolbar input { min-height: 40px; }
+.reader-surface { max-width: 100%; min-width: 0; }
+.rihab-mobile-route { min-width: 0; max-width: 100%; }
+.rihab-mobile-route :where(h1, h2, h3, p) {
+  overflow-wrap: break-word;
+}
+.rihab-mobile-route :where(h1, h2, h3) { text-wrap: balance; }
+.rihab-mobile-route :where(p) { line-height: 1.7; }
+
+/* Clear hierarchy, simple borders and low-elevation native-looking cards. */
+@media (max-width: 767px) {
+  .site-header > div { height: 56px; gap: 8px; }
+  .site-header__brand img { width: 33px; height: 33px; }
+  .site-header__brand > span { min-width: 0; font-size: .85rem; }
+  .rihab-mobile-route .glass,
+  .rihab-mobile-route .glass-gold,
+  .rihab-mobile-route .reader-surface,
+  .rihab-mobile-route .reader-toolbar {
+    border-radius: 14px;
+    border-width: 1px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, .065);
+  }
+  .rihab-mobile-route .book-art { border-radius: 13px; }
+  .rihab-mobile-route section { min-width: 0; }
+  .rihab-mobile-route .reader-toolbar {
+    gap: 6px; padding: 8px;
+  }
+  .rihab-mobile-route .reader-toolbar button {
+    min-height: 44px; flex-shrink: 0;
+  }
+  .rihab-mobile-route .reader-toolbar input {
+    min-width: 0;
+  }
+  .bottom-nav { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+  .bottom-nav > div { min-height: 57px; }
+  .bottom-nav a { min-width: 0; min-height: 50px; }
+  .bottom-nav a span:last-child { white-space: nowrap; font-size: clamp(.62rem, 2.4vw, .72rem); }
+  .rihab-mobile-route .hero-content { min-width: 0; }
+  .rihab-mobile-route .hero-content h1 { line-height: 1.55; }
+  .rihab-mobile-route .hero-content p { max-width: 100%; }
+  .rihab-mobile-route :where(button, input, select, textarea) {
+    max-width: 100%; 
+  }
+  .light .rihab-mobile-route .glass,
+  .light .rihab-mobile-route .glass-gold {
+    box-shadow: 0 2px 12px rgba(30, 54, 41, .055);
+    background: #fffdf7;
+    border-color: rgba(30, 67, 47, .12);
+  }
+}
+@media (max-width: 359px) {
+  .site-header__subtitle { display: none; }
+  .site-header > div { padding-inline: 10px; }
+  .bottom-nav > div { padding-inline: 4px; }
+  .rihab-mobile-route .reader-toolbar { flex-wrap: wrap; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rihab-mobile-route *, .rihab-mobile-route *::before, .rihab-mobile-route *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Phones and compact tablets share the accessible five-item bottom bar;
+   avoid squeezing top navigation between 768px and 1023px. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .bottom-nav > div { max-width: 520px; min-height: 60px; }
+  .bottom-nav a { min-height: 55px; }
+  .site-header > div { gap: 12px; }
+}

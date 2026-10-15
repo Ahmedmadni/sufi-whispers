@@ -7,18 +7,50 @@
     <meta name="color-scheme" content="dark light" />
     <link rel="icon" href="/icon-192.png" />
     <link rel="stylesheet" href="/mobile-assets/fonts/fonts.css" />
-    <!-- Fetch the packaged official Hafs typeface before first Quran paint. -->
     <link rel="preload" href="/mobile-assets/uthmanic_hafs_v20.ttf" as="font" type="font/ttf" crossorigin="anonymous" />
     <title>رحاب الخليلية</title>
+    <style>
+      /* Inline boot styling paints before the Vite bundle, entirely offline. */
+      html { background: #101d1a; }
+      html.light { background: #f8f3e7; }
+      .rihab-boot {
+        position: fixed; inset: 0; z-index: 9999;
+        display: grid; place-items: center; padding: 24px;
+        background: #101d1a; color: #f6e8c8;
+        text-align: center; transition: opacity .28s ease, visibility .28s ease;
+        font-family: "Cairo", "IBM Plex Sans Arabic", system-ui, sans-serif;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      html.light .rihab-boot { background: #f8f3e7; color: #315541; }
+      .rihab-boot.is-done { opacity: 0; visibility: hidden; pointer-events: none; }
+      .rihab-boot__inner { width: min(100%, 300px); display: grid; justify-items: center; gap: 13px; }
+      .rihab-boot__logo { width: 88px; height: 88px; object-fit: contain; }
+      .rihab-boot__title { font-size: 1.3rem; font-weight: 700; margin: 0; line-height: 1.65; }
+      .rihab-boot__subtitle { font-size: .85rem; line-height: 1.8; margin: 0; opacity: .76; }
+      .rihab-boot__track { width: 126px; height: 3px; border-radius: 99px; overflow: hidden; background: rgb(199 157 85 / .2); }
+      .rihab-boot__track::before { content: ""; display: block; height: 100%; width: 38%; background: #caa263; border-radius: inherit; animation: rihab-boot-progress 1.4s ease-in-out infinite alternate; }
+      .rihab-boot__retry { display: none; min-height: 44px; padding: 8px 18px; border: 1px solid #b98e4c; border-radius: 12px; color: inherit; background: transparent; font: inherit; }
+      .rihab-boot.is-delayed .rihab-boot__retry { display: inline-block; }
+      @keyframes rihab-boot-progress { from { transform: translateX(105%); } to { transform: translateX(-175%); } }
+      @media (prefers-reduced-motion: reduce) { .rihab-boot__track::before { animation: none; width: 100%; } .rihab-boot { transition: none; } }
+    </style>
     <script>
       try {
-        document.documentElement.classList.add(localStorage.getItem("rihab-theme") || "dark");
-      } catch (_) {
-        document.documentElement.classList.add("dark");
-      }
+        document.documentElement.classList.add(localStorage.getItem("rihab-theme") === "light" ? "light" : "dark");
+      } catch (_) { document.documentElement.classList.add("dark"); }
     </script>
   </head>
   <body>
+    <div id="rihab-boot" class="rihab-boot" role="status" aria-live="polite">
+      <div class="rihab-boot__inner">
+        <img class="rihab-boot__logo" src="/icon-192.png" width="88" height="88" alt="" />
+        <h1 class="rihab-boot__title">رحاب الخليلية</h1>
+        <p class="rihab-boot__subtitle">جارٍ تجهيز رحاب المعرفة…</p>
+        <span class="rihab-boot__track" aria-hidden="true"></span>
+        <button class="rihab-boot__retry" type="button" onclick="location.reload()">إعادة المحاولة</button>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/main.tsx"></script>
   </body>

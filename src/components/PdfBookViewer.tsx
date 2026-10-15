@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -21,8 +20,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-// Bundle the worker with the application instead of relying on a CDN at runtime.
-pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
+// Copied by prepare-pdf-assets.mjs from react-pdf's OWN pdfjs-dist version.
+// Never import the top-level pdfjs-dist worker; it may have a different API.
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
 
 // Optional PDF.js resources are prepared locally by scripts/prepare-pdf-assets.mjs.
 const pdfOptions = {

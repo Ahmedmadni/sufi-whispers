@@ -1,16 +1,15 @@
 /**
- * Copy the PDF.js character maps and standard fonts into local public assets.
- * They must be available when reading in an offline Android WebView.
- * This is safe to rerun before development or production builds.
+ * Stage the worker, CMaps and standard fonts from the exact PDF.js copy used
+ * by react-pdf's <Document>/<Page> API, including on the offline Android SPA.
  */
 import { cpSync, mkdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
-import { createRequire } from "node:module";
+import { join, resolve } from "node:path";
+import { readerPdfjsAssets } from "./reader-pdfjs-paths.mjs";
 
-const require = createRequire(import.meta.url);
-const packageRoot = resolve(dirname(require.resolve("pdfjs-dist/build/pdf.mjs")), "..");
+const { packageRoot, workerFile, version } = readerPdfjsAssets();
 const destination = resolve("public/pdfjs");
-
+mkdirSync(destination, { recursive: true });
+cpSync(workerFile, join(destination, "pdf.worker.min.mjs"));
 for (const folder of ["cmaps", "standard_fonts"]) {
   mkdirSync(join(destination, folder), { recursive: true });
   cpSync(join(packageRoot, folder), join(destination, folder), {
@@ -18,4 +17,4 @@ for (const folder of ["cmaps", "standard_fonts"]) {
     force: true,
   });
 }
-console.log("Prepared local PDF.js CMaps and standard fonts.");
+console.log(`Prepared bundled PDF.js ${version} worker, CMaps and fonts from the same React-PDF dependency.`);
