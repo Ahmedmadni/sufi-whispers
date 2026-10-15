@@ -108,7 +108,7 @@ jobs:
                   raise SystemExit("FAIL signed APK identity/version: " + attribute)
           print("PASS signed Android package ID and version metadata.")
           PY
-      - name: Upload signed Android candidate (private 30-day CI artifact)
+      - name: Upload signed Android candidate (30-day CI artifact, not published to stores)
         uses: actions/upload-artifact@v4
         with:
           name: rihab-android-signed-release-candidate
