@@ -8,7 +8,7 @@
  *
  * No workflow publishes artifacts to the public app store automatically.
  */
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { validateReleaseConfig, validateReleaseEnvironment } from "./android-release-utils.mjs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -54,6 +54,17 @@ if (!existsSync(resolve("dist-mobile/index.html"))) {
 }
 if (!existsSync(resolve("android/app/build.gradle"))) {
   run("bunx", ["cap", "add", "android"]);
+}
+// A generated release configuration must never make later local Debug builds
+// depend on private signing secrets. Strip our marker before non-release sync.
+const nativeGradle = resolve("android/app/build.gradle");
+const productionApply = "apply from: rootProject.file('../scripts/android-release-signing.gradle')";
+const productionBlock = `\n// Inject production signing after Capacitor generation. No credentials stored.\n${productionApply}\n`;
+if (!buildRelease && existsSync(nativeGradle)) {
+  const previous = readFileSync(nativeGradle, "utf8");
+  if (previous.includes(productionBlock)) {
+    writeFileSync(nativeGradle, previous.replace(productionBlock, ""));
+  }
 }
 run("bunx", ["cap", "sync", "android"]);
 if (buildRelease) {
