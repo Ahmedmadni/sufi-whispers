@@ -19,20 +19,23 @@ function run(command, args, cwd = process.cwd()) {
   if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
 }
-function hasCapacitor8() {
+// Last successfully built on GitHub Actions 2026-10-11 with 8.5.3.
+// Pin exact versions: a newly published 8.x must not silently change APK builds.
+export const CAPACITOR_VERSION = "8.5.3";
+function hasPinnedCapacitor() {
   const json = JSON.parse(readFileSync("package.json", "utf8"));
-  const major8 = (version) => typeof version === "string" && /^(?:\^|~)?8(?:\.|$)/.test(version);
-  return major8(json.dependencies?.["@capacitor/core"]) &&
-    major8(json.dependencies?.["@capacitor/android"]) &&
-    major8(json.devDependencies?.["@capacitor/cli"]);
+  const exact = (value) => value === CAPACITOR_VERSION;
+  return exact(json.dependencies?.["@capacitor/core"]) &&
+    exact(json.dependencies?.["@capacitor/android"]) &&
+    exact(json.devDependencies?.["@capacitor/cli"]);
 }
 const nodeMajor = Number(process.versions.node.split(".")[0]);
 if (nodeMajor < 22) throw new Error("Capacitor 8 requires Node 22 or newer");
 const buildDebugApk = process.argv.includes("--apk");
-if (!hasCapacitor8()) {
-  console.log("Installing the aligned Capacitor 8 packages and updating bun.lock...");
-  run("bun", ["add", "@capacitor/core@^8", "@capacitor/android@^8"]);
-  run("bun", ["add", "-d", "@capacitor/cli@^8"]);
+if (!hasPinnedCapacitor()) {
+  console.log(`Installing exact Capacitor ${CAPACITOR_VERSION} versions for the Android build...`);
+  run("bun", ["add", "--exact", `@capacitor/core@${CAPACITOR_VERSION}`, `@capacitor/android@${CAPACITOR_VERSION}`]);
+  run("bun", ["add", "-d", "--exact", `@capacitor/cli@${CAPACITOR_VERSION}`]);
 }
 run("bun", ["run", "mobile:build"]);
 if (!existsSync(resolve("dist-mobile/index.html"))) {
