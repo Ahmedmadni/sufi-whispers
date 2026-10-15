@@ -100,3 +100,11 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Phones and compact tablets share the accessible five-item bottom bar;
+   avoid squeezing top navigation between 768px and 1023px. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .bottom-nav > div { max-width: 520px; min-height: 60px; }
+  .bottom-nav a { min-height: 55px; }
+  .site-header > div { gap: 12px; }
+}
