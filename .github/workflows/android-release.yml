@@ -1,0 +1,123 @@
+name: Android Signed Release Candidate
+
+# Intentionally manual. No unattended store/release publication.
+# Requires publisher-validated Quran checksum and private Android signing key.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signed-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.3'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Require publisher checksum and production signing secrets
+        shell: bash
+        env:
+          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          RIHAB_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          : "${QURAN_EXPECTED_SHA256:?Missing approved Quran text checksum}"
+          : "${ANDROID_RELEASE_KEYSTORE_BASE64:?Missing private production Android keystore}"
+          : "${RIHAB_RELEASE_STORE_PASSWORD:?Missing keystore password}"
+          : "${RIHAB_RELEASE_KEY_ALIAS:?Missing keystore alias}"
+          : "${RIHAB_RELEASE_KEY_PASSWORD:?Missing key password}"
+          KEYSTORE="$RUNNER_TEMP/rihab-production-release.jks"
+          printf '%s' "$ANDROID_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
+          chmod 600 "$KEYSTORE"
+          test -s "$KEYSTORE" || { echo "Keystore is empty"; exit 1; }
+          echo "RIHAB_RELEASE_KEYSTORE_FILE=$KEYSTORE" >> "$GITHUB_ENV"
+          echo "Signing preflight: keystore staged in private runner temp only."
+      - name: Verify release configuration and tests
+        run: |
+          bun install --frozen-lockfile
+          bun run test:integrity
+          bun run test
+          bun run typecheck
+      - name: Check out approved original Quran page images
+        uses: actions/checkout@v4
+        with:
+          ref: 0b944b349fd28295803a0a96fbf2906a14286245
+          path: _verified-mushaf-source
+          persist-credentials: false
+      - name: Install Android SDK build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          SDK_MANAGER="$(command -v sdkmanager || true)"
+          if [ -z "$SDK_MANAGER" ]; then
+            SDK_MANAGER="$(find "$SDK_ROOT/cmdline-tools" -path '*/bin/sdkmanager' -type f | sort -V | tail -1)"
+          fi
+          test -x "$SDK_MANAGER"
+          yes | "$SDK_MANAGER" --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
+          "$SDK_MANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+      - name: Install Quran optimizer and PDF renderer
+        run: |
+          python -m pip install Pillow==11.3.0 PyMuPDF==1.26.5
+          node scripts/prepare-android-fonts.mjs
+          python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
+      - name: Generate and sign production APK/AAB
+        run: bun run mobile:android:release
+        env:
+          RELEASE_BUILD: '1'
+          CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
+          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
+          RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          RIHAB_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+      - name: Verify release signature, identity and bundled content
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK=android/app/build/outputs/apk/release/app-release.apk
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          jarsigner -verify "$AAB" | grep -F 'jar verified.'
+          python scripts/verify-android-release.py "$APK" "$AAB"
+          python - <<'PY'
+          import json, os, re, subprocess
+          meta = json.load(open("config/android-release.json", encoding="utf8"))
+          tool = os.path.join(os.environ.get("ANDROID_HOME", "/usr/local/lib/android/sdk"), "build-tools", "36.0.0", "aapt")
+          report = subprocess.check_output([tool, "dump", "badging", "android/app/build/outputs/apk/release/app-release.apk"], text=True)
+          package = next(line for line in report.splitlines() if line.startswith("package: "))
+          for attribute, value in [("name", meta["applicationId"]), ("versionCode", str(meta["versionCode"])), ("versionName", meta["versionName"])]:
+              if not re.search(r"\\b" + attribute + r"='" + re.escape(value) + r"'", package):
+                  raise SystemExit("FAIL signed APK identity/version: " + attribute)
+          print("PASS signed Android package ID and version metadata.")
+          PY
+      - name: Upload signed Android candidate (private 30-day CI artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-android-signed-release-candidate
+          path: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 30
+      - name: Erase runner keystore
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/rihab-production-release.jks"
