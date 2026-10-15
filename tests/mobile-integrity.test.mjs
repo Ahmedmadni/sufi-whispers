@@ -4,7 +4,7 @@ import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
-  assertSafeAssetDescriptor, validateFile, validateQuranData, validateQuranFile,
+  assertSafeAssetDescriptor, assertQuranPublisherChecksum, validateFile, validateQuranData, validateQuranFile,
 } from "../scripts/mobile-integrity.mjs";
 
 const fixture = () => {
@@ -90,5 +90,22 @@ describe("local binary asset verification", () => {
     assert.throws(() => assertSafeAssetDescriptor({
       ...good, url: "https://example.com/any.pdf",
     }), /descriptor/);
+  });
+});
+
+describe("release-only publisher checksum gate", () => {
+  const digest = "a".repeat(64);
+  it("permits debug diagnostics without a publisher digest, but returns unverified", () => {
+    assert.equal(assertQuranPublisherChecksum(digest, undefined), false);
+  });
+  it("refuses any public release without independent publisher verification", () => {
+    assert.throws(() => assertQuranPublisherChecksum(digest, undefined, true), /Release blocked/);
+  });
+  it("rejects invalid and incorrect expected digests, even in debug", () => {
+    assert.throws(() => assertQuranPublisherChecksum(digest, "abc"), /64-character/);
+    assert.throws(() => assertQuranPublisherChecksum(digest, "b".repeat(64)), /publisher checksum/);
+  });
+  it("accepts a matching digest case-insensitively", () => {
+    assert.equal(assertQuranPublisherChecksum("A".repeat(64), digest, true), true);
   });
 });
