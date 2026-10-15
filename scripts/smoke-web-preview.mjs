@@ -11,7 +11,7 @@ const HOST = "127.0.0.1";
 const PORT = 4177;
 const BASE = `http://${HOST}:${PORT}`;
 const DEADLINE_MS = 115_000;
-const ROUTES = ["/", "/quran", "/quran/printed?page=1", "/library", "/dhikr"];
+const ROUTES = ["/", "/quran", "/quran/printed?page=1", "/library", "/books/nafahat", "/books/ward", "/dhikr", "/settings", "/shaykh", "/about"];
 const output = [];
 const record = (chunk) => {
   const line = String(chunk);
