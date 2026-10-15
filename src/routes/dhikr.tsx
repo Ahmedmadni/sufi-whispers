@@ -27,6 +27,10 @@ import {
 import { useDhikr, formatDuration, formatNumber, MILESTONES } from "@/lib/dhikr-store";
 import { TasbihIcon } from "@/components/TasbihIcon";
 import { DHIKR_SOUND_PREF, playDhikrTap } from "@/lib/dhikr-sound";
+import {
+  APPROXIMATE_TIMES, clearPrayerTimes, readPrayerTimes, savePrayerTimes,
+  type PrayerTimeSettings,
+} from "@/lib/wird-times";
 
 const TITLE = "لوحة الذكر — الجمعية الخليلية الإسلامية";
 const DESCRIPTION =
@@ -52,6 +56,9 @@ function DhikrPage() {
   const d = useDhikr();
   const [wird, setWird] = useState(() => currentWird());
   const [manual, setManual] = useState("");
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimeSettings | null>(null);
+  const [timeDraft, setTimeDraft] = useState<PrayerTimeSettings>(APPROXIMATE_TIMES);
+  const [timeError, setTimeError] = useState("");
   const [soundOn, setSoundOn] = useState(true);
   useEffect(() => {
     try { setSoundOn(localStorage.getItem(DHIKR_SOUND_PREF) !== "off"); } catch { /* optional */ }
@@ -65,9 +72,49 @@ function DhikrPage() {
   const lastMilestone = useRef(0);
 
   useEffect(() => {
-    const id = setInterval(() => setWird(currentWird()), 60000);
-    return () => clearInterval(id);
+    const saved = readPrayerTimes();
+    setPrayerTimes(saved);
+    if (saved) setTimeDraft(saved);
   }, []);
+
+  useEffect(() => {
+    const refresh = () => setWird(currentWird(new Date(), prayerTimes));
+    refresh();
+    const id = setInterval(refresh, 60000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [prayerTimes]);
+
+  const updateTimeDraft = (key: keyof PrayerTimeSettings, value: string) => {
+    setTimeDraft(previous => ({ ...previous, [key]: value }));
+    setTimeError("");
+  };
+  const applyPrayerTimes = () => {
+    try {
+      const saved = savePrayerTimes(timeDraft);
+      setPrayerTimes(saved);
+      setWird(currentWird(new Date(), saved));
+      setTimeError("");
+      toast.success("تم حفظ مواقيت الأوراد على هذا الجهاز.");
+    } catch (error) {
+      setTimeError(error instanceof Error ? error.message : "تعذّر حفظ المواقيت.");
+    }
+  };
+  const resetPrayerTimes = () => {
+    try {
+      clearPrayerTimes();
+      setPrayerTimes(null);
+      setTimeDraft(APPROXIMATE_TIMES);
+      setWird(currentWird());
+      setTimeError("");
+      toast("عادت أوقات الأوراد التقريبية.");
+    } catch {
+      setTimeError("تعذّر تعديل المواقيت المحفوظة على الجهاز.");
+    }
+  };
 
   const pct = d.activeProgress.count / NAME_TARGET;
 
@@ -126,7 +173,7 @@ function DhikrPage() {
         <section className="glass dhikr-stage rounded-2xl p-4 sm:p-6 text-center">
           <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground font-body">
             <Clock className="w-3.5 h-3.5" />
-            <span>{wird.window}</span>
+            <span>{wird.window}{!prayerTimes ? " (توقيت تقريبي)" : " (وفق الأوقات المحفوظة)"}</span>
           </div>
           <h2 className="mt-1.5 font-display text-gold-soft text-lg sm:text-xl leading-[1.6]">
             {wird.label}
@@ -295,6 +342,33 @@ function DhikrPage() {
         </section>
 
         {/* جدول الأوراد */}
+        <section className="glass rounded-2xl p-4 sm:p-6" aria-label="إعداد مواعيد الأوراد">
+          <h3 className="font-display text-gold-soft text-base sm:text-lg">مواعيد الأوراد اليومية</h3>
+          <p className="mt-1.5 text-xs font-body leading-7 text-muted-foreground">
+            الأوقات الافتراضية تقريبية ولا تعتمد على موقعك. أدخل مواعيد الفجر والعصر والمغرب لمدينتك،
+            وحدثها عند تغيّر المواقيت. جميع الأوقات محلية لجهازك وتعمل دون إنترنت.
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+            {([
+              ["fajr", "الفجر"], ["asr", "العصر"], ["maghrib", "المغرب"],
+            ] as const).map(([key, name]) => (
+              <label key={key} className="flex flex-col gap-2 text-xs text-foreground/90 font-body">
+                <span>{name}</span>
+                <input type="time" value={timeDraft[key]} onChange={event => updateTimeDraft(key, event.target.value)}
+                  className="w-full min-w-0 rounded-lg border border-gold/30 bg-background/70 px-2 py-2.5 text-foreground"
+                  aria-label={`موعد ${name}`}/>
+              </label>
+            ))}
+          </div>
+          {timeError && <p className="mt-3 text-sm text-destructive" role="alert">{timeError}</p>}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button type="button" onClick={applyPrayerTimes}
+              className="rounded-lg glass-gold px-4 py-2 text-sm font-body text-gold-soft">حفظ المواقيت</button>
+            <button type="button" onClick={resetPrayerTimes}
+              className="rounded-lg border border-gold/25 px-4 py-2 text-sm font-body text-foreground/80">العودة للأوقات التقريبية</button>
+          </div>
+        </section>
+
         <section className="glass rounded-2xl p-4 sm:p-6">
           <h3 className="font-display text-gold-soft text-base sm:text-lg">جدول الأوراد اليومي</h3>
           <ul className="mt-3 space-y-3">
