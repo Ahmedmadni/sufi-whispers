@@ -19,6 +19,7 @@
     "mobile:verify": "node scripts/verify-mobile-bundle.mjs",
     "mobile:android:setup": "node scripts/android-dev.mjs",
     "mobile:android:apk": "node scripts/android-dev.mjs --apk",
+    "mobile:android:release": "node scripts/android-dev.mjs --release",
     "mobile:assets:audit": "node scripts/audit-mobile-assets.mjs"
   },
   "dependencies": {

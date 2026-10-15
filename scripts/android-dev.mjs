@@ -4,10 +4,12 @@
  * Usage:
  *   bun run mobile:android:setup  - generate/sync Android project
  *   bun run mobile:android:apk    - generate, sync and assemble debug APK
+ *   bun run mobile:android:release - signed APK/AAB; requires secrets and Quran checksum
  *
- * Never creates a release signature or publishes a build.
+ * No workflow publishes artifacts to the public app store automatically.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { validateReleaseConfig, validateReleaseEnvironment } from "./android-release-utils.mjs";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -32,6 +34,15 @@ function hasPinnedCapacitor() {
 const nodeMajor = Number(process.versions.node.split(".")[0]);
 if (nodeMajor < 22) throw new Error("Capacitor 8 requires Node 22 or newer");
 const buildDebugApk = process.argv.includes("--apk");
+const buildRelease = process.argv.includes("--release");
+if (buildDebugApk && buildRelease) throw new Error("Choose either --apk (debug) or --release (signed), not both.");
+if (buildRelease) {
+  const meta = validateReleaseConfig(JSON.parse(readFileSync("config/android-release.json", "utf8")));
+  const capConfig = JSON.parse(readFileSync("capacitor.config.json", "utf8"));
+  if (capConfig.appId !== meta.applicationId) throw new Error("Capacitor app ID differs from Android release identity");
+  validateReleaseEnvironment(process.env);
+  console.log(`Release preflight passed for ${meta.applicationId} ${meta.versionName} (${meta.versionCode}); credentials are not logged.`);
+}
 if (!hasPinnedCapacitor()) {
   console.log(`Installing exact Capacitor ${CAPACITOR_VERSION} versions for the Android build...`);
   run("bun", ["add", "--exact", `@capacitor/core@${CAPACITOR_VERSION}`, `@capacitor/android@${CAPACITOR_VERSION}`]);
@@ -44,8 +55,35 @@ if (!existsSync(resolve("dist-mobile/index.html"))) {
 if (!existsSync(resolve("android/app/build.gradle"))) {
   run("bunx", ["cap", "add", "android"]);
 }
+// A generated release configuration must never make later local Debug builds
+// depend on private signing secrets. Strip our marker before non-release sync.
+const nativeGradle = resolve("android/app/build.gradle");
+const productionApply = "apply from: rootProject.file('../scripts/android-release-signing.gradle')";
+const productionBlock = `\n// Inject production signing after Capacitor generation. No credentials stored.\n${productionApply}\n`;
+if (!buildRelease && existsSync(nativeGradle)) {
+  const previous = readFileSync(nativeGradle, "utf8");
+  if (previous.includes(productionBlock)) {
+    writeFileSync(nativeGradle, previous.replace(productionBlock, ""));
+  }
+}
 run("bunx", ["cap", "sync", "android"]);
-if (buildDebugApk) {
+if (buildRelease) {
+  const buildGradle = resolve("android/app/build.gradle");
+  const applying = "apply from: rootProject.file('../scripts/android-release-signing.gradle')";
+  const content = readFileSync(buildGradle, "utf8");
+  if (!content.includes(applying)) {
+    appendFileSync(buildGradle, `\n// Inject production signing after Capacitor generation. No credentials stored.\n${applying}\n`);
+  }
+  const gradle = process.platform === "win32" ? "gradlew.bat" : "./gradlew";
+  run(gradle, ["assembleRelease", "bundleRelease"], resolve("android"));
+  for (const file of [
+    "android/app/build/outputs/apk/release/app-release.apk",
+    "android/app/build/outputs/bundle/release/app-release.aab",
+  ]) {
+    if (!existsSync(resolve(file))) throw new Error(`Android release output missing: ${file}`);
+  }
+  console.log("Signed APK and AAB assembled; verify signing and package integrity before distribution.");
+} else if (buildDebugApk) {
   const gradle = process.platform === "win32" ? "gradlew.bat" : "./gradlew";
   run(gradle, ["assembleDebug"], resolve("android"));
   const apk = resolve("android/app/build/outputs/apk/debug/app-debug.apk");

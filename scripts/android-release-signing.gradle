@@ -1,0 +1,45 @@
+/*
+ * Applied only to the generated Android app module on --release builds.
+ * The keystore and every password are supplied ONLY through process env.
+ * Never hardcode a key, copy credentials into the repository, or use
+ * Android's debug signing config for public distributions.
+ */
+import groovy.json.JsonSlurper
+
+def releaseMeta = new JsonSlurper().parse(new File(rootProject.projectDir, '../config/android-release.json'))
+if (releaseMeta.applicationId != 'com.rihabalkhaliliyya.app' ||
+    !(releaseMeta.versionCode instanceof Number) ||
+    releaseMeta.versionCode.intValue() < 1) {
+    throw new GradleException('Invalid release identity or version metadata')
+}
+
+def keyFile = System.getenv('RIHAB_RELEASE_KEYSTORE_FILE')
+def storePass = System.getenv('RIHAB_RELEASE_STORE_PASSWORD')
+def keyAliasValue = System.getenv('RIHAB_RELEASE_KEY_ALIAS')
+def keyPass = System.getenv('RIHAB_RELEASE_KEY_PASSWORD')
+if (!keyFile || !storePass || !keyAliasValue || !keyPass || !new File(keyFile).isFile()) {
+    throw new GradleException('Production release keystore credentials are missing')
+}
+
+android {
+    defaultConfig {
+        applicationId releaseMeta.applicationId
+        versionCode releaseMeta.versionCode.intValue()
+        versionName releaseMeta.versionName.toString()
+    }
+    signingConfigs {
+        rihabProduction {
+            storeFile file(keyFile)
+            storePassword storePass
+            keyAlias keyAliasValue
+            keyPassword keyPass
+            enableV1Signing true
+            enableV2Signing true
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.rihabProduction
+        }
+    }
+}
