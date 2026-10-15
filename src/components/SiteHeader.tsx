@@ -10,9 +10,9 @@ const activeClass = { className: "text-gold-soft bg-gold/10" };
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-gold/25 bg-velvet/90 backdrop-blur-xl">
+    <header className="site-header sticky top-0 z-40 border-b border-gold/25 bg-velvet/90 backdrop-blur-xl">
       <div className="mx-auto max-w-5xl px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
-        <Link to="/" className="flex items-center gap-2 min-w-0 group">
+        <Link to="/" className="site-header__brand flex items-center gap-2 min-w-0 group">
           <img
             src={logo}
             alt="شعار الجمعية الخليلية الإسلامية"
@@ -23,7 +23,7 @@ export function SiteHeader() {
           />
           <span className="font-display text-gold-soft text-sm leading-tight truncate">
             رحاب الخليلية
-            <span className="block text-[10px] text-muted-foreground truncate">
+            <span className="site-header__subtitle block text-[10px] text-muted-foreground truncate">
               الجمعية الخليلية الإسلامية
             </span>
           </span>
@@ -48,7 +48,7 @@ export function SiteHeader() {
             rel="noopener noreferrer"
             aria-label="مجموعة الجمعية على فيسبوك"
             title="فيسبوك الجمعية"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gold/20 text-gold-soft hover:bg-gold/10"
+            className="hidden sm:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gold/20 text-gold-soft hover:bg-gold/10"
           >
             <Facebook className="h-[19px] w-[19px]" />
           </a>
