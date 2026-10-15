@@ -1,3 +1,5 @@
+import { currentWirdPhase, type PrayerTimeSettings } from "@/lib/wird-times";
+
 export type DhikrName = {
   id: string;
   name: string;
@@ -59,10 +61,10 @@ export const WIRD_ASMA: Wird = {
   hint: "وقت التجليات وخلوة الأحباب",
 };
 
-/** يحدّد ورد الساعة الحالية تقريبيًا حسب ساعة الجهاز. */
-export function currentWird(now: Date = new Date()): Wird {
-  const h = now.getHours();
-  if (h >= 4 && h < 15) return WIRD_SALAWAT; // الفجر → العصر
-  if (h >= 15 && h < 18) return WIRD_ISTIGHFAR; // العصر → المغرب
-  return WIRD_ASMA; // المغرب → الفجر
+/** Uses device-local time; the default is approximate unless prayer times are supplied. */
+export function currentWird(now: Date = new Date(), times?: PrayerTimeSettings | null): Wird {
+  const phase = currentWirdPhase(now, times);
+  if (phase === "salawat") return WIRD_SALAWAT;
+  if (phase === "istighfar") return WIRD_ISTIGHFAR;
+  return WIRD_ASMA;
 }
