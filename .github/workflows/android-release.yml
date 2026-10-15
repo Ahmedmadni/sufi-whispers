@@ -104,7 +104,7 @@ jobs:
           report = subprocess.check_output([tool, "dump", "badging", "android/app/build/outputs/apk/release/app-release.apk"], text=True)
           package = next(line for line in report.splitlines() if line.startswith("package: "))
           for attribute, value in [("name", meta["applicationId"]), ("versionCode", str(meta["versionCode"])), ("versionName", meta["versionName"])]:
-              if not re.search(r"\\b" + attribute + r"='" + re.escape(value) + r"'", package):
+              if not re.search(r"\b" + attribute + r"='" + re.escape(value) + r"'", package):
                   raise SystemExit("FAIL signed APK identity/version: " + attribute)
           print("PASS signed Android package ID and version metadata.")
           PY
