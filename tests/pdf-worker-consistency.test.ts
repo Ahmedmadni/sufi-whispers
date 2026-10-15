@@ -6,8 +6,8 @@ describe("Book reader PDF.js API/worker integrity", () => {
   test("resolves the PDF worker from react-pdf's own dependency", () => {
     const { workerFile, version } = readerPdfjsAssets();
     expect(existsSync(workerFile)).toBe(true);
-    const lock = JSON.parse(readFileSync(new URL("../bun.lock", import.meta.url), "utf8"));
-    expect(lock.packages["react-pdf"][2].dependencies["pdfjs-dist"]).toBe(version);
+    const lock = readFileSync(new URL("../bun.lock", import.meta.url), "utf8");
+    expect(lock).toContain(`"react-pdf/pdfjs-dist": ["pdfjs-dist@${version}"`);
   });
   test("reader never imports a different root PDF.js worker", () => {
     const source = readFileSync(new URL("../src/components/PdfBookViewer.tsx", import.meta.url), "utf8");
