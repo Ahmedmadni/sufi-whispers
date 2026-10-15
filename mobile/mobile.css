@@ -12,7 +12,7 @@ html {
 }
 body {
   padding-top: env(safe-area-inset-top);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   overscroll-behavior-y: contain;
 }
 button, input, a {
