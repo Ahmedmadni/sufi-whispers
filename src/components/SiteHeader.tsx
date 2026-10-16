@@ -50,7 +50,7 @@ export function SiteHeader() {
             title="فيسبوك الجمعية"
             className="hidden sm:inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gold/20 text-gold-soft hover:bg-gold/10"
           >
-            <Facebook className="h-[19px] w-[19px]" />
+            <Facebook className="h-[19px] w-[19px] text-[#0866FF]" aria-hidden="true" />
           </a>
           {import.meta.env.VITE_MOBILE !== "true" && <FontSizeControl />}
           <Link to="/settings" aria-label="الإعدادات والنسخ الاحتياطي" title="الإعدادات والنسخ الاحتياطي"

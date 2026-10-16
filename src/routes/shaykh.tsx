@@ -144,7 +144,7 @@ function ShaykhPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 text-sm font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
             >
-              <Facebook className="w-4 h-4" />
+              <Facebook className="w-4 h-4 text-[#0866FF]" aria-hidden="true" />
               <span>مجموعة الجمعية على فيسبوك</span>
             </a>
           </div>

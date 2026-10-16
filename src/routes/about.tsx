@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Facebook } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -62,15 +63,16 @@ function AboutPage() {
         </section>
 
         <section className="mt-4 glass-gold rounded-2xl px-5 py-5">
-          <h2 className="font-display text-lg text-gold-soft">مطوّر الموقع</h2>
-          <p className="mt-2 text-sm text-foreground/85 font-body leading-8">أحمد المدني</p>
+          <h2 className="font-display text-lg text-gold-soft">تواصل مع المطور</h2>
           <a
-            href="https://ahmedelmadni.com"
+            href="https://www.facebook.com/elmadni1998"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-block text-sm font-body text-gold-soft hover:underline"
+            aria-label="تواصل مع المطور عبر فيسبوك"
+            className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 font-body text-sm text-foreground/90 transition-colors hover:border-gold/50 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           >
-            ahmedelmadni.com
+            <Facebook className="h-5 w-5 text-[#0866FF]" aria-hidden="true" />
+            تواصل مع المطور
           </a>
         </section>
 
