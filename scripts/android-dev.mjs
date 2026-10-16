@@ -39,8 +39,10 @@ if (buildDebugApk && buildRelease) throw new Error("Choose either --apk (debug) 
 if (buildRelease) {
   const meta = validateReleaseConfig(JSON.parse(readFileSync("config/android-release.json", "utf8")));
   const capConfig = JSON.parse(readFileSync("capacitor.config.json", "utf8"));
-  if (capConfig.appId !== meta.applicationId) throw new Error("Capacitor app ID differs from Android release identity");
-  validateReleaseEnvironment(process.env);
+  if (capConfig.appId !== meta.applicationId || capConfig.appName !== meta.appName) {
+    throw new Error("Capacitor app identity/name differs from approved Android release configuration");
+  }
+  validateReleaseEnvironment(process.env, undefined, meta);
   console.log(`Release preflight passed for ${meta.applicationId} ${meta.versionName} (${meta.versionCode}); credentials are not logged.`);
 }
 if (!hasPinnedCapacitor()) {
