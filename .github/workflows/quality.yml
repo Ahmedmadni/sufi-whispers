@@ -54,3 +54,5 @@ jobs:
         run: python -m pip install cryptography==46.0.4
       - name: Test real keystore cryptography, alias and tamper refusal
         run: python -m unittest discover -s tests -p 'test_signing_vault.py' -v
+      - name: Verify project backup archive exclusions and tamper refusal
+        run: python -m unittest discover -s tests -p 'test_cloud_backup.py' -v
