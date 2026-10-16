@@ -1,0 +1,95 @@
+name: Verified Cloud Project Backup
+
+# No local computer required. Runs once when merged and can be re-run manually.
+# Artifacts are temporary (30 days); never publishes copyrighted source images
+# or personal/signing secrets in public GitHub Releases.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/cloud-project-backup.yml"
+      - "scripts/cloud-backup.py"
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - name: Check out full project Git history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check out immutable 604 original Quran source images
+        uses: actions/checkout@v4
+        with:
+          ref: 0b944b349fd28295803a0a96fbf2906a14286245
+          path: _verified-mushaf-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.3'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies and pinned verified offline renderers
+        run: |
+          bun install --frozen-lockfile
+          python -m pip install Pillow==11.3.0 PyMuPDF==1.26.5
+      - name: Run source integrity and recovery archive unit tests
+        run: |
+          bun run test:integrity
+          python -m unittest discover -s tests -p 'test_cloud_backup.py' -v
+      - name: Stage official local PDF worker and fonts
+        run: |
+          node scripts/prepare-pdf-assets.mjs
+          node scripts/prepare-android-fonts.mjs
+      - name: Recover every original 604-page Mushaf image losslessly
+        run: python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
+      - name: Verify and prepare all original Quran, fonts and eight books
+        run: bun run mobile:prepare
+        env:
+          CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
+          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
+      - name: Create restoreable Git history bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          git bundle create "$RUNNER_TEMP/rihab-project-history.bundle" --all
+          git bundle verify "$RUNNER_TEMP/rihab-project-history.bundle"
+      - name: Pack and independently verify full recovery archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/cloud-backup.py create \
+            "$RUNNER_TEMP/rihab-project-history.bundle" \
+            _verified-mushaf-source \
+            mobile/.public \
+            "$RUNNER_TEMP/rihab-complete-cloud-recovery.zip"
+          python scripts/cloud-backup.py verify "$RUNNER_TEMP/rihab-complete-cloud-recovery.zip"
+          mkdir -p recovery-output
+          cp "$RUNNER_TEMP/rihab-complete-cloud-recovery.zip" recovery-output/
+          sha256sum recovery-output/rihab-complete-cloud-recovery.zip | tee recovery-output/SHA256SUMS.txt
+          git rev-parse HEAD > recovery-output/MAIN-COMMIT.txt
+      - name: Store encrypted-free project backup as GitHub Actions artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-complete-verified-cloud-recovery
+          path: recovery-output/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+      - name: Erase temporary unarchived files from runner
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/rihab-project-history.bundle"
+          rm -f "$RUNNER_TEMP/rihab-complete-cloud-recovery.zip"
