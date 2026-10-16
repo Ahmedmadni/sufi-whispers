@@ -1,5 +1,10 @@
 {
+  "appName": "رحاب الخليلية",
   "applicationId": "com.rihabalkhaliliyya.app",
   "versionName": "1.0.0",
-  "versionCode": 1
+  "versionCode": 1,
+  "signing": {
+    "keystoreFileName": "rihab-production.jks",
+    "keyAlias": "rihab-production"
+  }
 }
