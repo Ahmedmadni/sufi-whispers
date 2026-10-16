@@ -42,3 +42,11 @@ mobile/.public/
 android/.gradle/
 android/build/
 android/app/build/
+
+# Never commit Android production signing keys (even in project backups).
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pkcs12
+RihabKeys/
