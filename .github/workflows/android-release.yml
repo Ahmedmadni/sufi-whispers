@@ -34,7 +34,7 @@ jobs:
           QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
           ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
           RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
-          RIHAB_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          RIHAB_RELEASE_KEY_ALIAS: rihab-production
           RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
           set -euo pipefail
@@ -43,7 +43,7 @@ jobs:
           : "${RIHAB_RELEASE_STORE_PASSWORD:?Missing keystore password}"
           : "${RIHAB_RELEASE_KEY_ALIAS:?Missing keystore alias}"
           : "${RIHAB_RELEASE_KEY_PASSWORD:?Missing key password}"
-          KEYSTORE="$RUNNER_TEMP/rihab-production-release.jks"
+          KEYSTORE="$RUNNER_TEMP/rihab-production.jks"
           printf '%s' "$ANDROID_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
           chmod 600 "$KEYSTORE"
           test -s "$KEYSTORE" || { echo "Keystore is empty"; exit 1; }
@@ -85,7 +85,7 @@ jobs:
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
           QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
           RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
-          RIHAB_RELEASE_KEY_ALIAS: ${{ secrets.ANDROID_RELEASE_KEY_ALIAS }}
+          RIHAB_RELEASE_KEY_ALIAS: rihab-production
           RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
       - name: Verify release signature, identity and bundled content
         shell: bash
@@ -120,4 +120,4 @@ jobs:
       - name: Erase runner keystore
         if: always()
         shell: bash
-        run: rm -f "$RUNNER_TEMP/rihab-production-release.jks"
+        run: rm -f "$RUNNER_TEMP/rihab-production.jks"
