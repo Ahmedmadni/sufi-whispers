@@ -3,11 +3,14 @@ import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
 
+// This is the exact approved description, not a shortened or invented title.
+const SHAYKH_BANNER = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
+
 export function HomeHero() {
   const reducedMotion = useReducedMotion();
 
   return (
-    <section className="hero-sequence relative isolate min-h-[min(610px,calc(100svh-8rem))] overflow-hidden border-b border-gold/25 bg-velvet sm:min-h-[650px]" aria-labelledby="home-title">
+    <section className="hero-sequence hero-sequence--mandate relative isolate min-h-[min(610px,calc(100svh-8rem))] overflow-hidden border-b border-gold/25 bg-velvet sm:min-h-[650px]" aria-labelledby="home-title">
       <div className="hero-scene absolute inset-0" aria-hidden="true">
         <img
           src={heroNabawi}
@@ -48,38 +51,35 @@ export function HomeHero() {
         </div>
       </div>
 
+      <div className="hero-heading absolute inset-x-0 top-0 z-20 px-5 sm:px-8">
+        <h1 id="home-title" className="font-display font-bold text-foreground">
+          الجمعية الخليلية <span className="text-gold-soft">الإسلامية</span>
+        </h1>
+      </div>
+
       <motion.img
         src={shaykhSaleh}
         alt="فضيلة الشيخ صالح أبو خليل"
         width={848}
         height={1264}
-        initial={reducedMotion ? false : { opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: reducedMotion ? 0 : 0.85, duration: 0.65 }}
-        className="absolute bottom-0 left-[-9%] z-10 h-[48%] w-auto max-w-[55%] object-contain object-bottom drop-shadow-2xl [mask-image:linear-gradient(to_right,black_80%,transparent_100%)] sm:left-[1%] sm:h-[88%] sm:max-w-[48%]"
-      />
-
-      <motion.div
         initial={reducedMotion ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: reducedMotion ? 0 : 0.7, duration: 0.65 }}
-        className="relative z-20 mx-auto flex min-h-[min(610px,calc(100svh-8rem))] max-w-6xl flex-col justify-center px-5 pb-4 pt-8 sm:min-h-[650px] sm:px-8 sm:pb-7 sm:pt-12"
-      >
-        <div className="hero-content flex w-full flex-1 flex-col justify-center sm:mr-0 sm:ml-auto sm:w-[57%]">
-          <div className="mb-4 sm:mb-7">
-            <span className="hero-callout">رحاب الخليلية · نور المعرفة وهدوء القراءة</span>
+        transition={{ delay: reducedMotion ? 0 : 0.55, duration: 0.65 }}
+        className="hero-shaykh absolute z-10 w-auto object-contain object-bottom drop-shadow-2xl"
+      />
+
+      <div className="hero-mandate absolute inset-x-0 bottom-0 z-30" dir="rtl" aria-label="كلمة التعريف بالشيخ">
+        <div className="hero-mandate__frame">
+          {/* A non-animated, single copy is always available to assistive technologies. */}
+          <p className="sr-only">{SHAYKH_BANNER}</p>
+          <div className="hero-mandate__viewport" aria-hidden="true">
+            <div className="hero-mandate__track">
+              <span className="hero-mandate__phrase">{SHAYKH_BANNER}</span>
+              <span className="hero-mandate__phrase hero-mandate__duplicate">{SHAYKH_BANNER}</span>
+            </div>
           </div>
-          <h1 id="home-title" className="max-w-xl font-display text-[clamp(1.7rem,7vw,2.4rem)] font-bold leading-[1.5] text-foreground sm:text-5xl sm:leading-[1.45]">
-            الجمعية الخليلية <span className="text-gold-soft">الإسلامية</span>
-          </h1>
-          <p className="mt-2 max-w-lg border-r-2 border-gold pr-3 font-body text-sm leading-7 text-foreground/90 sm:mt-5 sm:text-lg sm:leading-9">
-            تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل
-          </p>
-          <p className="mt-2 max-w-md font-body text-sm leading-7 text-foreground/85 sm:mt-5 sm:text-base sm:leading-8">
-            المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر.
-          </p>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }
