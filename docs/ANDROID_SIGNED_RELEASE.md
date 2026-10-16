@@ -7,8 +7,12 @@
 
 - `bun run mobile:android:apk`: بناء Debug المخصص للاختبار، متاح بدون أسرار.
 - `bun run mobile:android:release`: بناء APK وAAB إنتاجيين موقّعين، يرفض التنفيذ إذا غاب أي شرط.
-- ملف `config/android-release.json` يحدد **هوية الحزمة الثابتة** `com.rihabalkhaliliyya.app`
-  وإصدار `1.0.0` ورقم الإصدار `1`. زد رقم `versionCode` لكل إصدار جديد.
+- ملف `config/android-release.json` يحدد هوية التطبيق المعتمدة: الاسم
+  **رحاب الخليلية**، والحزمة `com.rihabalkhaliliyya.app`،
+  وإصدار `1.0.0` ورقم `versionCode=1`، واسم ملف التوقيع
+  `rihab-production.jks` واسم المفتاح `rihab-production`.
+  هذه بيانات عامة **وليست كلمات مرور أو مفتاح توقيع حقيقيًا**.
+  زد رقم `versionCode` لكل إصدار جديد.
 - `scripts/android-release-signing.gradle` يعتمد على متغيرات البيئة حصريًا ولا يحتوي مفاتيح.
 - `.github/workflows/android-release.yml` يعمل يدويًا فقط من `main`، ويتحقق من
   توقيع APK وAAB ومحتوى 604 صفحات مصحف و1040 صفحة كتب وملف PDF Worker المحلي.
@@ -17,8 +21,15 @@
 
 ## المتطلبات التي يجب تجهيزها مرة واحدة
 
-1. مفتاح Android Production Keystore جديد وخاص بالتطبيق. احفظ النسخة الأصلية وكلمات المرور
-   خارج المستودع وفي مكانين آمنين. لا ترسلها في المحادثة أو ترفعها إلى GitHub كملف.
+1. **إنشاء مفتاح Android Production Keystore الحقيقي محليًا.**
+   يمكنك تنزيل ملف `scripts/prepare-rihab-signing.ps1` إلى Windows وتشغيله من PowerShell.
+   يبحث بنفسه عن **Eclipse Temurin JDK 21** المثبت، حتى إن لم يتعرف الجهاز على `java`
+   أو `keytool` ضمن PATH، ويُنشئ ملف
+   `%USERPROFILE%\\RihabKeys\\rihab-production.jks` بعد طلب كلمة المرور منك دون عرضها أو حفظها.
+   إذا وجد الملف، **لا يستبدله** حفاظًا على هوية تحديثات التطبيق.
+   يمكنك بعد الإنشاء تشغيل السكربت نفسه مع `-CopyBase64` لنسخ المحتوى إلى الحافظة
+   دون طباعته على الشاشة. **راجع محتوى السكربت قبل تشغيله** واحفظ المفتاح الأصلي
+   وكلمات المرور خارج المشروع في مكانين آمنين. لا ترسلها في المحادثة ولا ترفعها إلى GitHub كملف.
 2. اضبط المستودع من GitHub → Settings → Secrets and variables → Actions،
    مع **أسرار** GitHub Actions التالية:
 
@@ -26,10 +37,12 @@
    | --- | --- |
    | `ANDROID_RELEASE_KEYSTORE_BASE64` | محتوى ملف keystore بعد ترميزه بـ Base64 |
    | `ANDROID_RELEASE_STORE_PASSWORD` | كلمة مرور مخزن التوقيع |
-   | `ANDROID_RELEASE_KEY_ALIAS` | اسم مفتاح التوقيع |
-   | `ANDROID_RELEASE_KEY_PASSWORD` | كلمة مرور المفتاح |
+    | `ANDROID_RELEASE_KEY_PASSWORD` | كلمة مرور المفتاح (قد تطابق كلمة مرور المخزن عند استخدام PKCS12) |
    | `QURAN_EXPECTED_SHA256` | SHA-256 أصلي معتمد لملف `hafsData_v2-0.json` بعد التحقق المستقل من مصدر مجمع الملك فهد |
 
+   **ملاحظة:** الاسم `rihab-production` مضبوط داخل المشروع وسير العمل مباشرة،
+   ولذلك **لا تحتاج إلى إنشاء Secret باسم `ANDROID_RELEASE_KEY_ALIAS`**.
+   أما مفتاح التوقيع الحقيقي وكلمتا المرور فيُحفظان كأسرار ولا يُخزن أيٌّ منها بالكود.
    اسم الجهة المصدرة للملف موجود مسبقًا في الكود؛ المطلوب هنا بصمة مستقلة
    للتحقق الآلي من أن **البايتات الأصلية** لم تتغير، وليس إعادة كتابة النص.
 
@@ -51,6 +64,9 @@
 ## ملاحظات أمنية
 
 - لا تنسخ أية بيانات سرية إلى `android/app/build.gradle` أو `config/android-release.json`.
+- **نسخة GitHub ZIP وحدها ليست نسخة أمان كاملة:** لا تشمل GitHub Actions Secrets
+  أو ملف التوقيع الموجود خارج المستودع، وبعض ملفات الكتب/الخطوط والقرآن محفوظة
+  كأصول ثنائية لدى مزود خارجي. اقرأ `docs/PROJECT_BACKUP_CHECKLIST.md`.
 - مفاتيح التوقيع غير متوفرة للمساعد. لهذا فإن جاهزية سير العمل لا تعني
   اجتياز بناء Signed Release أو اختبار هاتف فعلي.
 - لا تعطل شرط `RELEASE_BUILD=1` أو `QURAN_EXPECTED_SHA256` بهدف تجاوز الأخطاء.
