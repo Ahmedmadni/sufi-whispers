@@ -82,3 +82,18 @@ RELEASE_BUILD=1 QURAN_EXPECTED_SHA256=<verified-publisher-sha256> bun run mobile
   واحد `RIHAB_SIGNING_MASTER_PASSWORD` بطول 40+ حرف عشوائي من واجهة المتصفح،
   ثم تشغيل `Initialize Rihab Signing Key (Cloud Only)` على `main`.
 - ما زال شرط `QURAN_EXPECTED_SHA256` المرجعي المستقل واختبار الهاتف الفعلي لازمًا للإصدار العام.
+
+## المرحلة 29 — نسخة استرجاع سحابية كاملة قابلة للتحقق
+
+- إضافة سير عمل `.github/workflows/cloud-project-backup.yml` على GitHub Actions.
+  يبدأ تلقائيًا مرة واحدة عند دمج هذا السير على `main`،
+  ويمكن تشغيله يدويًا لاحقًا دون تنزيل أو تثبيت أي برنامج.
+- ينتج أرشيفًا يضم تاريخ Git والمصادر الأصلية للنص القرآني وملفات الكتب،
+  والصور الأصلية الـ604 للمصحف، والمصادر المنسوخة دون إنترنت؛
+  مع MANIFEST وSHA-256 وفحص لكل ملف داخل الأرشيف.
+- المرفق المؤقت في Actions صالح لمدة 30 يومًا حسب إعدادات المستودع؛
+  ليس حفظًا دائمًا ولا مزامنة Google Drive، ولا يتضمن أسرار GitHub أو كلمة توقيع Android
+  أو بيانات الذكر المخزنة على أجهزة المستخدمين.
+- المرجع النهائي وخطوات الاستعادة: `docs/PROJECT_BACKUP_CHECKLIST.md`.
+- مستمر: إنشاء مفتاح التوقيع الفعلي ينتظر Secret `RIHAB_SIGNING_MASTER_PASSWORD`
+  من مالك GitHub؛ لم يظهر `config/rihab-production.jks.enc.json` على main بعد.
