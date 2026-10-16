@@ -9,7 +9,10 @@ import groovy.json.JsonSlurper
 def releaseMeta = new JsonSlurper().parse(new File(rootProject.projectDir, '../config/android-release.json'))
 if (releaseMeta.applicationId != 'com.rihabalkhaliliyya.app' ||
     !(releaseMeta.versionCode instanceof Number) ||
-    releaseMeta.versionCode.intValue() < 1) {
+    releaseMeta.versionCode.intValue() < 1 ||
+    releaseMeta.appName != 'رحاب الخليلية' ||
+    releaseMeta.signing?.keystoreFileName != 'rihab-production.jks' ||
+    releaseMeta.signing?.keyAlias != 'rihab-production') {
     throw new GradleException('Invalid release identity or version metadata')
 }
 
@@ -19,6 +22,10 @@ def keyAliasValue = System.getenv('RIHAB_RELEASE_KEY_ALIAS')
 def keyPass = System.getenv('RIHAB_RELEASE_KEY_PASSWORD')
 if (!keyFile || !storePass || !keyAliasValue || !keyPass || !new File(keyFile).isFile()) {
     throw new GradleException('Production release keystore credentials are missing')
+}
+if (new File(keyFile).name != releaseMeta.signing.keystoreFileName ||
+    keyAliasValue != releaseMeta.signing.keyAlias) {
+    throw new GradleException('Production keystore filename or alias differs from the approved release configuration')
 }
 
 android {
