@@ -25,7 +25,7 @@
    يمكنك تنزيل ملف `scripts/prepare-rihab-signing.ps1` إلى Windows وتشغيله من PowerShell.
    يبحث بنفسه عن **Eclipse Temurin JDK 21** المثبت، حتى إن لم يتعرف الجهاز على `java`
    أو `keytool` ضمن PATH، ويُنشئ ملف
-   `%USERPROFILE%\\RihabKeys\\rihab-production.jks` بعد طلب كلمة المرور منك دون عرضها أو حفظها.
+   `%USERPROFILE%\RihabKeys\rihab-production.jks` بعد طلب كلمة المرور منك دون عرضها أو حفظها.
    إذا وجد الملف، **لا يستبدله** حفاظًا على هوية تحديثات التطبيق.
    يمكنك بعد الإنشاء تشغيل السكربت نفسه مع `-CopyBase64` لنسخ المحتوى إلى الحافظة
    دون طباعته على الشاشة. **راجع محتوى السكربت قبل تشغيله** واحفظ المفتاح الأصلي
@@ -37,7 +37,7 @@
    | --- | --- |
    | `ANDROID_RELEASE_KEYSTORE_BASE64` | محتوى ملف keystore بعد ترميزه بـ Base64 |
    | `ANDROID_RELEASE_STORE_PASSWORD` | كلمة مرور مخزن التوقيع |
-    | `ANDROID_RELEASE_KEY_PASSWORD` | كلمة مرور المفتاح (قد تطابق كلمة مرور المخزن عند استخدام PKCS12) |
+   | `ANDROID_RELEASE_KEY_PASSWORD` | كلمة مرور المفتاح (قد تطابق كلمة مرور المخزن عند استخدام PKCS12) |
    | `QURAN_EXPECTED_SHA256` | SHA-256 أصلي معتمد لملف `hafsData_v2-0.json` بعد التحقق المستقل من مصدر مجمع الملك فهد |
 
    **ملاحظة:** الاسم `rihab-production` مضبوط داخل المشروع وسير العمل مباشرة،
