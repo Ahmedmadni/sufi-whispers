@@ -70,3 +70,15 @@ RELEASE_BUILD=1 QURAN_EXPECTED_SHA256=<verified-publisher-sha256> bun run mobile
 - أضيفت قواعد التوقيع من متغيرات البيئة وسلامة النسخة، مع فحص شهادة APK وAAB ومحتوى المكتبة والمصحف بعد البناء.
 - دليل التشغيل الآمن: `docs/ANDROID_SIGNED_RELEASE.md`.
 - **متبقٍ:** تزويد أسرار GitHub، التحقق من البصمة الأصلية للنص القرآني، أول بناء موقّع ناجح، الفحص على هاتف فعلي، والاعتماد قبل التوزيع العام.
+
+## المرحلة 28 — مفتاح التوقيع السحابي دون أي تنزيلات محلية (16 أكتوبر 2026)
+
+- أضيف `.github/workflows/android-signing-bootstrap.yml` لإنشاء مفتاح إنتاج Android من GitHub Actions مرة واحدة.
+- أضيف `scripts/signing-vault.py` لتشفير المفتاح باستخدام AES-256-GCM وscrypt؛
+  المستودع لا يحتفظ سوى بالملف المشفر `config/rihab-production.jks.enc.json` بعد تشغيل التهيئة.
+- تم تحديث `android-release.yml` ليفك التشفير مؤقتًا ويوقّع APK وAAB
+  باستخدام مفتاح الإنتاج نفسه عبر GitHub Actions.
+- المفتاح وكلمة مروره **لم يُولَّدا بعد**: المطلوب من مالك GitHub إدخال Secret
+  واحد `RIHAB_SIGNING_MASTER_PASSWORD` بطول 40+ حرف عشوائي من واجهة المتصفح،
+  ثم تشغيل `Initialize Rihab Signing Key (Cloud Only)` على `main`.
+- ما زال شرط `QURAN_EXPECTED_SHA256` المرجعي المستقل واختبار الهاتف الفعلي لازمًا للإصدار العام.

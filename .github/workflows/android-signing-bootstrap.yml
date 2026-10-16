@@ -1,0 +1,78 @@
+name: Initialize Rihab Signing Key (Cloud Only)
+
+# Run once from main AFTER the owner creates RIHAB_SIGNING_MASTER_PASSWORD
+# in GitHub Settings > Secrets and variables > Actions.
+# Generates key in ephemeral GitHub Actions memory/disk, then commits ONLY
+# an AES-256-GCM encrypted vault; never commits an actual private key.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rihab-production-signing-bootstrap
+  cancel-in-progress: false
+
+jobs:
+  generate-once:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install pinned encryption dependency
+        run: python -m pip install cryptography==46.0.4
+      - name: Check source branch, existing key and owner secret
+        shell: bash
+        env:
+          RIHAB_SIGNING_MASTER_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF" = "refs/heads/main"
+          test ! -e config/rihab-production.jks.enc.json || {
+            echo "Production key vault already exists; refusing to overwrite or rotate"; exit 1;
+          }
+          test -n "$RIHAB_SIGNING_MASTER_PASSWORD" || {
+            echo "Add RIHAB_SIGNING_MASTER_PASSWORD in GitHub Actions Secrets first"; exit 1;
+          }
+          echo "Runner is ready for one-time production key creation."
+      - name: Generate and encrypt production key (never expose plaintext)
+        env:
+          RIHAB_SIGNING_MASTER_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
+        run: python scripts/signing-vault.py generate
+      - name: Validate encrypted vault and commit ONLY ciphertext
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s config/rihab-production.jks.enc.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path('config/rihab-production.jks.enc.json').read_text())
+          assert data['cipher'] == 'AES-256-GCM'
+          assert data['alias'] == 'rihab-production'
+          assert data['applicationId'] == 'com.rihabalkhaliliyya.app'
+          assert data['ciphertext'] and len(data['certificateSha256']) == 64
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- config/rihab-production.jks.enc.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Store owner-protected encrypted Android signing keystore"
+            git push origin HEAD:main
+          fi
+          echo "PASS: Encrypted key backed up on GitHub main; plaintext key was not pushed."
+      - name: Erase temporary keystore
+        if: always()
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/rihab-production.jks"

@@ -28,27 +28,20 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Require publisher checksum and production signing secrets
+      - name: Unlock production signing key from encrypted repo vault
         shell: bash
         env:
+          RIHAB_SIGNING_MASTER_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
           QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
-          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
-          RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
-          RIHAB_RELEASE_KEY_ALIAS: rihab-production
-          RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
         run: |
           set -euo pipefail
-          : "${QURAN_EXPECTED_SHA256:?Missing approved Quran text checksum}"
-          : "${ANDROID_RELEASE_KEYSTORE_BASE64:?Missing private production Android keystore}"
-          : "${RIHAB_RELEASE_STORE_PASSWORD:?Missing keystore password}"
-          : "${RIHAB_RELEASE_KEY_ALIAS:?Missing keystore alias}"
-          : "${RIHAB_RELEASE_KEY_PASSWORD:?Missing key password}"
-          KEYSTORE="$RUNNER_TEMP/rihab-production.jks"
-          printf '%s' "$ANDROID_RELEASE_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE"
-          chmod 600 "$KEYSTORE"
-          test -s "$KEYSTORE" || { echo "Keystore is empty"; exit 1; }
-          echo "RIHAB_RELEASE_KEYSTORE_FILE=$KEYSTORE" >> "$GITHUB_ENV"
-          echo "Signing preflight: keystore staged in private runner temp only."
+          : "${QURAN_EXPECTED_SHA256:?Missing independently verified Quran checksum}"
+          : "${RIHAB_SIGNING_MASTER_PASSWORD:?Missing Rihab signing master password}"
+          test -s config/rihab-production.jks.enc.json || {
+            echo "First run Initialize Rihab Signing Key (Cloud Only) on main"; exit 1;
+          }
+          python -m pip install cryptography==46.0.4
+          python scripts/signing-vault.py restore
       - name: Verify release configuration and tests
         run: |
           bun install --frozen-lockfile
@@ -84,9 +77,9 @@ jobs:
           RELEASE_BUILD: '1'
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
           QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
-          RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.ANDROID_RELEASE_STORE_PASSWORD }}
+          RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
           RIHAB_RELEASE_KEY_ALIAS: rihab-production
-          RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.ANDROID_RELEASE_KEY_PASSWORD }}
+          RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
       - name: Verify release signature, identity and bundled content
         shell: bash
         run: |
