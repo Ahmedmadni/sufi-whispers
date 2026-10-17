@@ -56,8 +56,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_signing_vault.py' -v
       - name: Verify project backup archive exclusions and tamper refusal
         run: python -m unittest discover -s tests -p 'test_cloud_backup.py' -v
-      - name: Inspect Madih source PDF's actual printed TOC
+      - name: Verify every Jami al-Nafahat printed index reference against source PDF
         run: |
           python -m pip install PyMuPDF==1.26.5
-          python scripts/probe-nafahat-index.py
-          python scripts/generate-nafahat-index.py
+          python scripts/generate-nafahat-index.py --verify
