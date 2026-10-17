@@ -101,6 +101,8 @@ jobs:
           QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
       # The complete APK is too large to transfer through some connectors.
       # Five verified chunks permit reassembly with the exact APK SHA-256.
+      - name: Verify official association launcher icon inside compiled Android APK
+        run: python scripts/verify-android-launcher-icons.py android/app/build/outputs/apk/debug/app-debug.apk
       - name: Validate Android APK and prepare five download-sized pieces
         run: python scripts/split-android-apk.py android/app/build/outputs/apk/debug/app-debug.apk android/apk-parts
       - name: Upload unsigned-for-distribution debug APK

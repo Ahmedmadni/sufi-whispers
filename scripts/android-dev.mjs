@@ -69,6 +69,10 @@ if (!buildRelease && existsSync(nativeGradle)) {
   }
 }
 run("bunx", ["cap", "sync", "android"]);
+// Capacitor generates temporary Android resources; apply the official Rihab
+// logo after every sync, before ANY Gradle debug/release compilation.
+// Must not depend on manually generated resources from a local computer.
+run("python", ["scripts/prepare-android-launcher-icons.py"]);
 if (buildRelease) {
   const buildGradle = resolve("android/app/build.gradle");
   const applying = "apply from: rootProject.file('../scripts/android-release-signing.gradle')";
