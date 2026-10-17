@@ -4,6 +4,10 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import {
+  NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
+  NAFAHAT_INDEX_REFERENCES,
+} from "@/components/NafahatPrintedIndex";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -16,6 +20,8 @@ import {
   ZoomIn,
   ZoomOut,
   Settings2,
+  List,
+  X,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -44,6 +50,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const PDF_URL = pdfUrl;
   const { immersive, setImmersive } = useBookImmersive();
   const [outline, setOutline] = useState<{ title: string; page: number }[]>([]);
+  const [printedIndexOpen, setPrintedIndexOpen] = useState(false);
+  const [printedIndexSheet, setPrintedIndexSheet] = useState(NAFAHAT_INDEX_FIRST);
+  const [printedIndexZoom, setPrintedIndexZoom] = useState(1);
   const isOfflineAndroid = import.meta.env.VITE_MOBILE === "true";
   const [localBytes, setLocalBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
   const [sourceError, setSourceError] = useState("");
@@ -243,7 +252,57 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
   return (
     <BookReaderLayout immersive={immersive} label="قارئ الكتاب">
-      <BookQuickIndex maxPage={numPages} page={page} headings={outline} onJump={goTo} />
+      {bookId === "nafahat" ? (
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-gold/25 bg-card/60 px-3 py-2" dir="rtl">
+          <button type="button"
+            onClick={() => { setPrintedIndexSheet(NAFAHAT_INDEX_FIRST); setPrintedIndexOpen(value => !value); }}
+            aria-expanded={printedIndexOpen}
+            aria-label={printedIndexOpen ? "إغلاق فهرس جامع النفحات" : "فتح فهرس جامع النفحات الأصلي"}
+            className="inline-flex min-h-11 items-center gap-2 text-sm font-body text-gold-soft">
+            <List size={18} aria-hidden="true" /> فهرس جامع النفحات الأصلي
+            <span className="text-xs text-muted-foreground">({NAFAHAT_INDEX_REFERENCES} مرجعًا)</span>
+          </button>
+          {printedIndexOpen && (
+            <button type="button" onClick={() => setPrintedIndexOpen(false)}
+              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
+              aria-label="إغلاق فهرس الكتاب"><X size={19}/></button>
+          )}
+        </div>
+      ) : (
+        <BookQuickIndex maxPage={numPages} page={page} headings={outline} onJump={goTo} />
+      )}
+      {printedIndexOpen && bookId === "nafahat" && (
+        <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2 text-xs font-body" dir="rtl">
+          <button type="button" disabled={printedIndexSheet <= NAFAHAT_INDEX_FIRST}
+            onClick={() => setPrintedIndexSheet(n => Math.max(NAFAHAT_INDEX_FIRST, n - 1))}
+            className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
+            <ChevronRight className="inline h-4 w-4" /> السابقة
+          </button>
+          <div className="flex flex-col items-center gap-1 text-center text-foreground/85">
+            <span>اضغط على أي عنوان للانتقال مباشرة · {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1} / 7</span>
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label="تصغير صفحة الفهرس"
+                disabled={printedIndexZoom <= 1}
+                onClick={() => setPrintedIndexZoom(v => Math.max(1, +(v - .25).toFixed(2)))}
+                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
+                <ZoomOut className="mx-auto h-4 w-4" />
+              </button>
+              <span className="min-w-12 tabular-nums">{Math.round(printedIndexZoom * 100)}٪</span>
+              <button type="button" aria-label="تكبير صفحة الفهرس"
+                disabled={printedIndexZoom >= 2.5}
+                onClick={() => setPrintedIndexZoom(v => Math.min(2.5, +(v + .25).toFixed(2)))}
+                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
+                <ZoomIn className="mx-auto h-4 w-4" />
+              </button>
+            </div>
+          </div>
+          <button type="button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
+            onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST, n + 1))}
+            className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
+            التالية <ChevronLeft className="inline h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Controls */}
       <div className="glass reader-toolbar rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
@@ -356,7 +415,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
+        className={`reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center min-h-[70vh] touch-pan-y select-none overflow-x-auto ${printedIndexOpen ? "items-start" : "items-center"}`}
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
@@ -379,7 +438,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               try {
                 const items = await document.getOutline();
                 const found: { title: string; page: number }[] = [];
-                for (const item of (items ?? []).slice(0, 100)) {
+                for (const item of (items ?? []).slice(0, 1000)) {
                   if (!item.dest || typeof item.title !== "string") continue;
                   const dest = typeof item.dest === "string"
                     ? await document.getDestination(item.dest) : item.dest;
@@ -439,23 +498,34 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             </div>
           }
         >
-          <Page
-            key={page}
-            pageNumber={page}
-            width={pageWidth * scale}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-            loading={
-              <Skeleton
-                className="rounded-lg"
-                style={{
-                  width: pageWidth * scale,
-                  height: pageWidth * scale * 1.4,
-                }}
-              />
-            }
-            className="reader-paper book-page-arrive rounded-lg overflow-hidden"
-          />
+          {bookId === "nafahat" && printedIndexOpen ? (
+            <NafahatPrintedIndex
+              sheet={printedIndexSheet}
+              width={Math.round(Math.max(240, Math.min(900, pageWidth)) * printedIndexZoom)}
+              onJump={(target) => {
+                goTo(target);
+                setPrintedIndexOpen(false);
+              }}
+            />
+          ) : (
+            <Page
+              key={page}
+              pageNumber={page}
+              width={pageWidth * scale}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              loading={
+                <Skeleton
+                  className="rounded-lg"
+                  style={{
+                    width: pageWidth * scale,
+                    height: pageWidth * scale * 1.4,
+                  }}
+                />
+              }
+              className="reader-paper book-page-arrive rounded-lg overflow-hidden"
+            />
+          )}
           <div
             aria-hidden
             style={{
