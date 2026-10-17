@@ -421,10 +421,11 @@
   min-width: 100vw;
   width: max-content;
   padding-inline: clamp(3rem, 9vw, 7rem);
-  font-family: "Amiri", "Cairo", serif;
-  font-size: clamp(1.13rem, 2.5vw, 1.9rem);
-  font-weight: 700;
-  line-height: 1.85;
+  font-family: "Aref Ruqaa Ink", "Amiri", serif;
+  font-size: clamp(1.5rem, 3.3vw, 2.6rem);
+  font-weight: 400;
+  font-feature-settings: "kern" 1, "calt" 1, "liga" 1;
+  line-height: 2.1;
   white-space: nowrap;
   text-align: center;
   text-shadow: 0 2px 10px rgb(0 0 0 / .45);
@@ -447,7 +448,7 @@
     max-width: 84%;
   }
   .hero-mandate__frame { min-height: 72px; padding-block: .9rem; }
-  .hero-mandate__phrase { font-size: clamp(1.07rem, 4.25vw, 1.4rem); }
+  .hero-mandate__phrase { font-size: clamp(1.45rem, 6.2vw, 2rem); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-mandate__track {
