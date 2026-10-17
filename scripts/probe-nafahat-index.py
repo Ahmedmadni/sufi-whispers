@@ -23,3 +23,11 @@ for i in list(range(min(18,doc.page_count))) + list(range(max(18,doc.page_count-
         for l in lines[:35]:
             print("NAFAHAT_TEXT",i+1,repr(l[:150]))
 print("NAFAHAT_DIAGNOSTIC done")
+
+for index in [424, 425, 429, 430]:
+    pg = doc[index]
+    print("NAFAHAT_GEOM",index+1,"width",pg.rect.width,"height",pg.rect.height)
+    numerals = [(round(x0,1),round(y0,1),round(x1,1),round(y1,1),text)
+                for x0,y0,x1,y1,text,*_ in pg.get_text("words")
+                if text.strip(".,;:، \\t").isdigit() and len(text.strip())<=5]
+    print("NAFAHAT_GEOM_DIGITS",index+1,repr(numerals[:125]))
