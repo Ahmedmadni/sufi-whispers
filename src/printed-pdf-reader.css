@@ -550,3 +550,16 @@
     padding: .35rem;
   }
 }
+
+
+/* Quick, unobtrusive page arrival; respects accessibility and never alters text. */
+@keyframes book-page-arrive {
+  from { opacity: .86; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.book-page-arrive {
+  animation: book-page-arrive 180ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .book-page-arrive { animation: none !important; }
+}
