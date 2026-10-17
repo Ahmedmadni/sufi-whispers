@@ -1,6 +1,6 @@
 /** Accessible quick navigation in the eight-book library.
- * Genuine PDF outline entries are preferred; otherwise use explicitly generic
- * progress markers, never fabricated poem/chapter names or page claims.
+ * Only genuine PDF outline entries are allowed. Books with no metadata TOC
+ * do not pretend that arbitrary intervals are real chapter or poem headings.
  */
 export type BookIndexItem = { label: string; page: number };
 export type OriginalBookHeading = { title: string; page: number };
@@ -21,20 +21,7 @@ export function summarizedBookIndex(
     seen.add(item.page);
     if (real.length === 60) break;
   }
-  if (real.length > 0) return real.sort((a, b) => a.page - b.page);
-
-  // These are reading-position landmarks, not claims about book contents.
-  const markers = [
-    { label: "بداية الكتاب", fraction: 0 },
-    { label: "ربع الكتاب", fraction: 0.25 },
-    { label: "منتصف الكتاب", fraction: 0.5 },
-    { label: "ثلاثة أرباع الكتاب", fraction: 0.75 },
-    { label: "نهاية الكتاب", fraction: 1 },
-  ];
-  const fallback: BookIndexItem[] = [];
-  for (const marker of markers) {
-    const page = Math.min(pageCount, Math.max(1, Math.round(1 + (pageCount - 1) * marker.fraction)));
-    if (!fallback.some(item => item.page === page)) fallback.push({ label: marker.label, page });
-  }
-  return fallback;
+  // Only authentic author/book publisher-provided headings are index entries.
+  // Never replace the index with synthetic quarter/half/end markers.
+  return real.sort((a, b) => a.page - b.page);
 }
