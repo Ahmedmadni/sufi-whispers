@@ -52,6 +52,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [outline, setOutline] = useState<{ title: string; page: number }[]>([]);
   const [printedIndexOpen, setPrintedIndexOpen] = useState(false);
   const [printedIndexSheet, setPrintedIndexSheet] = useState(NAFAHAT_INDEX_FIRST);
+  const [printedIndexZoom, setPrintedIndexZoom] = useState(1);
   const isOfflineAndroid = import.meta.env.VITE_MOBILE === "true";
   const [localBytes, setLocalBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
   const [sourceError, setSourceError] = useState("");
@@ -277,7 +278,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
             <ChevronRight className="inline h-4 w-4" /> السابقة
           </button>
-          <span className="text-center text-foreground/85">اضغط على أي عنوان في الفهرس المطبوع للانتقال مباشرة · {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1} / 7</span>
+          <div className="flex flex-col items-center gap-1 text-center text-foreground/85">
+            <span>اضغط على أي عنوان للانتقال مباشرة · {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1} / 7</span>
+            <div className="flex items-center gap-2">
+              <button type="button" aria-label="تصغير صفحة الفهرس"
+                disabled={printedIndexZoom <= 1}
+                onClick={() => setPrintedIndexZoom(v => Math.max(1, +(v - .25).toFixed(2)))}
+                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
+                <ZoomOut className="mx-auto h-4 w-4" />
+              </button>
+              <span className="min-w-12 tabular-nums">{Math.round(printedIndexZoom * 100)}٪</span>
+              <button type="button" aria-label="تكبير صفحة الفهرس"
+                disabled={printedIndexZoom >= 2.5}
+                onClick={() => setPrintedIndexZoom(v => Math.min(2.5, +(v + .25).toFixed(2)))}
+                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
+                <ZoomIn className="mx-auto h-4 w-4" />
+              </button>
+            </div>
+          </div>
           <button type="button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
             onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST, n + 1))}
             className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
@@ -397,7 +415,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
+        className={`reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center min-h-[70vh] touch-pan-y select-none overflow-x-auto ${printedIndexOpen ? "items-start" : "items-center"}`}
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
@@ -483,7 +501,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           {bookId === "nafahat" && printedIndexOpen ? (
             <NafahatPrintedIndex
               sheet={printedIndexSheet}
-              width={Math.max(240, Math.min(900, pageWidth))}
+              width={Math.round(Math.max(240, Math.min(900, pageWidth)) * printedIndexZoom)}
               onJump={(target) => {
                 goTo(target);
                 setPrintedIndexOpen(false);
