@@ -144,6 +144,7 @@ const offlineBooks = JSON.parse(readFileSync(offlineBooksFile, "utf8"));
 if (offlineBooks.version !== 1 || Object.keys(offlineBooks.books ?? {}).length !== 7) {
   throw new Error("Offline book manifest must include seven books");
 }
+let totalOfflineBookPages = 0;
 for (const [id, book] of Object.entries(offlineBooks.books)) {
   if (!Array.isArray(book.pages) || book.pageCount !== book.pages.length || book.pageCount < 1) {
     throw new Error(`Incomplete offline book: ${id}`);
@@ -172,6 +173,10 @@ for (const [id, book] of Object.entries(offlineBooks.books)) {
     const check = validateFile(file, page.bytes);
     if (check.sha256 !== page.sha256) throw new Error(`Offline book page modified: ${id}/${name}`);
   }
+  totalOfflineBookPages += book.pageCount;
+}
+if (totalOfflineBookPages !== 1040) {
+  throw new Error(`Offline library must have exactly 1040 book pages, found ${totalOfflineBookPages}`);
 }
 if (removed && Object.values(offlineBooks.books).some(book => !removed.includes(book.source))) {
   throw new Error("Compact Android package has an unaccounted book PDF original");
