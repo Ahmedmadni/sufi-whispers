@@ -65,5 +65,14 @@ def build():
 
 
 if __name__ == "__main__":
-    # One-line machine-readable output for manual immutable data commit.
-    print("NAFAHAT_INDEX_JSON=" + json.dumps(build(), separators=(",", ":"), ensure_ascii=False))
+    import sys
+    expected = build()
+    if sys.argv[1:] == ["--verify"]:
+        actual = json.loads(Path("src/data/nafahat-printed-index.json").read_text(encoding="utf-8"))
+        if actual != expected:
+            raise RuntimeError("Printed Madih reference map diverges from authoritative book.pdf")
+        print(f"PASS: {expected['references']} verified original printed index links from {len(expected['sheets'])} sheets; source SHA-256 pinned.")
+    elif sys.argv[1:] == ["--export"]:
+        print(json.dumps(expected, separators=(",", ":"), ensure_ascii=False))
+    else:
+        raise SystemExit("Usage: generate-nafahat-index.py --verify|--export")
