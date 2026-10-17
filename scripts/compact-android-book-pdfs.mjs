@@ -42,6 +42,9 @@ export function compactAndroidBookPdfs(distRoot = resolve("dist-mobile"), source
     throw new Error("Primary PDF reader source is missing; refusing compaction");
   }
 
+  if (Object.values(books.books).reduce((sum, book) => sum + book.pageCount, 0) !== 1040) {
+    throw new Error("Cannot compact incomplete offline library: expected all 1040 pages");
+  }
   let saved = 0;
   // ALL safety/integrity checks happen before the first deletion.
   const removals = [];
