@@ -24,11 +24,20 @@ page hashes, and refuses to delete anything until the entire set passes. The
 result manifest explicitly records the seven omitted files, preserving
 provenance and preventing accidental removal of unrelated assets.
 
-## Expected savings
+## Verified measured savings (GitHub Actions)
 
-Seven original PDF sizes from metadata: approximately **46 MB before APK ZIP
-compression**. This is a *source-payload* estimate, not a measured APK saving.
-The exact APK byte difference must come from new GitHub Actions output.
+- **Previous APK:** 271,347,060 bytes (Android Debug run 38906466145).
+- **Optimized APK:** 225,832,735 bytes (Android Debug run 39011759722).
+- **Actual APK savings:** 45,514,325 bytes (16.77% smaller).
+- **Source payload removed:** 47,322,033 bytes (7 duplicated PDFs).
+- **Preserved:** 604 printed Mushaf pages, all 1,040 offline book pages,
+  the primary `book.pdf`, original official Quran JSON and Uthmanic font.
+- **Validated:** 2 consecutive bundle checks, all `bun test` suites,
+  typecheck, SSR production build, web preview smoke and real Android APK.
+
+The compressed APK reduction is slightly smaller than the byte count of the
+removed PDF sources, because Android packaging handles compression differently.
+The Android Debug build is **not a store-ready signed release**.
 
 ## Explicit limitation
 
