@@ -57,6 +57,20 @@ if (manifest.format !== 2 || !Array.isArray(manifest.assets)) {
   throw new Error("Mobile content integrity manifest format is unsupported");
 }
 const actual = new Map(manifest.assets.map((entry) => [entry.filename, entry]));
+// Android's seven scanned books use pre-rendered local page images, not their
+// original PDFs. The originals are verified at build time and deliberately
+// omitted after compaction; no Quran text, font or primary PDF may be omitted.
+const originalBookPdfs = new Set([
+  "ward-tuli.pdf", "sirah-khaliliyya.pdf", "kashf-al-ghita.pdf",
+  "nafahat-khaliliyya.pdf", "al-murabbi.pdf", "manaqib-khaliliyya.pdf",
+  "manahil-khaliliyya.pdf",
+]);
+const removed = manifest.compactedOriginalPdfs;
+if (removed !== undefined &&
+    (!Array.isArray(removed) || removed.length !== 7 ||
+      new Set(removed).size !== 7 || removed.some(name => !originalBookPdfs.has(name)))) {
+  throw new Error("Android compact payload has an unexpected omitted original");
+}
 const descriptors = [
   resolve("src/data/quran/hafsData_v2-0.json.asset.json"),
   resolve("src/assets/quran/uthmanic_hafs_v20.ttf.asset.json"),
@@ -73,6 +87,13 @@ for (const path of descriptors) {
   const item = actual.get(filename);
   if (!item) throw new Error(`Missing content asset: ${filename}`);
   const file = join(assetDir, filename);
+  if (removed?.includes(filename)) {
+    if (existsSync(file) || item.bytes !== size ||
+        typeof item.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(item.sha256)) {
+      throw new Error(`Invalid deliberately excluded Android original: ${filename}`);
+    }
+    continue;
+  }
   const value = validateFile(file, size);
   if (item.bytes !== value.bytes || item.sha256 !== value.sha256) {
     throw new Error(`Content integrity mismatch: ${filename}`);
@@ -123,12 +144,23 @@ const offlineBooks = JSON.parse(readFileSync(offlineBooksFile, "utf8"));
 if (offlineBooks.version !== 1 || Object.keys(offlineBooks.books ?? {}).length !== 7) {
   throw new Error("Offline book manifest must include seven books");
 }
+let totalOfflineBookPages = 0;
 for (const [id, book] of Object.entries(offlineBooks.books)) {
   if (!Array.isArray(book.pages) || book.pageCount !== book.pages.length || book.pageCount < 1) {
     throw new Error(`Incomplete offline book: ${id}`);
   }
   const original = join(assetDir, book.source);
-  if (!existsSync(original) || validateFile(original, statSync(original).size).sha256 !== book.sourceSha256) {
+  const knownSource = actual.get(book.source);
+  if (!originalBookPdfs.has(book.source) ||
+      !knownSource || knownSource.sha256 !== book.sourceSha256) {
+    throw new Error(`Unrecognized offline book original: ${id}`);
+  }
+  if (removed?.includes(book.source)) {
+    if (existsSync(original)) {
+      throw new Error(`Compacted Android book PDF unexpectedly still bundled: ${id}`);
+    }
+  } else if (!existsSync(original) ||
+             validateFile(original, statSync(original).size).sha256 !== book.sourceSha256) {
     throw new Error(`Offline book source changed: ${id}`);
   }
   for (const [index, page] of book.pages.entries()) {
@@ -141,6 +173,14 @@ for (const [id, book] of Object.entries(offlineBooks.books)) {
     const check = validateFile(file, page.bytes);
     if (check.sha256 !== page.sha256) throw new Error(`Offline book page modified: ${id}/${name}`);
   }
+  totalOfflineBookPages += book.pageCount;
+}
+if (totalOfflineBookPages !== 1040) {
+  throw new Error(`Offline library must have exactly 1040 book pages, found ${totalOfflineBookPages}`);
+}
+if (removed && Object.values(offlineBooks.books).some(book => !removed.includes(book.source))) {
+  throw new Error("Compact Android package has an unaccounted book PDF original");
 }
 console.log("Verified all seven offline books and every rendered page.");
+if (removed) console.log("Verified compact Android bundle: all seven redundant PDF originals safely excluded.");
 console.log(`Verified self-contained Android web build: ${actual.size} media assets, PDF.js and Quran integrity.`);
