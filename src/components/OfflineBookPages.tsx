@@ -116,7 +116,7 @@ export default function OfflineBookPages({ bookId }: Props) {
         >
           <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
             width={image.width} height={image.height} draggable={false}
-            className="mx-auto block h-auto max-w-none select-none"
+            className="book-page-arrive mx-auto block h-auto max-w-none select-none"
             style={{ width: `${zoom * 100}%`, minWidth: zoom > 1 ? `${zoom * 100}%` : undefined }}
             onError={() => setError("تعذّر عرض صفحة الكتاب من الملفات المحلية.")}
           />
