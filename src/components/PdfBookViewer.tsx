@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
+import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
+import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { rtlSwipePageDelta } from "@/lib/book-paging";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
@@ -9,6 +12,7 @@ import {
   ChevronLeft,
   Search,
   Maximize2,
+  Minimize2,
   ZoomIn,
   ZoomOut,
   Settings2,
@@ -38,6 +42,8 @@ type Props = {
 
 export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat" }: Props) {
   const PDF_URL = pdfUrl;
+  const { immersive, setImmersive } = useBookImmersive();
+  const [outline, setOutline] = useState<{ title: string; page: number }[]>([]);
   const isOfflineAndroid = import.meta.env.VITE_MOBILE === "true";
   const [localBytes, setLocalBytes] = useState<Uint8Array<ArrayBuffer> | null>(null);
   const [sourceError, setSourceError] = useState("");
@@ -151,7 +157,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       observer?.disconnect();
       window.removeEventListener("resize", update);
     };
-  }, []);
+  }, [immersive]);
 
   const goTo = useCallback(
     (p: number) => {
@@ -161,8 +167,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     [numPages]
   );
 
-  // Swipe navigation. User preference: swipe UP OR swipe LEFT → next page;
-  // swipe DOWN OR swipe RIGHT → previous page.
+  // Match the printed Arabic Mushaf: swipe RIGHT for the next page;
+  // swipe LEFT for previous. Keep existing up/down gestures as secondary controls.
   useEffect(() => {
     const el = viewerRef.current;
     if (!el) return;
@@ -188,8 +194,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         if (dy < 0) goTo(page + 1); // up → next
         else goTo(page - 1);
       } else {
-        if (dx < 0) goTo(page + 1); // left → next (RTL)
-        else goTo(page - 1);
+        const next = rtlSwipePageDelta(dx, swipeThreshold);
+        if (next) goTo(page + next);
       }
     };
     el.addEventListener("touchstart", onStart, { passive: true });
@@ -206,8 +212,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const target = e.target as HTMLElement | null;
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey ||
           target?.closest('input, textarea, select, [contenteditable="true"]')) return;
-      if (e.key === "ArrowLeft") goTo(page + 1); // RTL: left = next
-      else if (e.key === "ArrowRight") goTo(page - 1);
+      if (e.key === "ArrowRight") goTo(page + 1); // Quran: right = next
+      else if (e.key === "ArrowLeft") goTo(page - 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -219,9 +225,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     if (!Number.isNaN(n)) goTo(n);
   };
 
-  const fullscreen = () => {
-    viewerRef.current?.requestFullscreen?.();
-  };
+  const fullscreen = () => setImmersive(value => !value);
 
   const neighbors = useMemo<number[]>(() => {
     // Hidden PDF canvases can exhaust WebView memory on larger offline books.
@@ -233,47 +237,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     return Array.from(set);
   }, [page, numPages, isOfflineAndroid]);
 
-  const bookmarks = useMemo(() => {
-    if (bookId === "nafahat") {
-      return [
-        { label: "الغلاف", page: 1 },
-        { label: "المقدمة", page: 6 },
-        { label: "القصائد", page: 20 },
-        { label: "الفهرس", page: 425 },
-      ];
-    }
-    if (bookId === "ward") {
-      return [
-        { label: "المقدمة", page: 1 },
-        { label: "الحزب الأول", page: 4 },
-        { label: "الحزب الثاني", page: 22 },
-        { label: "إلى باب الكريم", page: 37 },
-        { label: "أوراد السادة الخليلية", page: 40 },
-        { label: "الغلاف", page: 47 },
-      ];
-    }
-    return [];
-  }, [bookId]);
 
   return (
-    <>
-      {bookmarks.length > 0 && (
-        <div className="glass rounded-xl p-2 mb-2 flex flex-nowrap items-center gap-1.5 overflow-x-auto">
-          {bookmarks.map((b) => (
-            <button
-              key={b.label}
-              onClick={() => goTo(b.page)}
-              className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-body transition-all ${
-                page === b.page
-                  ? "glass-gold text-gold-soft"
-                  : "text-gold-soft/80 hover:text-gold-soft"
-              }`}
-            >
-              {b.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <BookReaderLayout immersive={immersive} label="قارئ الكتاب">
+      <BookQuickIndex maxPage={numPages} page={page} headings={outline} onJump={goTo} />
 
       {/* Controls */}
       <div className="glass reader-toolbar rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
@@ -316,9 +283,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           <button
             onClick={fullscreen}
             className="p-1.5 rounded-md glass text-gold-soft"
-            aria-label="ملء الشاشة"
+            aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
           >
-            <Maximize2 className="w-3.5 h-3.5" />
+            {immersive ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
           </button>
           <Popover>
             <PopoverTrigger asChild>
@@ -386,7 +353,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className="reader-surface rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
+        className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center items-center min-h-[70vh] touch-pan-y select-none overflow-x-auto"
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
@@ -397,10 +364,36 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         ) : <Document
           key={`${bookId}-${retry}`}
           file={readerSource!}
-          onLoadSuccess={({ numPages: n }) => {
+          onLoadSuccess={(document) => {
+            const n = document.numPages;
             setReaderError("");
             setNumPages(n);
             setPage((current) => clampPage(current, n));
+            setOutline([]);
+            // Read actual PDF bookmark destinations. Do not manufacture poem
+            // titles or index positions in the books of madih.
+            void (async () => {
+              try {
+                const items = await document.getOutline();
+                const found: { title: string; page: number }[] = [];
+                for (const item of (items ?? []).slice(0, 100)) {
+                  if (!item.dest || typeof item.title !== "string") continue;
+                  const dest = typeof item.dest === "string"
+                    ? await document.getDestination(item.dest) : item.dest;
+                  if (!Array.isArray(dest) || !dest.length) continue;
+                  const zeroBased = typeof dest[0] === "number"
+                    ? dest[0] : await document.getPageIndex(dest[0]);
+                  const target = zeroBased + 1;
+                  if (Number.isSafeInteger(target) && target >= 1 && target <= n) {
+                    found.push({ title: item.title, page: target });
+                  }
+                }
+                setOutline(found);
+              } catch {
+                // Bookmark metadata is optional: readable page navigation remains.
+                setOutline([]);
+              }
+            })();
           }}
           options={pdfOptions}
           onLoadError={(error) => {
@@ -508,6 +501,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           <ChevronLeft className="w-4 h-4" />
         </button>
       </div>
-    </>
+    </BookReaderLayout>
   );
 }
