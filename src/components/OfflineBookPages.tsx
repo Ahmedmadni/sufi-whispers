@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
+import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
+import { rtlSwipePageDelta } from "@/lib/book-paging";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 
 type PageEntry = { name: string; sha256: string; bytes: number; width: number; height: number };
-type ManifestEntry = { pageCount: number; source: string; pages: PageEntry[] };
+type ManifestEntry = { pageCount: number; source: string; pages: PageEntry[]; toc?: { title: string; page: number }[] };
 type Manifest = { version: number; books: Record<string, ManifestEntry> };
 type Props = { bookId: string };
 
 export default function OfflineBookPages({ bookId }: Props) {
   const key = `reader.page.${bookId}`;
+  const { immersive, setImmersive } = useBookImmersive();
   const [page, setPage] = useState(() => {
     try { return parseSavedPage(localStorage.getItem(key)); } catch { return 1; }
   });
@@ -56,7 +60,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const imageUrl = image ? `/offline-books/${encodeURIComponent(bookId)}/${image.name}${imageRetry ? `?retry=${imageRetry}` : ""}` : "";
 
   return (
-    <section className="mx-auto w-full min-w-0 max-w-5xl" dir="rtl" aria-label="قارئ الكتاب دون إنترنت">
+    <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
       <div className="reader-toolbar glass mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2">
         <div className="flex items-center gap-2">
           <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تصغير"
@@ -65,8 +69,17 @@ export default function OfflineBookPages({ bookId }: Props) {
           <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تكبير"
             onClick={() => setZoom(value => Math.min(3, +(value + 0.25).toFixed(2)))}><ZoomIn size={17} /></button>
         </div>
-        <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
+          <button type="button" onClick={() => setImmersive(value => !value)}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
+            aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
+            {immersive ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
+          </button>
+        </div>
       </div>
+      <BookQuickIndex maxPage={maxPage} page={page} headings={entry?.toc}
+        onJump={goTo} />
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">
           <p>{error}</p>
@@ -78,13 +91,14 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
-          style={{ maxHeight: "min(77dvh, 970px)", minHeight: "55vh", touchAction: "pan-x pan-y pinch-zoom" }}
+          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y pinch-zoom" }}
           onTouchStart={e => { startX.current = e.touches.length === 1 ? e.touches[0].clientX : null; }}
           onTouchEnd={e => {
             if (zoom > 1 || startX.current === null || e.changedTouches.length !== 1) return;
             const delta = e.changedTouches[0].clientX - startX.current;
             startX.current = null;
-            if (Math.abs(delta) >= 75) goTo(page + (delta < 0 ? 1 : -1));
+            const deltaPages = rtlSwipePageDelta(delta);
+            if (deltaPages) goTo(page + deltaPages);
           }}
         >
           <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
@@ -117,6 +131,6 @@ export default function OfflineBookPages({ bookId }: Props) {
       </div>
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
-    </section>
+    </BookReaderLayout>
   );
 }
