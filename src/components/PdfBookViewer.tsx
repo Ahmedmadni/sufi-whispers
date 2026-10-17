@@ -480,24 +480,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       {/* Bottom pager */}
       <div className="glass reader-toolbar rounded-xl p-2 mt-2 flex items-center justify-between gap-2">
         <button
-          onClick={() => goTo(page - 1)}
-          disabled={page <= 1}
+          onClick={() => goTo(page + 1)}
+          disabled={!numPages || page >= numPages}
           className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
-          aria-label="السابق"
+          aria-label="التالية"
         >
           <ChevronRight className="w-4 h-4" />
-          السابق
+          التالية
         </button>
         <span className="text-sm font-display text-gold-soft tabular-nums">
           {page}{numPages ? ` / ${numPages}` : ""}
         </span>
         <button
-          onClick={() => goTo(page + 1)}
-          disabled={!numPages || page >= numPages}
+          onClick={() => goTo(page - 1)}
+          disabled={page <= 1}
           className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
-          aria-label="التالي"
+          aria-label="السابقة"
         >
-          التالي
+          السابقة
           <ChevronLeft className="w-4 h-4" />
         </button>
       </div>
