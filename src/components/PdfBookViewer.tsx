@@ -420,7 +420,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               try {
                 const items = await document.getOutline();
                 const found: { title: string; page: number }[] = [];
-                for (const item of (items ?? []).slice(0, 100)) {
+                for (const item of (items ?? []).slice(0, 1000)) {
                   if (!item.dest || typeof item.title !== "string") continue;
                   const dest = typeof item.dest === "string"
                     ? await document.getDestination(item.dest) : item.dest;
