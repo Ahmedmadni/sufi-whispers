@@ -13,9 +13,6 @@ type Props = {
 export function BookQuickIndex({ maxPage, page, headings = [], onJump }: Props) {
   const [open, setOpen] = useState(false);
   const entries = useMemo(() => summarizedBookIndex(maxPage, headings), [maxPage, headings]);
-  const hasRealOutline = entries.length > 0 && headings.length > 0 &&
-    entries.some(item => headings.some(heading => heading.page === item.page && heading.title.trim() === item.label));
-
   if (!maxPage || !entries.length) return null;
   return (
     <div className="book-quick-index relative mb-2 rounded-xl border border-gold/20 bg-card/60 p-2" dir="rtl">
@@ -28,7 +25,7 @@ export function BookQuickIndex({ maxPage, page, headings = [], onJump }: Props) 
       {open && (
         <div id="book-index-entries" className="mt-2">
           <p className="px-2 pb-2 text-[11px] font-body text-muted-foreground">
-            {hasRealOutline ? "عناوين من الفهرس الأصلي للكتاب" : "تنقّل سريع حسب موضع الصفحة — لا تتوفر عناوين مفهرسة في المصدر"}
+            عناوين من الفهرس الأصلي للكتاب
           </p>
           <div className="grid max-h-[min(38vh,280px)] grid-cols-1 gap-1 overflow-y-auto sm:grid-cols-2" aria-label="عناصر فهرس الكتاب">
             {entries.map(item => (
