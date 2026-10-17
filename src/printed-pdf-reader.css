@@ -489,3 +489,64 @@
   position: absolute;
   max-width: none;
 }
+
+
+/* Phase 33: Android/web immersive books use a document.body portal instead
+   of native Fullscreen API (often unavailable in Android Capacitor WebViews).
+   Unlike an image-only fullscreen view this keeps close/index/page controls. */
+.book-reader--immersive {
+  position: fixed !important;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100dvh;
+  min-height: 0;
+  margin: 0;
+  padding:
+    max(8px, env(safe-area-inset-top))
+    max(8px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+}
+.book-reader--immersive > .reader-toolbar,
+.book-reader--immersive > .book-quick-index {
+  flex: 0 0 auto;
+}
+.book-reader--immersive :where(.offline-book-stage, .book-pdf-stage) {
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  max-height: none !important;
+  max-width: 100%;
+  width: 100%;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.book-reader--immersive .book-pdf-stage {
+  justify-content: flex-start;
+}
+.book-reader--immersive .offline-book-stage img {
+  height: auto;
+}
+.book-reader--immersive .reader-toolbar button {
+  min-width: 40px;
+  min-height: 40px;
+}
+.book-reader--immersive .book-quick-index > div {
+  max-height: 25dvh;
+}
+@media (max-width: 520px) {
+  .book-reader--immersive .reader-toolbar {
+    padding: .35rem;
+    gap: .35rem;
+  }
+  .book-reader--immersive .book-pdf-stage {
+    padding: .35rem;
+  }
+}
