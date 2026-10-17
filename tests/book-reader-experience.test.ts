@@ -20,13 +20,9 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
     ]);
   });
 
-  test("books without a source outline get honest navigation landmarks", () => {
-    const marks = summarizedBookIndex(425);
-    expect(marks.length).toBe(5);
-    expect(marks[0]).toEqual({ label: "بداية الكتاب", page: 1 });
-    expect(marks.at(-1)).toEqual({ label: "نهاية الكتاب", page: 425 });
-    expect(marks.map(item => item.page)).toEqual([1, 107, 213, 319, 425]);
-    expect(summarizedBookIndex(1)).toEqual([{ label: "بداية الكتاب", page: 1 }]);
+  test("never invents quarter/half-book markers when original PDF has no headings", () => {
+    expect(summarizedBookIndex(425)).toEqual([]);
+    expect(summarizedBookIndex(1)).toEqual([]);
     expect(summarizedBookIndex(-1)).toEqual([]);
   });
 
