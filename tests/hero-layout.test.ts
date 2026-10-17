@@ -22,7 +22,7 @@ describe("Home hero shadow and minimal navigation", () => {
     expect(style).toContain("width: 100%");
     expect(style).toContain("animation: hero-mandate-flow 38s linear infinite");
     expect(style).toContain("to { transform: translate3d(-50%, 0, 0); }");
-    expect(style).toContain("font-family: \"Amiri\", \"Cairo\", serif");
+    expect(style).toContain("font-family: \"Aref Ruqaa Ink\", \"Amiri\", serif");
     expect(style).toContain(".hero-mandate__track {");
     expect(style).toContain("animation: none !important");
     expect(style).toContain(".hero-mandate__duplicate { display: none; }");
