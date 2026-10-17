@@ -65,9 +65,12 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     return () => controller.abort();
   }, [PDF_URL, isOfflineAndroid, retry]);
 
+  // PDF.js may transfer and detach the supplied Uint8Array buffer to its
+  // worker. Preserve the original in React state and supply a fresh copy
+  // when the fullscreen portal remounts the PDF document on Android.
   const readerSource = useMemo(
-    () => isOfflineAndroid ? (localBytes ? { data: localBytes } : null) : PDF_URL,
-    [isOfflineAndroid, localBytes, PDF_URL],
+    () => isOfflineAndroid ? (localBytes ? { data: new Uint8Array(localBytes) } : null) : PDF_URL,
+    [isOfflineAndroid, localBytes, PDF_URL, immersive],
   );
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
