@@ -451,7 +451,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 }}
               />
             }
-            className="reader-paper rounded-lg overflow-hidden"
+            className="reader-paper book-page-arrive rounded-lg overflow-hidden"
           />
           <div
             aria-hidden
