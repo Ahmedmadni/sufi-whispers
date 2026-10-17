@@ -75,8 +75,6 @@ def prepare(source: Path, output: Path) -> None:
                 continue
             toc.append({"title": title, "page": page_number})
             seen.add(page_number)
-            if len(toc) >= 60:
-                break
         manifest["books"][book_id] = {
             "source": filename, "sourceSha256": sha256(original),
             "pageCount": len(pages), "pages": pages, "toc": toc,
