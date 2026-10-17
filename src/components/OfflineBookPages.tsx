@@ -124,8 +124,8 @@ export default function OfflineBookPages({ bookId }: Props) {
       )}
       <div className="reader-toolbar glass mt-2 flex items-center justify-between gap-2 rounded-xl px-3 py-2">
         <button type="button" className="rounded-lg border border-gold/25 px-3 py-2 text-xs text-gold-soft disabled:opacity-30"
-          disabled={!maxPage || page <= 1} onClick={() => goTo(page - 1)}>
-          <ChevronRight className="inline h-4 w-4" /> السابق
+          disabled={!maxPage || page >= maxPage} onClick={() => goTo(page + 1)}>
+          <ChevronRight className="inline h-4 w-4" /> التالية
         </button>
         <form onSubmit={e => {
           e.preventDefault();
@@ -138,8 +138,8 @@ export default function OfflineBookPages({ bookId }: Props) {
           <button type="submit" className="mr-1 text-xs text-gold-soft">انتقل</button>
         </form>
         <button type="button" className="rounded-lg border border-gold/25 px-3 py-2 text-xs text-gold-soft disabled:opacity-30"
-          disabled={!maxPage || page >= maxPage} onClick={() => goTo(page + 1)}>
-          التالي <ChevronLeft className="inline h-4 w-4" />
+          disabled={!maxPage || page <= 1} onClick={() => goTo(page - 1)}>
+          السابقة <ChevronLeft className="inline h-4 w-4" />
         </button>
       </div>
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
