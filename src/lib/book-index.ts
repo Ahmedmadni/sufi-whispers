@@ -12,14 +12,13 @@ export function summarizedBookIndex(
   if (!Number.isSafeInteger(pageCount) || pageCount < 1 || pageCount > 10000) return [];
   const real: BookIndexItem[] = [];
   const seen = new Set<number>();
-  for (const item of outline.slice(0, 500)) {
+  for (const item of outline.slice(0, 1000)) {
     if (!item || !Number.isSafeInteger(item.page) || item.page < 1 || item.page > pageCount ||
         typeof item.title !== "string") continue;
     const title = item.title.replace(/\s+/g, " ").trim().slice(0, 70);
     if (!title || seen.has(item.page)) continue;
     real.push({ label: title, page: item.page });
     seen.add(item.page);
-    if (real.length === 60) break;
   }
   // Only authentic author/book publisher-provided headings are index entries.
   // Never replace the index with synthetic quarter/half/end markers.
