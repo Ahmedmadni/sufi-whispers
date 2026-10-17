@@ -43,6 +43,19 @@ export default function OfflineBookPages({ bookId }: Props) {
   }, [bookId, retry]);
 
   const maxPage = entry?.pageCount ?? 0;
+  // Desktop keyboard navigation follows the exact direction of the Mushaf.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey ||
+          (event.target instanceof Element &&
+           event.target.closest('input,textarea,select,[contenteditable="true"]'))) return;
+      if (event.key === "ArrowRight" && maxPage > 0) setPage(p => clampPage(p + 1, maxPage));
+      if (event.key === "ArrowLeft" && maxPage > 0) setPage(p => clampPage(p - 1, maxPage));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [maxPage]);
+
   useEffect(() => {
     if (!maxPage) return;
     setPage(previous => clampPage(previous, maxPage));
