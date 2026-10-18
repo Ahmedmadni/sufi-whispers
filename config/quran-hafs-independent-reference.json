@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "filename": "hafsData_v2-0.json",
+  "sha256": "d2960b3217962e7e4252abdcece67bea3d6b48271e4cd3af45bbbb2dd5c872ca",
+  "bytes": 3594552,
+  "independentSource": "quran-center/quran-meta",
+  "sourceOrigin": "KFGQPC Uthmanic Hafs v2.0 (attributed by quran-center/quran-meta README)",
+  "pinnedCommit": "11a5c201c0994f22bae7e2863d0aac17fcad9bc9",
+  "gitBlobSha1": "19bb7462d41b2c0d987967457f8dd0b95e61ae59",
+  "verification": "Exact bytes matched independent immutable source and deployed project asset in GH Actions run 39097603102."
+}
