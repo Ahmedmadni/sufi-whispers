@@ -72,7 +72,7 @@ def check_icons(apk_path: Path) -> None:
         "drawable/rihab_launcher_background",
     )
     for name in required_ids:
-        if not re.search(r":" + re.escape(name) + r"(?=[\\s:])", resources):
+        if not re.search(r":" + re.escape(name) + r"(?=[\s:])", resources):
             raise ValueError(f"Compiled APK lacks Android resource table entry: {name}")
     with zipfile.ZipFile(apk_path) as package:
         names = set(package.namelist())
