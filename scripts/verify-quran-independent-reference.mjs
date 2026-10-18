@@ -15,7 +15,7 @@ import { resolve } from "node:path";
 
 const COMMIT = "11a5c201c0994f22bae7e2863d0aac17fcad9bc9";
 const GIT_BLOB_SHA1 = "19bb7462d41b2c0d987967457f8dd0b95e61ae59";
-const URL = `https://raw.githubusercontent.com/quran-center/quran-meta/${COMMIT}/examples/data-check/data/hafsData_v2-0.json`;
+const REFERENCE_URL = `https://raw.githubusercontent.com/quran-center/quran-meta/${COMMIT}/examples/data-check/data/hafsData_v2-0.json`;
 const SOURCE = "https://sufi-whispers.lovable.app";
 const EXPECTED_BYTES = 3594552;
 const descriptor = JSON.parse(readFileSync(resolve("src/data/quran/hafsData_v2-0.json.asset.json"), "utf8"));
@@ -33,7 +33,7 @@ async function getBytes(url) {
   return data;
 }
 
-const [reference, appOriginal] = await Promise.all([getBytes(URL), getBytes(appURL)]);
+const [reference, appOriginal] = await Promise.all([getBytes(REFERENCE_URL), getBytes(appURL)]);
 const blobHash = createHash("sha1")
   .update(`blob ${reference.length}\0`)
   .update(reference).digest("hex");
