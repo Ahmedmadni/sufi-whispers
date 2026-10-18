@@ -4,6 +4,14 @@ name: Android Signed Release Candidate
 # Requires publisher-validated Quran checksum and private Android signing key.
 on:
   workflow_dispatch:
+  # Build once automatically when the independently verified reference gate
+  # is first approved/changed on main. No Play Store publication is performed.
+  push:
+    branches: [main]
+    paths:
+      - "config/quran-hafs-independent-reference.json"
+      - "scripts/verify-quran-independent-reference.mjs"
+      - ".github/workflows/android-release.yml"
   # The owner only runs the secure signing bootstrap once; if it succeeds,
   # the signed production candidate can build automatically on main.
   workflow_run:
@@ -17,6 +25,7 @@ jobs:
   signed-release:
     if: >-
       (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_run' &&
        github.event.workflow_run.conclusion == 'success' &&
        github.event.workflow_run.head_branch == 'main')
@@ -37,14 +46,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - name: Verify independently archived Quran source and load pinned digest
+        run: node scripts/verify-quran-independent-reference.mjs --export-github-env
       - name: Unlock production signing key from encrypted repo vault
         shell: bash
         env:
           RIHAB_SIGNING_MASTER_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
-          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
         run: |
           set -euo pipefail
-          : "${QURAN_EXPECTED_SHA256:?Missing independently verified Quran checksum}"
           : "${RIHAB_SIGNING_MASTER_PASSWORD:?Missing Rihab signing master password}"
           test -s config/rihab-production.jks.enc.json || {
             echo "First run Initialize Rihab Signing Key (Cloud Only) on main"; exit 1;
@@ -85,7 +94,6 @@ jobs:
         env:
           RELEASE_BUILD: '1'
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
-          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
           RIHAB_RELEASE_STORE_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
           RIHAB_RELEASE_KEY_ALIAS: rihab-production
           RIHAB_RELEASE_KEY_PASSWORD: ${{ secrets.RIHAB_SIGNING_MASTER_PASSWORD }}
