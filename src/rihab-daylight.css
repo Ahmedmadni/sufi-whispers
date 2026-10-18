@@ -45,6 +45,12 @@
 .light .bottom-nav { background: rgb(255 255 255 / .97); border-top-color: #dbe5dd; }
 .light .bottom-nav-fab { background: #285d47; color: #fff; border-radius: 16px; box-shadow: 0 3px 13px #284c3825; }
 .light .book-card__label { color: #245748; line-height: 1.6; }
+.light .hero-sequence { background: #163f30; }
+/* The daylight UI must not turn the photographic hero overlay into pale mist:
+   retain legibility of the approved portrait and white brand heading. */
+.light .hero-sequence .hero-scene > div:last-child {
+  background: linear-gradient(180deg, rgb(9 31 24 / .66), rgb(12 45 34 / .43) 45%, rgb(9 31 24 / .91)) !important;
+}
 .light .hero-heading h1 { color: #fff9ee; font-weight: 700; }
 .light .hero-mandate__frame {
   min-height: 59px; padding-block: .55rem;
