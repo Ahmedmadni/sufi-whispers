@@ -25,7 +25,7 @@
   line-height: 1.75;
 }
 .light :where(.font-display,h1,h2,h3,h4) { font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif; line-height: 1.55; }
-.light :where(p,li,blockquote) { line-height: 1.75; }
+.light :where(p:not(.mushaf-text):not(.verse-line):not(.printed-immersive__verse),li,blockquote) { line-height: 1.75; }
 .light :where(.glass,.glass-gold,.reader-toolbar,.reader-book-header,.book-quick-index) {
   background: #fff;
   border: 1px solid #dde7df;
