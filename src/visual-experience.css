@@ -347,13 +347,15 @@
 }
 
 
-/* Home hero: title above the Nabawi architecture, portrait in the middle,
-   and a single unhurried, continuously moving line in the full-width foot. */
-.hero-sequence--mandate { min-height: min(640px, calc(100svh - 6rem)); }
+/* Home hero: name aligned to the right immediately ABOVE the moving banner;
+   leave the dark scenic portrait and all image assets unchanged. */
+.hero-sequence--mandate { min-height: min(640px, calc(100svh - 6rem)); --hero-mandate-height: 76px; }
 .hero-heading {
-  padding-top: clamp(1.2rem, 3.8vh, 2.6rem);
-  padding-bottom: 2.2rem;
-  background: linear-gradient(to bottom, rgb(6 23 19 / .64), transparent);
+  top: auto;
+  bottom: var(--hero-mandate-height);
+  padding-top: 1.5rem;
+  padding-bottom: .6rem;
+  background: linear-gradient(to top, rgb(8 29 23 / .82), rgb(8 29 23 / .38) 58%, transparent);
   pointer-events: none;
 }
 .hero-heading h1 {
@@ -379,8 +381,8 @@
   display: flex;
   align-items: center;
   width: 100%;
-  min-height: 78px;
-  padding-block: 1.05rem;
+  min-height: var(--hero-mandate-height);
+  padding-block: .8rem;
   overflow: hidden;
   border-top: 1px solid rgb(229 192 123 / .7);
   border-bottom: 1px solid rgb(229 192 123 / .36);
@@ -438,8 +440,8 @@
   .hero-mandate__frame:hover .hero-mandate__track { animation-play-state: paused; }
 }
 @media (max-width: 640px) {
-  .hero-sequence--mandate { min-height: min(620px, calc(100svh - 4rem)); }
-  .hero-heading { padding-top: 1.15rem; }
+  .hero-sequence--mandate { min-height: min(620px, calc(100svh - 4rem)); --hero-mandate-height: 72px; }
+  .hero-heading { padding-top: 1rem; padding-bottom: .5rem; }
   .hero-heading h1 { font-size: clamp(1.6rem, 6.9vw, 2.35rem); line-height: 1.55; }
   .hero-shaykh {
     left: -3%;

@@ -4,6 +4,7 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
@@ -287,7 +288,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           )}
         </div>
       ) : (
-        <BookQuickIndex maxPage={numPages} page={page} headings={outline} onJump={goTo} />
+        <BookQuickIndex maxPage={numPages} page={page} headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
       )}
       {printedIndexOpen && bookId === "nafahat" && (
         <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2 text-xs font-body" dir="rtl">

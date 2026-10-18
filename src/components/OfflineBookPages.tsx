@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
@@ -8,7 +9,7 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 
 type PageEntry = { name: string; sha256: string; bytes: number; width: number; height: number };
-type ManifestEntry = { pageCount: number; source: string; pages: PageEntry[]; toc?: { title: string; page: number }[] };
+type ManifestEntry = { pageCount: number; source: string; sourceSha256?: string; pages: PageEntry[]; toc?: { title: string; page: number }[] };
 type Manifest = { version: number; books: Record<string, ManifestEntry> };
 type Props = { bookId: string };
 
@@ -112,7 +113,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           </button>
         </div>
       </div>
-      <BookQuickIndex maxPage={maxPage} page={page} headings={entry?.toc}
+      <BookQuickIndex maxPage={maxPage} page={page} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
         onJump={goTo} />
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">

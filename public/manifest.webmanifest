@@ -1,5 +1,5 @@
 {
-  "name": "الجمعية الخليلية الإسلامية — رحاب الخليلية",
+  "name": "رحاب الخليلية",
   "short_name": "رحاب الخليلية",
   "description": "المصحف الشريف كاملاً ومكتبة كتب الطريق الخليلي وأوراده — الجمعية الخليلية الإسلامية.",
   "lang": "ar",
@@ -8,8 +8,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0d1a14",
-  "theme_color": "#0d1a14",
+  "background_color": "#f2f4ef",
+  "theme_color": "#19392e",
   "icons": [
     {
       "src": "/icon-192.png",

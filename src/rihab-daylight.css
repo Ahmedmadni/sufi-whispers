@@ -75,3 +75,115 @@
 @media (prefers-reduced-motion: reduce) {
   .light .hero-mandate__track { animation: none; }
 }
+
+/* Rihab hybrid daylight identity: dark emerald structure + warm readable paper.
+   The app is a single identity, not a second night-mode toggle. */
+:root.light {
+  --background: #f2f4ef;
+  --foreground: #20382e;
+  --card: #fffdf8;
+  --card-foreground: #20382e;
+  --popover: #fffdf8;
+  --popover-foreground: #20382e;
+  --primary: #1c4c3a;
+  --primary-foreground: #fffaf1;
+  --secondary: #e3ebe5;
+  --secondary-foreground: #204536;
+  --muted: #e8eee9;
+  --muted-foreground: #54685c;
+  --accent: #e5e7d9;
+  --accent-foreground: #234335;
+  --border: #d3ded3;
+  --input: #d3ded3;
+  --ring: #9c7c49;
+  --gold: #9e7c49;
+  --gold-soft: #71532c;
+  --velvet: #24473a;
+  --beige: #fff5e4;
+  --emerald-deep: #173e31;
+  --emerald-glow: #34755b;
+  --gradient-gold: linear-gradient(115deg, #9e7c49, #c3a574);
+  --shadow-gold: 0 7px 22px -15px rgb(35 61 44 / .32);
+  --shadow-soft: 0 14px 32px -20px rgb(20 49 37 / .24);
+}
+.light body {
+  background:
+    radial-gradient(ellipse 70% 24% at 50% 0%, rgb(138 165 137 / .12), transparent),
+    #f2f4ef;
+  background-attachment: scroll;
+}
+.light :where(.glass,.glass-gold,.book-card,.book-quick-index) {
+  border-color: #d5ded4;
+  box-shadow: 0 7px 27px rgb(24 54 38 / .075);
+}
+.light :where(.glass,.reader-toolbar,.reader-book-header,.book-quick-index) {
+  background: #fffdf9;
+}
+.light .glass-gold {
+  background: linear-gradient(145deg,#fffaf0,#ecf1e8);
+}
+.light .reader-surface { background: #f4eee1; }
+/* Deep header and mobile tab bar anchor the light reading surfaces. */
+.light .site-header {
+  background: #19392e;
+  border-bottom: 1px solid #b89c60;
+  box-shadow: 0 4px 18px rgb(13 30 23 / .21);
+  color: #f9f2e4;
+}
+.light .site-header .site-header__brand > span { color: #f3e6c7; }
+.light .site-header nav a { color: #f3f1e7; }
+.light .site-header nav a:hover,
+.light .site-header nav a[data-status="active"],
+.light .site-header nav a.text-gold-soft { color: #f1d298; background-color: rgb(217 187 127 / .1); }
+.light .site-header nav a[aria-label="مجموعة الجمعية على فيسبوك"] svg { color: #0866ff; }
+.light .site-header nav a[aria-label="الإعدادات والنسخ الاحتياطي"] {
+  border-color: rgb(232 202 144 / .35);
+}
+.light .bottom-nav {
+  background: rgb(22 49 39 / .98);
+  border-top: 1px solid #9b8256;
+  box-shadow: 0 -3px 18px rgb(14 34 24 / .19);
+}
+.light .bottom-nav a { color: #e7ede5; }
+.light .bottom-nav a.text-gold-soft,
+.light .bottom-nav a[data-status="active"] { color: #f1d298; }
+.light .bottom-nav-fab { background: #b39a67; color: #173c2c; box-shadow: 0 3px 12px rgb(0 0 0 / .19); }
+/* Dark editorial sections without compromising scanned pages or Quran text. */
+.light .library-banner {
+  background: linear-gradient(126deg, #285844, #152f28 75%);
+  box-shadow: 0 12px 29px -16px rgb(17 50 33 / .45);
+  border: 1px solid #52725c;
+}
+.light .library-banner :where(h1,h2,.rihab-eyebrow) { color: #f2d89f; }
+.light .library-banner p { color: #f3f1e5; }
+.light .dhikr-stage { background: linear-gradient(160deg, #e7ecdf, #dbe5d9); }
+.light .book-card__label { color: #254e3a; }
+.light .reader-book-header { border-top: 3px solid #376b50; }
+.light .reader-toolbar button:focus-visible,
+.light .book-quick-index button:focus-visible { outline-color: #9e7c49; }
+/* Hero: the title is bottom-right and immediately ABOVE the dark ticker. */
+.light .hero-heading {
+  top: auto;
+  bottom: var(--hero-mandate-height);
+  background: linear-gradient(to top, rgb(9 34 26 / .9), rgb(9 34 26 / .38) 58%, transparent);
+}
+.light .hero-heading h1 {
+  color: #fff9e9;
+  font-weight: 700;
+  text-shadow: 0 3px 18px rgb(1 17 9 / .65);
+}
+.light .hero-mandate__frame {
+  min-height: var(--hero-mandate-height);
+  padding-block: .65rem;
+  background: linear-gradient(90deg,#142f27,#254c3a 52%,#142f27);
+  border-top: 1px solid #bda269;
+  border-bottom: 1px solid #8f7751;
+  box-shadow: 0 -5px 18px rgb(7 21 12 / .16);
+}
+.light .hero-mandate__viewport { -webkit-mask-image: linear-gradient(to right,transparent,black 4%,black 96%,transparent); }
+.light .hero-mandate__phrase { color: #f2d69f; text-shadow: 0 2px 8px rgb(0 0 0 / .24); }
+.light .hero-mandate__frame::before, .light .hero-mandate__frame::after { display: block; }
+@media (max-width: 640px) {
+  .light .hero-heading { padding-bottom: .55rem; padding-inline: 1rem; }
+  .light .hero-heading h1 { font-size: clamp(1.42rem, 5.9vw, 2.08rem); }
+}
