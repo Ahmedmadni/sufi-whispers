@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import index from "../src/data/nafahat-khaliliyya-poems.json";
 import { verifiedNafahatKhaliliyyaHeadings } from "../src/lib/nafahat-khaliliyya-index";
-import { summarizedBookIndex } from "../src/lib/book-index";
+import { currentReadingSection, readingSections, summarizedBookIndex } from "../src/lib/book-index";
 
 const read = (path: string) => readFileSync(path,"utf8");
 
@@ -16,7 +16,7 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     const extras = index.entries.filter(x => x.kind === "other");
     expect(poems).toHaveLength(13);
     expect(extras).toHaveLength(3);
-    expect(poems.map(x => x.page)).toEqual([15,17,19,24,28,31,34,38,41,46,50,56,59]);
+    expect(poems.map(x => x.page)).toEqual([15,17,19,24,28,31,34,38,41,49,50,56,59]);
     expect(extras.map(x => x.page)).toEqual([6,12,67]);
     expect(poems.every(x => x.title.length >= 8)).toBe(true);
     expect(new Set(index.entries.map(x => x.page)).size).toBe(index.entries.length);
@@ -30,6 +30,26 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     const mapped = summarizedBookIndex(70, verifiedNafahatKhaliliyyaHeadings("nafahat-khaliliyya",70));
     expect(mapped.filter(x => x.kind === "poem")).toHaveLength(13);
     expect(mapped.filter(x => x.kind === "other")).toHaveLength(3);
+  });
+  test("derives exact inclusive poem ranges and highlights the current chapter from any page", () => {
+    const sections = readingSections(70, summarizedBookIndex(70,
+      verifiedNafahatKhaliliyyaHeadings("nafahat-khaliliyya",70,index.sourceSha256)));
+    expect(sections.find(x => x.page === 41)?.endPage).toBe(48);
+    expect(sections.find(x => x.page === 49)?.endPage).toBe(49);
+    expect(sections.find(x => x.page === 50)?.endPage).toBe(55);
+    expect(sections.find(x => x.page === 59)?.endPage).toBe(66);
+    expect(currentReadingSection(sections,48)?.page).toBe(41);
+    expect(currentReadingSection(sections,49)?.page).toBe(49);
+    expect(currentReadingSection(sections,52)?.page).toBe(50);
+    expect(currentReadingSection(sections,67)?.kind).toBe("other");
+  });
+  test("provides search, stable poem numbers and page-range labels", () => {
+    const toc = read("src/components/BookQuickIndex.tsx");
+    expect(toc).toContain('type="search"');
+    expect(toc).toContain("البحث في فهرس قصائد النفحات الخليلية");
+    expect(toc).toContain("poems.findIndex(");
+    expect(toc).toContain("currentReadingSection");
+    expect(toc).toContain("item.endPage > item.page");
   });
   test("scanned-book TOC appears on web and Android, not in Jami al-Nafahat reader", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
