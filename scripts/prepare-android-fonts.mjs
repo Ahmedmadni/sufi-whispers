@@ -17,7 +17,7 @@ const sources = [
   ["ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf", "ibm-semibold.ttf", 244616],
   ["ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf", "ibm-bold.ttf", 246992],
   ["cairo/Cairo%5Bslnt%2Cwght%5D.ttf", "cairo-variable.ttf", 599548],
-  ["notokufiarabic/NotoKufiArabic%5Bwght%5D.ttf", "noto-kufi-variable.ttf", null],
+  ["notokufiarabic/NotoKufiArabic%5Bwght%5D.ttf", "noto-kufi-variable.ttf", 434204],
   ["amiri/Amiri-Regular.ttf", "amiri-regular.ttf", 431116],
   ["amiri/Amiri-Bold.ttf", "amiri-bold.ttf", 413480],
 ];
