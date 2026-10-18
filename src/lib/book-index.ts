@@ -15,7 +15,7 @@ export function summarizedBookIndex(
   for (const item of outline) {
     if (!item || !Number.isSafeInteger(item.page) || item.page < 1 || item.page > pageCount ||
         typeof item.title !== "string") continue;
-    const title = item.title.replace(/\s+/g, " ").trim().slice(0, 70);
+    const title = item.title.replace(/\s+/g, " ").trim().slice(0, 240);
     if (!title || seen.has(`${item.page}:${title}`)) continue;
     real.push({ label: title, page: item.page });
     seen.add(`${item.page}:${title}`);

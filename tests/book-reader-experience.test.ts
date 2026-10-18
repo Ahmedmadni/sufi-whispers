@@ -36,6 +36,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
   test("offline Android books keep original 1040 images and add real PDF TOC metadata", () => {
     const renderer = read("scripts/prepare-offline-books.py");
     expect(renderer).toContain("document.get_toc()");
+    expect(renderer).toContain("seen.add((page_number, title))");
     expect(renderer).toContain('"toc": toc');
     expect(renderer).toContain('"pageCount": len(pages), "pages": pages');
     const offline = read("src/components/OfflineBookPages.tsx");
@@ -49,6 +50,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
   test("primary Madih PDF retains PDF.js, discovers real bookmarks and supports exit", () => {
     const source = read("src/components/PdfBookViewer.tsx");
     expect(source).toContain("document.getOutline()");
+    expect(source).toContain("if (item.items?.length) queue.splice(i + 1, 0, ...item.items);");
     expect(source).toContain("document.getDestination(item.dest)");
     expect(source).toContain("document.getPageIndex(dest[0])");
     expect(source).toContain('aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}');

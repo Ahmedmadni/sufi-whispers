@@ -456,7 +456,12 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               try {
                 const items = await document.getOutline();
                 const found: { title: string; page: number }[] = [];
-                for (const item of (items ?? [])) {
+                // PDF outlines are trees. Visit every real nested bookmark, not
+                // only root-level entries, while retaining source page numbers.
+                const queue = [...(items ?? [])];
+                for (let i = 0; i < queue.length; i++) {
+                  const item = queue[i];
+                  if (item.items?.length) queue.splice(i + 1, 0, ...item.items);
                   if (!item.dest || typeof item.title !== "string") continue;
                   const dest = typeof item.dest === "string"
                     ? await document.getDestination(item.dest) : item.dest;

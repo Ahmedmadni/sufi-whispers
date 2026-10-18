@@ -63,18 +63,17 @@ def prepare(source: Path, output: Path) -> None:
             (page_dir / name).write_bytes(data)
             pages.append({"name": name, "sha256": sha256(data), "bytes": len(data),
                           "width": pixels.width, "height": pixels.height})
-        # Preserve real PDF bookmarks when available. The UI falls back to
-        # explicitly labelled position landmarks when the source has no TOC;
-        # never invent poetry headings or chapters.
+        # Preserve EVERY authentic publisher PDF bookmark, including nested
+        # headings and multiple headings on a single page. Do not fabricate TOC.
         toc = []
         seen = set()
         for level, title, page_number, *_ in document.get_toc():
-            title = " ".join(str(title).split())[:70]
-            if (level > 2 or not title or page_number < 1 or page_number > len(pages)
-                    or page_number in seen):
+            title = " ".join(str(title).split())[:240]
+            if (not title or page_number < 1 or page_number > len(pages)
+                    or (page_number, title) in seen):
                 continue
             toc.append({"title": title, "page": page_number})
-            seen.add(page_number)
+            seen.add((page_number, title))
         manifest["books"][book_id] = {
             "source": filename, "sourceSha256": sha256(original),
             "pageCount": len(pages), "pages": pages, "toc": toc,

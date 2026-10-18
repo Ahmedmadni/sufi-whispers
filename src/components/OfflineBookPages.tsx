@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
@@ -91,6 +91,20 @@ export default function OfflineBookPages({ bookId }: Props) {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
+          <details className="relative text-sm">
+            <summary className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border border-gold/30 text-gold-soft" aria-label="إعداد حساسية تقليب الصفحات" title="حساسية التمرير">
+              <SlidersHorizontal size={18} />
+            </summary>
+            <div className="absolute left-0 top-full z-30 mt-1 w-52 rounded-xl border border-gold/25 bg-card p-3 shadow-lg">
+              <label className="grid gap-2 text-xs text-foreground">حساسية تقليب الصفحات
+                <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="مسافة التمرير باللمس"
+                  onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
+                    try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
+                  }} />
+                <span>{swipeThreshold} بكسل — الأصغر أكثر حساسية</span>
+              </label>
+            </div>
+          </details>
           <button type="button" onClick={() => setImmersive(value => !value)}
             className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
             aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>

@@ -26,10 +26,6 @@
 }
 .light :where(.font-display,h1,h2,h3,h4) { font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif; line-height: 1.55; }
 .light :where(p,li,blockquote) { line-height: 1.75; }
-.light :where(.mushaf-text,.font-uthmani,.printed-immersive__verse,.mushaf-premium .mushaf-text,.reader-paper,.offline-book-stage) {
-  /* Source-critical book and mushaf presentation uses its original font and image dimensions. */
-  letter-spacing: normal;
-}
 .light :where(.glass,.glass-gold,.reader-toolbar,.reader-book-header,.book-quick-index) {
   background: #fff;
   border: 1px solid #dde7df;
