@@ -157,7 +157,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           />
         </div>
       )}
-      <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} onJump={goTo} />
+      <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
     </BookReaderLayout>
