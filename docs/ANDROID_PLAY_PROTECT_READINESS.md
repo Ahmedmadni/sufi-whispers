@@ -61,10 +61,12 @@
 3. نفّذ مرة واحدة
    <https://github.com/Ahmedmadni/sufi-whispers/actions/workflows/android-signing-bootstrap.yml>
    على `main`. عند نجاحها تُحفظ **نسخة مشفرة** من المفتاح داخل GitHub.
-4. شغّل
+4. بعد **نجاح** خطوة إنشاء المفتاح، يبدأ `Android Signed Release Candidate`
+   تلقائيًا على `main`، إذا كان `QURAN_EXPECTED_SHA256` المعتمد موجودًا.
+   يمكن أيضًا تشغيله يدويًا من
    <https://github.com/Ahmedmadni/sufi-whispers/actions/workflows/android-release.yml>
-   على `main`. سيكون لديك APK/AAB إنتاجيان موقّعان بعد نجاح الفحص،
-   بدون نشر تلقائي في Google Play.
+   عند الحاجة إلى إصدار لاحق. ينتج APK/AAB إنتاجيين موقّعين بعد فحص
+   الأمان والسلامة، **ولا ينشرهما تلقائيًا في Google Play**.
 5. احتفظ بـ **نفس المفتاح** ونفس كلمة حمايته لجميع تحديثات البرنامج
    وبنسخة مستقلة آمنة من الأسرار خارج المستودع العام.
 
