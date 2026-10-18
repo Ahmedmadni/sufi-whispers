@@ -574,7 +574,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         </Document>}
       </div>
 
-      <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} onJump={goTo} />
+      <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
     </BookReaderLayout>
   );
 }

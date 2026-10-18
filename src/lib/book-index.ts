@@ -24,3 +24,32 @@ export function summarizedBookIndex(
   // Never replace the index with synthetic quarter/half/end markers.
   return real.sort((a, b) => a.page - b.page);
 }
+
+
+/** Inclusive ranges based ONLY on real source headings. The next verified
+ * heading ends the preceding poem/chapter. This does not invent new chapters.
+ * Multiple authentic bookmarks on one page remain distinct entries. */
+export type BookReadingSection = BookIndexItem & { endPage: number };
+export function readingSections(
+  pageCount: number,
+  entries: BookIndexItem[],
+): BookReadingSection[] {
+  if (!Number.isSafeInteger(pageCount) || pageCount < 1 || pageCount > 10000) return [];
+  const pages = entries.filter(e =>
+    Number.isSafeInteger(e.page) && e.page >= 1 && e.page <= pageCount);
+  return pages.map((entry,i) => {
+    const next = pages.slice(i + 1).find(item => item.page > entry.page);
+    return { ...entry, endPage: Math.max(entry.page, Math.min(pageCount, (next?.page ?? (pageCount + 1)) - 1)) };
+  });
+}
+/** Highlight the active poem even on its second or later page. */
+export function currentReadingSection(
+  sections: BookReadingSection[],
+  currentPage: number,
+): BookReadingSection | null {
+  let active: BookReadingSection | null = null;
+  for (const item of sections) {
+    if (item.page <= currentPage && item.endPage >= currentPage) active = item;
+  }
+  return active;
+}

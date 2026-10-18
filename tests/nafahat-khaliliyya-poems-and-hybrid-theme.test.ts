@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import index from "../src/data/nafahat-khaliliyya-poems.json";
 import { verifiedNafahatKhaliliyyaHeadings } from "../src/lib/nafahat-khaliliyya-index";
-import { summarizedBookIndex } from "../src/lib/book-index";
+import { currentReadingSection, readingSections, summarizedBookIndex } from "../src/lib/book-index";
 
 const read = (path: string) => readFileSync(path,"utf8");
 
@@ -30,6 +30,38 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     const mapped = summarizedBookIndex(70, verifiedNafahatKhaliliyyaHeadings("nafahat-khaliliyya",70));
     expect(mapped.filter(x => x.kind === "poem")).toHaveLength(13);
     expect(mapped.filter(x => x.kind === "other")).toHaveLength(3);
+  });
+  test("derives exact inclusive poem ranges and highlights the current chapter from any page", () => {
+    const sections = readingSections(70, summarizedBookIndex(70,
+      verifiedNafahatKhaliliyyaHeadings("nafahat-khaliliyya",70,index.sourceSha256)));
+    expect(sections.find(x => x.page === 41)?.endPage).toBe(45);
+    expect(sections.find(x => x.page === 46)?.endPage).toBe(49);
+    expect(sections.find(x => x.page === 50)?.endPage).toBe(55);
+    expect(sections.find(x => x.page === 59)?.endPage).toBe(66);
+    expect(currentReadingSection(sections,48)?.page).toBe(46);
+    expect(currentReadingSection(sections,49)?.page).toBe(46);
+    expect(currentReadingSection(sections,52)?.page).toBe(50);
+    expect(currentReadingSection(sections,67)?.kind).toBe("other");
+  });
+  test("provides search, stable poem numbers and page-range labels", () => {
+    const toc = read("src/components/BookQuickIndex.tsx");
+    expect(toc).toContain('type="search"');
+    expect(toc).toContain("البحث في فهرس قصائد النفحات الخليلية");
+    expect(toc).toContain("poems.findIndex(");
+    expect(toc).toContain("currentReadingSection");
+    expect(toc).toContain("item.endPage > item.page");
+  });
+  test("shows current poem and switches directly to previous/next poems in either reader", () => {
+    const nav = read("src/components/BookReaderNavigation.tsx");
+    expect(nav).toContain("currentReadingSection(poemSections, page)");
+    expect(nav).toContain('bookId === "nafahat-khaliliyya"');
+    expect(nav).toContain("القصيدة السابقة");
+    expect(nav).toContain("القصيدة التالية");
+    const offline = read("src/components/OfflineBookPages.tsx");
+    expect(offline).toContain("BookReaderNavigation");
+    expect(offline).toContain("headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(");
+    const pdf = read("src/components/PdfBookViewer.tsx");
+    expect(pdf).toContain("headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(");
   });
   test("scanned-book TOC appears on web and Android, not in Jami al-Nafahat reader", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
