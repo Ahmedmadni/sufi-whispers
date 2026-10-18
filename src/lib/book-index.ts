@@ -2,8 +2,8 @@
  * Only genuine PDF outline entries are allowed. Books with no metadata TOC
  * do not pretend that arbitrary intervals are real chapter or poem headings.
  */
-export type BookIndexItem = { label: string; page: number };
-export type OriginalBookHeading = { title: string; page: number };
+export type BookIndexItem = { label: string; page: number; kind?: "poem" | "other" };
+export type OriginalBookHeading = { title: string; page: number; kind?: "poem" | "other" };
 
 export function summarizedBookIndex(
   pageCount: number,
@@ -17,7 +17,7 @@ export function summarizedBookIndex(
         typeof item.title !== "string") continue;
     const title = item.title.replace(/\s+/g, " ").trim().slice(0, 240);
     if (!title || seen.has(`${item.page}:${title}`)) continue;
-    real.push({ label: title, page: item.page });
+    real.push({ label: title, page: item.page, ...(item.kind ? { kind: item.kind } : {}) });
     seen.add(`${item.page}:${title}`);
   }
   // Only authentic author/book publisher-provided headings are index entries.

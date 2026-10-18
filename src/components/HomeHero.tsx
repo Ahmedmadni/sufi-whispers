@@ -51,7 +51,7 @@ export function HomeHero() {
         </div>
       </div>
 
-      <div className="hero-heading absolute inset-x-0 top-0 z-20 px-5 sm:px-8">
+      <div className="hero-heading absolute inset-x-0 z-20 px-5 sm:px-8">
         <h1 id="home-title" className="font-display font-bold text-foreground">
           رحاب الخليلية
         </h1>
