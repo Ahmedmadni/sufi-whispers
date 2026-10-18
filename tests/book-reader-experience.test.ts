@@ -11,7 +11,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
       { title: "  الافتتاحية   الأولى  ", page: 3 },
       { title: "الخاتمة", page: 41 },
       { title: "خارج المدى", page: 46 },
-      { title: "مكرر", page: 3 },
+      { title: "الافتتاحية الأولى", page: 3 },
       { title: "العنوان الثاني", page: 18 },
     ])).toEqual([
       { label: "الافتتاحية الأولى", page: 3 },

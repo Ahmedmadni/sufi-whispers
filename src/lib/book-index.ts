@@ -11,14 +11,14 @@ export function summarizedBookIndex(
 ): BookIndexItem[] {
   if (!Number.isSafeInteger(pageCount) || pageCount < 1 || pageCount > 10000) return [];
   const real: BookIndexItem[] = [];
-  const seen = new Set<number>();
-  for (const item of outline.slice(0, 1000)) {
+  const seen = new Set<string>();
+  for (const item of outline) {
     if (!item || !Number.isSafeInteger(item.page) || item.page < 1 || item.page > pageCount ||
         typeof item.title !== "string") continue;
     const title = item.title.replace(/\s+/g, " ").trim().slice(0, 70);
-    if (!title || seen.has(item.page)) continue;
+    if (!title || seen.has(`${item.page}:${title}`)) continue;
     real.push({ label: title, page: item.page });
-    seen.add(item.page);
+    seen.add(`${item.page}:${title}`);
   }
   // Only authentic author/book publisher-provided headings are index entries.
   // Never replace the index with synthetic quarter/half/end markers.

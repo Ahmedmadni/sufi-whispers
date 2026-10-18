@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
@@ -14,6 +15,8 @@ export default function OfflineBookPages({ bookId }: Props) {
   const key = `reader.page.${bookId}`;
   const { immersive, setImmersive } = useBookImmersive();
   const [page, setPage] = useState(() => {
+    const deepLink = bookId === "ward" ? new URLSearchParams(window.location.search).get("wird") : null;
+    if (deepLink === "4" || deepLink === "22") return Number(deepLink);
     try { return parseSavedPage(localStorage.getItem(key)); } catch { return 1; }
   });
   const [entry, setEntry] = useState<ManifestEntry | null>(null);
@@ -22,6 +25,9 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
   const startX = useRef<number | null>(null);
+  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
+  const [swipeThreshold, setSwipeThreshold] = useState(75);
+  useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -105,12 +111,25 @@ export default function OfflineBookPages({ bookId }: Props) {
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
           style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y pinch-zoom" }}
-          onTouchStart={e => { startX.current = e.touches.length === 1 ? e.touches[0].clientX : null; }}
+          onTouchStart={e => {
+            startX.current = e.touches.length === 1 ? e.touches[0].clientX : null;
+            if (e.touches.length === 2) {
+              const distance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+              pinch.current = { distance, zoom };
+            }
+          }}
+          onTouchMove={e => {
+            if (e.touches.length === 2 && pinch.current && pinch.current.distance > 0) {
+              const distance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+              setZoom(Math.max(1, Math.min(3, Math.round(100 * pinch.current.zoom * distance / pinch.current.distance) / 100)));
+            }
+          }}
           onTouchEnd={e => {
+            if (pinch.current) { pinch.current = null; startX.current = null; return; }
             if (zoom > 1 || startX.current === null || e.changedTouches.length !== 1) return;
             const delta = e.changedTouches[0].clientX - startX.current;
             startX.current = null;
-            const deltaPages = rtlSwipePageDelta(delta);
+            const deltaPages = rtlSwipePageDelta(delta, swipeThreshold);
             if (deltaPages) goTo(page + deltaPages);
           }}
         >
@@ -122,26 +141,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           />
         </div>
       )}
-      <div className="reader-toolbar glass mt-2 flex items-center justify-between gap-2 rounded-xl px-3 py-2">
-        <button type="button" className="rounded-lg border border-gold/25 px-3 py-2 text-xs text-gold-soft disabled:opacity-30"
-          disabled={!maxPage || page >= maxPage} onClick={() => goTo(page + 1)}>
-          <ChevronRight className="inline h-4 w-4" /> التالية
-        </button>
-        <form onSubmit={e => {
-          e.preventDefault();
-          const raw = new FormData(e.currentTarget).get("page");
-          const number = Number(raw);
-          if (Number.isInteger(number)) goTo(number);
-        }}>
-          <input name="page" type="number" min="1" max={maxPage || 1} key={page} defaultValue={page}
-            aria-label="الانتقال إلى صفحة" className="w-16 rounded-md border border-gold/30 bg-background px-1 py-1.5 text-center text-xs" />
-          <button type="submit" className="mr-1 text-xs text-gold-soft">انتقل</button>
-        </form>
-        <button type="button" className="rounded-lg border border-gold/25 px-3 py-2 text-xs text-gold-soft disabled:opacity-30"
-          disabled={!maxPage || page <= 1} onClick={() => goTo(page - 1)}>
-          السابقة <ChevronLeft className="inline h-4 w-4" />
-        </button>
-      </div>
+      <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} onJump={goTo} />
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
     </BookReaderLayout>
