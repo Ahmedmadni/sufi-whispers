@@ -12,6 +12,7 @@ on:
       - "config/quran-hafs-independent-reference.json"
       - "scripts/verify-quran-independent-reference.mjs"
       - ".github/workflows/android-release.yml"
+      - "scripts/verify-android-launcher-icons.py"
   # The owner only runs the secure signing bootstrap once; if it succeeds,
   # the signed production candidate can build automatically on main.
   workflow_run:
