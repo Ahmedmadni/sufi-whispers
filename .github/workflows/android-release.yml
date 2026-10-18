@@ -103,6 +103,24 @@ jobs:
                   raise SystemExit("FAIL signed APK identity/version: " + attribute)
           print("PASS signed Android package ID and version metadata.")
           PY
+      - name: Enforce release APK security flags and minimal permissions
+        shell: bash
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          python scripts/audit-android-apk.py \
+            android/app/build/outputs/apk/release/app-release.apk \
+            release \
+            "$SDK_ROOT/build-tools/36.0.0/aapt" \
+            "$SDK_ROOT/build-tools/36.0.0/apksigner" \
+            android/release-security-report.json
+      - name: Publish audited production APK security report
+        uses: actions/upload-artifact@v4
+        with:
+          name: rihab-android-release-security-report
+          path: android/release-security-report.json
+          if-no-files-found: error
+          retention-days: 30
       - name: Upload signed Android candidate (30-day CI artifact, not published to stores)
         uses: actions/upload-artifact@v4
         with:
