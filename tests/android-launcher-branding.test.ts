@@ -41,6 +41,11 @@ describe("Phase 35 official Android launcher icon", () => {
     const verifier = read("scripts/verify-android-launcher-icons.py");
     expect(verifier).toContain("parsed.tobytes() != generated.tobytes()");
     expect(verifier).toContain('zipfile.ZipFile(apk_path)');
+    expect(verifier).toContain('"dump", "resources"');
+    expect(verifier).toContain('"mipmap/ic_launcher_foreground"');
+    expect(verifier).toContain('"drawable/rihab_launcher_background"');
+    expect(verifier).toContain('re.search(r":" + re.escape(name)');
+    expect(verifier).not.toContain('Compiled APK omits launcher resource');
     for (const workflow of [".github/workflows/android-debug.yml", ".github/workflows/android-release.yml"]) {
       const yaml = read(workflow);
       expect(yaml).toContain("verify-android-launcher-icons.py");

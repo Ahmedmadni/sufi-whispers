@@ -6,6 +6,9 @@ are missing, default, incorrectly sized or out of sync with official web logo.
 """
 from pathlib import Path
 from importlib.util import spec_from_file_location, module_from_spec
+import os
+import re
+import subprocess
 import sys
 import zipfile
 from PIL import Image
@@ -48,14 +51,36 @@ def check_icons(apk_path: Path) -> None:
         raise ValueError("Adaptive launcher background is not the official emerald color")
     if not apk_path.is_file():
         raise FileNotFoundError(f"APK does not exist: {apk_path}")
+    # Android Gradle/AAPT2 can re-encode PNG as WebP or rename the packaged
+    # resource path during Release, even when Debug retains the source name.
+    # The authoritative proof of the compiled resource is the resource table,
+    # not a filename under the APK ZIP. Inspect it with Android SDK aapt.
+    sdk = os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT") or "/usr/local/lib/android/sdk"
+    aapt = Path(sdk) / "build-tools" / "36.0.0" / "aapt"
+    if not aapt.is_file():
+        raise ValueError("Android SDK aapt 36.0.0 unavailable for compiled APK icon audit")
+    resources = subprocess.run(
+        [str(aapt), "dump", "resources", str(apk_path)],
+        capture_output=True, text=True, check=True,
+    ).stdout
+    # Both launcher IDs MUST be resolvable in the actual compiled table.
+    # The foreground image and background are required by the adaptive icon.
+    required_ids = (
+        "mipmap/ic_launcher",
+        "mipmap/ic_launcher_round",
+        "mipmap/ic_launcher_foreground",
+        "drawable/rihab_launcher_background",
+    )
+    for name in required_ids:
+        if not re.search(r":" + re.escape(name) + r"(?=[\s:])", resources):
+            raise ValueError(f"Compiled APK lacks Android resource table entry: {name}")
     with zipfile.ZipFile(apk_path) as package:
         names = set(package.namelist())
-        for filename in ("ic_launcher.png", "ic_launcher_round.png", "ic_launcher_foreground.png"):
-            if not any(n.startswith("res/mipmap-") and n.endswith("/" + filename) for n in names):
-                raise ValueError(f"Compiled APK omits launcher resource {filename}")
-        if not any(n.startswith("res/mipmap-anydpi") and n.endswith("/ic_launcher.xml") for n in names):
-            raise ValueError("Compiled APK omits adaptive launcher definition")
-    print(f"PASS: official Rihab association logo in {count} native launcher icons and compiled APK; {apk_path.stat().st_size:,} bytes.")
+        # Native image payloads might be WebP, PNG or resource-shrunk names.
+        # Confirm a resource image is packaged, not merely listed by aapt.
+        if not any(n.startswith("res/") and n.endswith((".png", ".webp")) for n in names):
+            raise ValueError("Compiled APK contains no image resources for its launcher")
+    print(f"PASS: official Rihab logo matches {count} native generated icons; all compiled launcher resources present in APK ({apk_path.stat().st_size:,} bytes).")
 
 
 if __name__ == "__main__":
