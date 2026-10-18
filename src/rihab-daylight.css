@@ -1,0 +1,75 @@
+/* Shared calm daylight visual system. Do not restyle original Quran glyphs or PDF images. */
+:root.light {
+  color-scheme: light;
+  --background: #f7f9f7; --foreground: #20362e;
+  --card: #ffffff; --card-foreground: #20362e;
+  --popover: #ffffff; --popover-foreground: #20362e;
+  --primary: #245748; --primary-foreground: #ffffff;
+  --secondary: #e9f1ec; --secondary-foreground: #29483c;
+  --muted: #edf1ed; --muted-foreground: #64756c;
+  --accent: #dcece3; --accent-foreground: #245748;
+  --border: #dbe5dd; --input: #dbe5dd; --ring: #4d8b70;
+  --gold: #468365; --gold-soft: #2c674e;
+  --emerald-deep: #235d47; --emerald-glow: #4d8b70;
+  --velvet: #e9f1ec; --beige: #fff;
+  --gradient-gold: linear-gradient(125deg,#1f5542,#4d8365);
+  --shadow-gold: 0 2px 12px rgb(24 60 40 / .07);
+  --shadow-soft: 0 6px 22px rgb(21 60 42 / .09);
+  --radius: 1rem;
+}
+.light body {
+  background: #f7f9f7;
+  background-image: none;
+  color: var(--foreground);
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  line-height: 1.75;
+}
+.light :where(.font-display,h1,h2,h3,h4) { font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif; line-height: 1.55; }
+.light :where(p,li,blockquote) { line-height: 1.75; }
+.light :where(.mushaf-text,.font-uthmani,.printed-immersive__verse,.mushaf-premium .mushaf-text,.reader-paper,.offline-book-stage) {
+  /* Source-critical book and mushaf presentation uses its original font and image dimensions. */
+  letter-spacing: normal;
+}
+.light :where(.glass,.glass-gold,.reader-toolbar,.reader-book-header,.book-quick-index) {
+  background: #fff;
+  border: 1px solid #dde7df;
+  border-radius: 16px;
+  box-shadow: 0 3px 16px rgb(29 65 45 / .045);
+  backdrop-filter: none;
+}
+.light :where(.reader-toolbar,.book-reader-nav) button { border-radius: 11px; }
+.light :where(.reader-toolbar,.book-reader-nav,.book-quick-index) { font-size: .9rem; }
+.light .site-header {
+  background: rgb(255 255 255 / .96);
+  border-bottom: 1px solid #e3e9e4;
+  color: #20362e;
+  box-shadow: 0 2px 12px rgb(30 55 40 / .035);
+}
+.light .site-header__brand > span { color: #21563f; font-weight: 700; font-size: clamp(.9rem,3.8vw,1.05rem); }
+.light .bottom-nav { background: rgb(255 255 255 / .97); border-top-color: #dbe5dd; }
+.light .bottom-nav-fab { background: #285d47; color: #fff; border-radius: 16px; box-shadow: 0 3px 13px #284c3825; }
+.light .book-card__label { color: #245748; line-height: 1.6; }
+.light .hero-heading h1 { color: #fff9ee; font-weight: 700; }
+.light .hero-mandate__frame {
+  min-height: 59px; padding-block: .55rem;
+  background: #f1f7f3;
+  border-top: 1px solid #bad6c6; border-bottom: 1px solid #bad6c6;
+  box-shadow: 0 -4px 16px rgb(16 55 35 / .12);
+}
+.light .hero-mandate__frame::before,.light .hero-mandate__frame::after { display: none; }
+.light .hero-mandate__phrase { color: #1e6047; text-shadow: none; line-height: 1.6; }
+.light .hero-mandate__track { animation-duration: 32s; }
+.light .reader-page-scrubber { accent-color: #28634a; width: 100%; height: 30px; cursor: pointer; }
+.light .book-reader-nav { background: white; border: 1px solid #dde7df; border-radius: 15px; padding: .7rem; }
+.light .book-reader-nav button:disabled { opacity: .32; }
+.light .book-reader-nav .reader-icon-button { min-width: 44px; min-height: 44px; border: 1px solid #dce7df; display: inline-flex; align-items: center; justify-content: center; }
+.light .book-reader-nav .reader-quick-jump { border: 1px solid #d1e3d7; padding: .45rem .8rem; border-radius: 10px; color: #28634a; }
+@media (max-width: 420px) {
+  .rihab-mobile-route { max-width: 100vw; }
+  .rihab-mobile-route :where(p,li) { overflow-wrap: anywhere; }
+  .rihab-mobile-route :where(.reader-toolbar,.book-quick-index,.book-reader-nav) { padding: .55rem; }
+  .hero-mandate__phrase { font-size: clamp(.88rem,3.6vw,1.06rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .light .hero-mandate__track { animation: none; }
+}
