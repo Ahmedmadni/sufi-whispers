@@ -82,7 +82,7 @@ run("bunx", ["cap", "sync", "android"]);
 const manifestFile = resolve("android/app/src/main/AndroidManifest.xml");
 let manifest = readFileSync(manifestFile, "utf8");
 if (!manifest.includes('android.permission.SCHEDULE_EXACT_ALARM')) {
-  manifest = manifest.replace(/<manifest\\b([^>]*)>/, (full, attrs) =>
+  manifest = manifest.replace(/<manifest\b([^>]*)>/, (full, attrs) =>
     `<manifest${attrs.includes("xmlns:tools") ? attrs : attrs + ' xmlns:tools="http://schemas.android.com/tools"'}>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />`);
 }
 writeFileSync(manifestFile, manifest);
