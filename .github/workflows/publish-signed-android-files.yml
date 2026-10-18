@@ -1,0 +1,95 @@
+name: Publish Individually Downloadable Signed APK and AAB
+
+# Public prerelease URLs provide direct .apk and .aab downloads instead of
+# GitHub Actions' combined ZIP. This workflow never handles signing secrets:
+# it only republishes an already-verified signed build at an immutable SHA.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/publish-signed-android-files.yml"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: rihab-publish-signed-v1-0-0-rc1
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main' && github.repository == 'Ahmedmadni/sufi-whispers'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SIGNED_SOURCE_RUN: '39098518087'
+      SIGNED_SOURCE_SHA: 'b5c04c50a872a0089cadfb2b92a6aa8f22345309'
+      PUBLIC_RELEASE_TAG: 'v1.0.0-android-rc1'
+    steps:
+      - name: Validate successful signed-release provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SIGNED_SOURCE_RUN")"
+          test "$(jq -r '.name' <<<"$response")" = "Android Signed Release Candidate"
+          test "$(jq -r '.conclusion' <<<"$response")" = "success"
+          test "$(jq -r '.status' <<<"$response")" = "completed"
+          test "$(jq -r '.head_branch' <<<"$response")" = "main"
+          test "$(jq -r '.head_sha' <<<"$response")" = "$SIGNED_SOURCE_SHA"
+          test "$(jq -r '.repository.full_name' <<<"$response")" = "$GITHUB_REPOSITORY"
+          echo "PASS: provenance verified for already-signed Android Release candidate."
+      - name: Download the vetted production-signed APK and AAB
+        uses: actions/download-artifact@v4
+        with:
+          name: rihab-android-signed-release-candidate
+          repository: Ahmedmadni/sufi-whispers
+          run-id: 39098518087
+          github-token: ${{ github.token }}
+          path: signed-artifact
+      - name: Separate official Android APK and AAB and validate their container format
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$(find signed-artifact -type f -name app-release.apk -print -quit)"
+          aab="$(find signed-artifact -type f -name app-release.aab -print -quit)"
+          test -n "$apk" && test -n "$aab"
+          test "$(find signed-artifact -type f -name app-release.apk | wc -l)" -eq 1
+          test "$(find signed-artifact -type f -name app-release.aab | wc -l)" -eq 1
+          test "$(stat -c%s "$apk")" -gt 100000000
+          test "$(stat -c%s "$aab")" -gt 100000000
+          unzip -tq "$apk" >/dev/null
+          unzip -tq "$aab" >/dev/null
+          mkdir -p signed-public
+          cp "$apk" signed-public/Rihab-Al-Khaliliyya-1.0.0.apk
+          cp "$aab" signed-public/Rihab-Al-Khaliliyya-1.0.0.aab
+          (cd signed-public && sha256sum Rihab-Al-Khaliliyya-1.0.0.apk Rihab-Al-Khaliliyya-1.0.0.aab > SHA256SUMS.txt)
+          echo "PASS: APK and AAB extracted separately, both valid ZIP-compatible Android formats."
+      - name: Publish direct links as a GitHub prerelease, not Google Play
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/rihab-release-notes.md <<'NOTES'
+          النسخة الإنتاجية الموقعة رقم 1.0.0 للتجربة قبل النشر الرسمي.
+
+          - APK: ملف تثبيت Android المباشر.
+          - AAB: حزمة مخصصة للرفع إلى Google Play Console، وليست قابلة للتثبيت مباشرة.
+          - الملفان مستخرجان دون إعادة بناء من تشغيل GitHub Actions الناجح والمتحقق منه رقم 39098518087، على Commit b5c04c50a872a0089cadfb2b92a6aa8f22345309.
+          - SHA256SUMS.txt للتحقق من سلامة الملفين.
+          - قد يستمر فحص Google Play Protect للتطبيقات التي يتم تثبيتها من خارج متجر Play.
+          - لا تحذف نسخة Debug قبل حفظ نسخة احتياطية من بيانات القراءة والأذكار.
+          NOTES
+          if gh release view "$PUBLIC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$PUBLIC_RELEASE_TAG" signed-public/* --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$PUBLIC_RELEASE_TAG" signed-public/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$SIGNED_SOURCE_SHA" \
+              --title "رحاب الخليلية — Android 1.0.0 (Signed RC)" \
+              --notes-file /tmp/rihab-release-notes.md \
+              --prerelease
+          fi
+          gh release view "$PUBLIC_RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '{url: .url, assets: [.assets[] | {name: .name, url: .url}]}'
