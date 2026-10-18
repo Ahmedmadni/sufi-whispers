@@ -44,6 +44,15 @@ if (!reference.equals(appOriginal)) {
   throw new Error("Quran app text is NOT byte-identical to independently archived Hafs v2.0");
 }
 const sha256 = createHash("sha256").update(reference).digest("hex");
+const independent = JSON.parse(readFileSync(resolve("config/quran-hafs-independent-reference.json"), "utf8"));
+if (independent.filename !== "hafsData_v2-0.json" ||
+    independent.bytes !== EXPECTED_BYTES ||
+    independent.gitBlobSha1 !== GIT_BLOB_SHA1 ||
+    independent.pinnedCommit !== COMMIT ||
+    independent.sha256 !== sha256 ||
+    !/^[a-f0-9]{64}$/.test(independent.sha256)) {
+  throw new Error("Independently verified Quran source digest differs from approved pinned reference");
+}
 const json = JSON.parse(reference.toString("utf8"));
 if (!Array.isArray(json) || json.length !== 6236) {
   throw new Error("Unexpected independent Quran text structure or verse count");
@@ -57,3 +66,11 @@ console.log("Pinned third-party Git commit:", COMMIT);
 console.log("Pinned reference git blob:", GIT_BLOB_SHA1);
 console.log("Verified canonical Hafs SHA-256:", sha256);
 console.log("HAFS_REFERENCE_SHA256=" + sha256);
+
+if (process.argv.includes("--export-github-env")) {
+  const output = process.env.GITHUB_ENV;
+  if (!output) throw new Error("GITHUB_ENV only available in GitHub Actions");
+  const { appendFileSync } = await import("node:fs");
+  appendFileSync(output, `QURAN_EXPECTED_SHA256=${sha256}\n`, {encoding: "utf8"});
+  console.log("PASS: Exact independently verified Hafs digest exported to Release build environment.");
+}
