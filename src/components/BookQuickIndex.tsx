@@ -49,8 +49,6 @@ export function BookQuickIndex({ maxPage, page, headings = [], onJump }: Props) 
             </div>
           ) : <p className="p-3 text-sm text-muted-foreground">نسخة الكتاب لا تحتوي فهرسًا إلكترونيًا أصليًا. استخدم شريط الانتقال بين الصفحات أدناه.</p>}
         </div>
-          ) : <p className="p-3 text-sm text-muted-foreground">نسخة الكتاب لا تحتوي فهرسًا إلكترونيًا أصليًا. استخدم شريط الانتقال بين الصفحات أدناه.</p>}
-        </div>
       )}
     </div>
   );
