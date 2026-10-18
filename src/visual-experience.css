@@ -409,7 +409,7 @@
   display: flex;
   direction: ltr;
   width: max-content;
-  animation: hero-mandate-flow 38s linear infinite;
+  animation: hero-mandate-flow 32s linear infinite;
   will-change: transform;
 }
 .hero-mandate__phrase {

@@ -5,6 +5,7 @@ import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
+import { requestedWirdPage } from "@/lib/wird-reminders";
 
 type PageEntry = { name: string; sha256: string; bytes: number; width: number; height: number };
 type ManifestEntry = { pageCount: number; source: string; pages: PageEntry[]; toc?: { title: string; page: number }[] };
@@ -15,8 +16,8 @@ export default function OfflineBookPages({ bookId }: Props) {
   const key = `reader.page.${bookId}`;
   const { immersive, setImmersive } = useBookImmersive();
   const [page, setPage] = useState(() => {
-    const deepLink = bookId === "ward" ? new URLSearchParams(window.location.search).get("wird") : null;
-    if (deepLink === "4" || deepLink === "22") return Number(deepLink);
+    const deepLink = requestedWirdPage(bookId, window.location);
+    if (deepLink) return deepLink;
     try { return parseSavedPage(localStorage.getItem(key)); } catch { return 1; }
   });
   const [entry, setEntry] = useState<ManifestEntry | null>(null);

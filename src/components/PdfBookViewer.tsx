@@ -10,6 +10,7 @@ import {
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
@@ -125,8 +126,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       // Fall back to the first page when storage is blocked.
     }
     setNumPages(0);
-    const direct = bookId === "ward" ? new URLSearchParams(window.location.search).get("wird") : null;
-    setPage(direct === "4" || direct === "22" ? Number(direct) : saved);
+    const direct = typeof window === "undefined" ? null : requestedWirdPage(bookId, window.location);
+    setPage(direct ?? saved);
     setRestoredBookId(bookId);
   }, [bookId, POS_KEY]);
   useEffect(() => {

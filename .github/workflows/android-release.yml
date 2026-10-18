@@ -13,6 +13,12 @@ on:
       - "scripts/verify-quran-independent-reference.mjs"
       - ".github/workflows/android-release.yml"
       - "scripts/verify-android-launcher-icons.py"
+      - "src/**"
+      - "mobile/**"
+      - "config/android-release.json"
+      - "scripts/android-dev.mjs"
+      - "scripts/prepare-android-fonts.mjs"
+      - "scripts/audit-android-apk.py"
   # The owner only runs the secure signing bootstrap once; if it succeeds,
   # the signed production candidate can build automatically on main.
   workflow_run:
