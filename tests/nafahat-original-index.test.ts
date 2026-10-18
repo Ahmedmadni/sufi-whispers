@@ -52,17 +52,19 @@ describe("Phase 34: genuine complete Jami al-Nafahat printed index", () => {
     expect(srcIndex).not.toContain('"منتصف الكتاب"');
     expect(renderer).not.toContain("len(toc) >= 60");
   });
-  test("dedicated classical calligraphy is locally bundled in website and Android", () => {
+  test("existing archival calligraphy remains bundled; hero switches to offline Noto Kufi", () => {
     const fontScript = read("scripts/prepare-calligraphy-font.mjs");
     const pkg = read("package.json");
     const css = read("src/styles.css");
     const hero = read("src/visual-experience.css");
+    const offlineFonts = read("scripts/prepare-android-fonts.mjs");
     expect(fontScript).toContain("aref-ruqaa-ink-regular.ttf");
     expect(fontScript).toContain("SIL OPEN FONT LICENSE");
     expect(fontScript).toContain('resolve("public/fonts")');
     expect(fontScript).toContain('resolve("mobile/.public/fonts")');
     expect(pkg).toContain("prepare-calligraphy-font.mjs");
     expect(css).toContain('font-family: "Aref Ruqaa Ink"');
-    expect(hero).toContain('font-family: "Aref Ruqaa Ink", "Amiri", serif');
+    expect(hero).toContain('font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif');
+    expect(offlineFonts).toContain("noto-kufi-variable.ttf");
   });
 });

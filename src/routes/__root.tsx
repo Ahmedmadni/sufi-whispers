@@ -15,6 +15,7 @@ import premiumCss from "../premium-ui.css?url";
 import printedMushafCss from "../printed-mushaf.css?url";
 import printedPdfCss from "../printed-pdf-reader.css?url";
 import refinementsCss from "../ios-refinements.css?url";
+import daylightCss from "../rihab-daylight.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { SalawatReminder } from "@/components/Salawat";
 import { BottomNav } from "@/components/BottomNav";
@@ -70,7 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "الجمعية الخليلية الإسلامية — رحاب الخليلية" },
+      { title: "رحاب الخليلية" },
       { name: "description", content: "الموقع الرسمي للجمعية الخليلية الإسلامية: المصحف الشريف كاملاً، ومكتبة كتب الطريق الخليلي وأوراده، ونبذة عن شيخ الطريق." },
       { name: "author", content: "الجمعية الخليلية الإسلامية" },
       { property: "og:type", content: "website" },
@@ -85,6 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: printedMushafCss },
       { rel: "stylesheet", href: printedPdfCss },
       { rel: "stylesheet", href: refinementsCss },
+      { rel: "stylesheet", href: daylightCss },
       { rel: "preload", href: "/__l5e/assets-v1/0672fba1-2706-4d5c-a2ab-244997041972/uthmanic_hafs_v20.ttf", as: "font", type: "font/ttf", crossOrigin: "anonymous" },
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "icon", href: "/icon-192.png", type: "image/png" },
@@ -93,7 +95,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap",
       },
     ],
   }),
@@ -113,7 +115,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('rihab-theme')||'dark';document.documentElement.classList.add(t);}catch(e){}`,
+            __html: `try{document.documentElement.classList.remove('dark');document.documentElement.classList.add('light');}catch(e){}`,
           }}
         />
       </head>

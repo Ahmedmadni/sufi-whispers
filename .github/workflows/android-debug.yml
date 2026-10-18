@@ -94,11 +94,12 @@ jobs:
         run: node scripts/prepare-android-fonts.mjs
       - name: Verify and embed all 604 losslessly optimized Quran pages
         run: python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
+      - name: Verify Quran independent source before Android debug build
+        run: node scripts/verify-quran-independent-reference.mjs --export-github-env
       - name: Generate Android project and build debug APK
         run: bun run mobile:android:apk
         env:
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
-          QURAN_EXPECTED_SHA256: ${{ secrets.QURAN_EXPECTED_SHA256 }}
       # The complete APK is too large to transfer through some connectors.
       # Five verified chunks permit reassembly with the exact APK SHA-256.
       - name: Verify official association launcher icon inside compiled Android APK

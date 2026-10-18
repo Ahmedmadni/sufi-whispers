@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { ArrowRight, Copy, Download, FileUp, HardDriveDownload, ShieldCheck } from "lucide-react";
+import { ArrowRight, BellRing, Copy, Download, FileUp, HardDriveDownload, ShieldCheck } from "lucide-react";
+import { useEffect } from "react";
+import { enableWirdReminders, disableWirdReminders, nativeReminders, WIRD_REMINDER_KEY } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -25,6 +27,26 @@ function SettingsPage() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const pickFile = useRef<HTMLInputElement>(null);
+  const [reminderStatus, setReminderStatus] = useState("off");
+  const [reminderBusy, setReminderBusy] = useState(false);
+  const [reminderNotice, setReminderNotice] = useState("");
+  const [remindersAvailable, setRemindersAvailable] = useState(false);
+  useEffect(() => {
+    setRemindersAvailable(Boolean(nativeReminders()));
+    try { setReminderStatus(localStorage.getItem(WIRD_REMINDER_KEY) === "on" ? "on" : "off"); } catch { /* optional */ }
+  }, []);
+  async function toggleReminder() {
+    setReminderBusy(true);
+    setReminderNotice("");
+    try {
+      if (reminderStatus === "on") {
+        await disableWirdReminders(); setReminderStatus("off"); setReminderNotice("تم إيقاف تذكيري الورد.");
+      } else {
+        setReminderNotice(await enableWirdReminders()); setReminderStatus("on");
+      }
+    } catch (reason) { setReminderNotice(reason instanceof Error ? reason.message : "تعذّر ضبط التذكير."); }
+    finally { setReminderBusy(false); }
+  }
 
   function clearMessages() { setNotice(""); setError(""); }
   function prepareBackup(): string | null {
@@ -136,6 +158,23 @@ function SettingsPage() {
             جميع البيانات تظل على جهازك، ولا تُرسل إلى أي خادم تلقائيًا.
           </p>
         </div>
+
+        <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="wird-reminders-heading">
+          <div className="flex items-center gap-2">
+            <BellRing size={20} className="text-gold-soft" />
+            <h2 id="wird-reminders-heading" className="font-display text-lg">تذكير ورد الاستغفار</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">الحزب الأول الساعة 9:00 صباحًا (ص 4)، والحزب الثاني الساعة 9:00 مساءً (ص 22) بتوقيت الهاتف المحلي. يمكنك فتح الورد مباشرة من الإشعار.</p>
+          <p className="text-xs text-muted-foreground">الإشعارات اختيارية وتعمل دون خادم أو حساب. قد يتأخر ظهورها مع توفير طاقة البطارية؛ لا نطلب صلاحية المنبّه الدقيق.</p>
+          <button type="button" onClick={() => void toggleReminder()} disabled={!remindersAvailable || reminderBusy}
+            aria-pressed={reminderStatus === "on"}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-40">
+            <BellRing size={16} />
+            {reminderBusy ? "جارٍ ضبط الإشعارات…" : reminderStatus === "on" ? "إيقاف التذكير اليومي" : "تفعيل التذكير اليومي"}
+          </button>
+          {!remindersAvailable && <p className="text-xs text-muted-foreground">تفعيل الإشعارات متاح في تطبيق Android فقط.</p>}
+          {reminderNotice && <p role="status" className="text-sm text-gold-soft">{reminderNotice}</p>}
+        </section>
 
         <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="backup-export-heading">
           <div className="flex items-center gap-2">

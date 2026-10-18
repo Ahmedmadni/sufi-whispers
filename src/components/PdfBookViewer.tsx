@@ -4,11 +4,13 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
@@ -88,6 +90,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [pageWidth, setPageWidth] = useState(360);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const pinchRef = useRef<{ distance: number; scale: number } | null>(null);
 
   // Swipe sensitivity: smaller threshold = more sensitive.
   // Higher values reduce accidental navigation.
@@ -123,7 +126,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       // Fall back to the first page when storage is blocked.
     }
     setNumPages(0);
-    setPage(saved);
+    const direct = typeof window === "undefined" ? null : requestedWirdPage(bookId, window.location);
+    setPage(direct ?? saved);
     setRestoredBookId(bookId);
   }, [bookId, POS_KEY]);
   useEffect(() => {
@@ -188,12 +192,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     let startY = 0;
     let active = false;
     const onStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        pinchRef.current = { distance: Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY), scale };
+        active = false;
+        return;
+      }
       if (e.touches.length !== 1) return;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       active = true;
     };
+    const onMove = (e: TouchEvent) => {
+      if (e.touches.length === 2 && pinchRef.current && pinchRef.current.distance > 0) {
+        const current = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        setScale(Math.max(.75, Math.min(3, Math.round(100 * pinchRef.current.scale * current / pinchRef.current.distance) / 100)));
+      }
+    };
     const onEnd = (e: TouchEvent) => {
+      if (pinchRef.current) { pinchRef.current = null; active = false; return; }
       if (!active) return;
       active = false;
       const t = e.changedTouches[0];
@@ -212,11 +228,13 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: true });
     return () => {
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchmove", onMove);
     };
-  }, [page, goTo, swipeThreshold]);
+  }, [page, goTo, swipeThreshold, scale]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -259,8 +277,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             aria-expanded={printedIndexOpen}
             aria-label={printedIndexOpen ? "إغلاق فهرس جامع النفحات" : "فتح فهرس جامع النفحات الأصلي"}
             className="inline-flex min-h-11 items-center gap-2 text-sm font-body text-gold-soft">
-            <List size={18} aria-hidden="true" /> فهرس جامع النفحات الأصلي
-            <span className="text-xs text-muted-foreground">({NAFAHAT_INDEX_REFERENCES} مرجعًا)</span>
+            <List size={20} aria-hidden="true" />
+            <span className="sr-only">فهرس جامع النفحات الأصلي</span>
           </button>
           {printedIndexOpen && (
             <button type="button" onClick={() => setPrintedIndexOpen(false)}
@@ -276,7 +294,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           <button type="button" disabled={printedIndexSheet <= NAFAHAT_INDEX_FIRST}
             onClick={() => setPrintedIndexSheet(n => Math.max(NAFAHAT_INDEX_FIRST, n - 1))}
             className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
-            <ChevronRight className="inline h-4 w-4" /> السابقة
+            <ChevronRight className="inline h-4 w-4" />
           </button>
           <div className="flex flex-col items-center gap-1 text-center text-foreground/85">
             <span>اضغط على أي عنوان للانتقال مباشرة · {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1} / 7</span>
@@ -299,7 +317,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           <button type="button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
             onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST, n + 1))}
             className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
-            التالية <ChevronLeft className="inline h-4 w-4" />
+            <ChevronLeft className="inline h-4 w-4" />
           </button>
         </div>
       )}
@@ -438,7 +456,12 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               try {
                 const items = await document.getOutline();
                 const found: { title: string; page: number }[] = [];
-                for (const item of (items ?? []).slice(0, 1000)) {
+                // PDF outlines are trees. Visit every real nested bookmark, not
+                // only root-level entries, while retaining source page numbers.
+                const queue = [...(items ?? [])];
+                for (let i = 0; i < queue.length; i++) {
+                  const item = queue[i];
+                  if (item.items?.length) queue.splice(i + 1, 0, ...item.items);
                   if (!item.dest || typeof item.title !== "string") continue;
                   const dest = typeof item.dest === "string"
                     ? await document.getDestination(item.dest) : item.dest;
@@ -550,30 +573,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         </Document>}
       </div>
 
-      {/* Bottom pager */}
-      <div className="glass reader-toolbar rounded-xl p-2 mt-2 flex items-center justify-between gap-2">
-        <button
-          onClick={() => goTo(page + 1)}
-          disabled={!numPages || page >= numPages}
-          className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
-          aria-label="التالية"
-        >
-          <ChevronRight className="w-4 h-4" />
-          التالية
-        </button>
-        <span className="text-sm font-display text-gold-soft tabular-nums">
-          {page}{numPages ? ` / ${numPages}` : ""}
-        </span>
-        <button
-          onClick={() => goTo(page - 1)}
-          disabled={page <= 1}
-          className="flex items-center gap-1 px-3 py-2 rounded-md glass disabled:opacity-30 text-gold-soft text-sm"
-          aria-label="السابقة"
-        >
-          السابقة
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-      </div>
+      <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} onJump={goTo} />
     </BookReaderLayout>
   );
 }

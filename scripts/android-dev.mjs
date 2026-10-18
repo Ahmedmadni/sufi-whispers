@@ -50,6 +50,13 @@ if (!hasPinnedCapacitor()) {
   run("bun", ["add", "--exact", `@capacitor/core@${CAPACITOR_VERSION}`, `@capacitor/android@${CAPACITOR_VERSION}`]);
   run("bun", ["add", "-d", "--exact", `@capacitor/cli@${CAPACITOR_VERSION}`]);
 }
+// Pin the native local-reminder plugin only for Android; desktop/browser builds
+// remain offline-safe and do not request notification permissions.
+const NOTIFICATIONS_VERSION = "8.3.1";
+const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+if (pkg.dependencies?.["@capacitor/local-notifications"] !== NOTIFICATIONS_VERSION) {
+  run("bun", ["add", "--exact", `@capacitor/local-notifications@${NOTIFICATIONS_VERSION}`]);
+}
 run("bun", ["run", "mobile:build"]);
 if (!existsSync(resolve("dist-mobile/index.html"))) {
   throw new Error("Static Android web bundle is missing");
@@ -69,6 +76,16 @@ if (!buildRelease && existsSync(nativeGradle)) {
   }
 }
 run("bunx", ["cap", "sync", "android"]);
+// The plugin declares exact alarm access, which is restricted by Play policy.
+// Remove it from the final merged manifest and use intentionally INEXACT daily
+// notifications. POST_NOTIFICATIONS, WAKE_LOCK, BOOT_COMPLETED stay as needed.
+const manifestFile = resolve("android/app/src/main/AndroidManifest.xml");
+let manifest = readFileSync(manifestFile, "utf8");
+if (!manifest.includes('android.permission.SCHEDULE_EXACT_ALARM')) {
+  manifest = manifest.replace(/<manifest\b([^>]*)>/, (full, attrs) =>
+    `<manifest${attrs.includes("xmlns:tools") ? attrs : attrs + ' xmlns:tools="http://schemas.android.com/tools"'}>\n    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" tools:node="remove" />`);
+}
+writeFileSync(manifestFile, manifest);
 // Capacitor generates temporary Android resources; apply the official Rihab
 // logo after every sync, before ANY Gradle debug/release compilation.
 // Must not depend on manually generated resources from a local computer.

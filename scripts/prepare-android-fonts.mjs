@@ -17,6 +17,7 @@ const sources = [
   ["ibmplexsansarabic/IBMPlexSansArabic-SemiBold.ttf", "ibm-semibold.ttf", 244616],
   ["ibmplexsansarabic/IBMPlexSansArabic-Bold.ttf", "ibm-bold.ttf", 246992],
   ["cairo/Cairo%5Bslnt%2Cwght%5D.ttf", "cairo-variable.ttf", 599548],
+  ["notokufiarabic/NotoKufiArabic%5Bwght%5D.ttf", "noto-kufi-variable.ttf", 434204],
   ["amiri/Amiri-Regular.ttf", "amiri-regular.ttf", 431116],
   ["amiri/Amiri-Bold.ttf", "amiri-bold.ttf", 413480],
 ];
@@ -28,6 +29,7 @@ const families = [
   ["IBM Plex Sans Arabic", "ibm-semibold.ttf", "600"],
   ["IBM Plex Sans Arabic", "ibm-bold.ttf", "700"],
   ["Cairo", "cairo-variable.ttf", "200 1000"],
+  ["Noto Kufi Arabic", "noto-kufi-variable.ttf", "100 900"],
   ["Amiri", "amiri-regular.ttf", "400"],
   ["Amiri", "amiri-bold.ttf", "700"],
 ];
@@ -36,13 +38,13 @@ for (const [path, name, expectedBytes] of sources) {
   const response = await fetch(`${base}/${path}`, { signal: AbortSignal.timeout(90000) });
   if (!response.ok) throw new Error(`Unable to retrieve pinned font ${name}: HTTP ${response.status}`);
   const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.length !== expectedBytes || !["00010000", "4f54544f"].includes(bytes.subarray(0,4).toString("hex"))) {
+  if ((expectedBytes ? bytes.length !== expectedBytes : (bytes.length < 100000 || bytes.length > 2500000)) || !["00010000", "4f54544f"].includes(bytes.subarray(0,4).toString("hex"))) {
     throw new Error(`Pinned Arabic font ${name} is unexpectedly different: ${bytes.length}`);
   }
   writeFileSync(resolve(target, name), bytes);
   console.log(`Verified offline Arabic font: ${name} (${bytes.length} bytes)`);
 }
-for (const family of ["ibmplexsansarabic","cairo","amiri"]) {
+for (const family of ["ibmplexsansarabic","notokufiarabic","cairo","amiri"]) {
   const response=await fetch(`${base}/${family}/OFL.txt`,{signal:AbortSignal.timeout(45000)});
   if(!response.ok) throw new Error(`Missing license for ${family}`);
   const text=await response.text();

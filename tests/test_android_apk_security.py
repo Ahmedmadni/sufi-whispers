@@ -33,6 +33,16 @@ class ApkSecurityAuditTests(unittest.TestCase):
             "PASS",
         )
 
+    def test_allows_only_notification_permissions_required_for_opt_in_reminders(self):
+        approved = PERMISSIONS + [
+            "android.permission.POST_NOTIFICATIONS",
+            "android.permission.RECEIVE_BOOT_COMPLETED",
+            "android.permission.WAKE_LOCK",
+        ]
+        self.assertEqual(audit.check_report(approved, METADATA, "", GOOD_CERT, "release")["status"], "PASS")
+        with self.assertRaisesRegex(ValueError, "Unapproved permission"):
+            audit.check_report(approved + ["android.permission.READ_CALENDAR"], METADATA, "", GOOD_CERT, "release")
+
     def test_refuses_sensitive_side_loaded_permissions(self):
         for permission in sorted(audit.BLOCKED_PERMISSIONS):
             with self.subTest(permission=permission):

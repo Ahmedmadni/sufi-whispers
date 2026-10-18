@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "../src/router";
+import { listenForWirdOpens } from "../src/lib/wird-reminders";
 import "../src/styles.css";
 import "../src/visual-experience.css";
 import "../src/premium-ui.css";
@@ -8,6 +9,7 @@ import "../src/printed-mushaf.css";
 import "../src/printed-pdf-reader.css";
 import "./mobile.css";
 import "../src/ios-refinements.css";
+import "../src/rihab-daylight.css";
 
 const mount = document.getElementById("root");
 if (!mount) throw new Error("Missing #root element for mobile application");
@@ -35,5 +37,6 @@ window.setTimeout(() => {
   if (!dismissed) boot?.classList.add("is-delayed");
 }, 9000);
 
+void listenForWirdOpens().catch((error: unknown) => console.warn("Wird reminder actions not available", error));
 const router = getRouter();
 createRoot(mount).render(<RouterProvider router={router} />);

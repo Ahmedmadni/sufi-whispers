@@ -20,9 +20,9 @@ describe("Home hero shadow and minimal navigation", () => {
     const style = readFileSync("src/visual-experience.css", "utf8");
     expect(style).toContain(".hero-mandate__frame");
     expect(style).toContain("width: 100%");
-    expect(style).toContain("animation: hero-mandate-flow 38s linear infinite");
+    expect(style).toContain("animation: hero-mandate-flow 32s linear infinite");
     expect(style).toContain("to { transform: translate3d(-50%, 0, 0); }");
-    expect(style).toContain("font-family: \"Aref Ruqaa Ink\", \"Amiri\", serif");
+    expect(style).toContain("font-family: \"Noto Kufi Arabic\", \"IBM Plex Sans Arabic\", sans-serif");
     expect(style).toContain(".hero-mandate__track {");
     expect(style).toContain("animation: none !important");
     expect(style).toContain(".hero-mandate__duplicate { display: none; }");

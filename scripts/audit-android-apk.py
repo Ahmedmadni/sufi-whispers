@@ -40,8 +40,18 @@ BLOCKED_PERMISSIONS = frozenset({
     "android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS",
     "android.permission.BIND_ACCESSIBILITY_SERVICE",
     "android.permission.BIND_NOTIFICATION_LISTENER_SERVICE",
+    "android.permission.SCHEDULE_EXACT_ALARM",
+    "android.permission.USE_EXACT_ALARM",
 })
 PACKAGE_NAME = "com.rihabalkhaliliyya.app"
+ALLOWED_PERMISSIONS = frozenset({
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.WAKE_LOCK",
+    PACKAGE_NAME + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+})
 
 
 def parse_permissions(output: str) -> list[str]:
@@ -104,6 +114,9 @@ def check_report(
     dangerous = sorted(set(permissions) & BLOCKED_PERMISSIONS)
     if dangerous:
         raise ValueError("Unexpected high-risk permissions in Android package: " + ", ".join(dangerous))
+    unexpected = sorted(set(permissions) - ALLOWED_PERMISSIONS)
+    if unexpected:
+        raise ValueError("Unapproved permission in signed APK: " + ", ".join(unexpected))
     if "android.permission.INTERNET" not in permissions:
         raise ValueError("Capacitor Android APK missing standard INTERNET permission")
     if metadata.get("targetSdk") is None or metadata["targetSdk"] < 35:
