@@ -38,3 +38,11 @@ test("path and symlink escape prevention excludes ancestors",()=>{
  assert.equal(isWithin(root,path.join(root,"..","password.txt")),false);
  assert.equal(isWithin(root,path.join(root+"-fake","index.html")),false);
 });
+
+test("Windows namespaced realpaths cannot falsely escape the trusted app root",()=>{
+  if (process.platform !== "win32") return;
+  const root = path.resolve("C:\\temp\\rihab-library");
+  const target = path.toNamespacedPath(path.join(root,"index.html"));
+  assert.equal(isWithin(root,target),true);
+  assert.equal(isWithin(root,path.toNamespacedPath(path.resolve(root,"..","private.bin"))),false);
+});
