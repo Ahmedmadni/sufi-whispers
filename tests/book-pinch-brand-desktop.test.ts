@@ -28,7 +28,7 @@ describe("Reliable 2 finger zoom in both book readers",()=>{
     expect(t).toContain('touchmove", onMove, { passive: false }');
     expect(t).toContain('wheel", onWheel, { passive: false }');
     expect(t).toContain("event.preventDefault()");
-    expect(t).toContain("zoomFromPinch(snapshot, event.touches)");
+    expect(t).toContain("zoomFromPinch(pinch.current, event.touches)");
     expect(t).toContain('touchAction: "pan-x pan-y"');
   });
 });

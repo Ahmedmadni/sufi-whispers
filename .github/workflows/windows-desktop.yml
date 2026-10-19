@@ -50,6 +50,7 @@ jobs:
       - name: Compile desktop frontend from verified offline Android source
         env:
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
+          VITE_DESKTOP: "true"
         run: bun run mobile:build
       - name: Audit presence of all 604 Quran pages and 1040 book pages
         run: node desktop/scripts/verify-bundle.cjs dist-mobile
