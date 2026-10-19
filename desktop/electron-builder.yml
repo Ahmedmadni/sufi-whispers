@@ -8,6 +8,7 @@ files:
   - main.cjs
   - server.cjs
   - package.json
+  - assets/rihab.ico
 extraResources:
   - from: ../dist-mobile
     to: web
