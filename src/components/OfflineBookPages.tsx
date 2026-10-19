@@ -27,6 +27,10 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
+  // Persist the gesture across every zoom-driven React render.
+  const startX = useRef<number | null>(null);
+  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
+  const multiTouch = useRef(false);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
@@ -85,40 +89,37 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => {
     const el = scroll.current;
     if (!el || !image) return;
-    let startX: number | null = null;
-    let snapshot: { distance: number; zoom: number } | null = null;
-    let multiTouch = false;
     const onStart = (event: TouchEvent) => {
       if (event.touches.length === 2) {
-        snapshot = { distance: twoFingerDistance(event.touches), zoom };
-        startX = null;
-        multiTouch = true;
-      } else if (event.touches.length === 1 && !multiTouch) {
-        startX = event.touches[0].clientX;
+        pinch.current = { distance: twoFingerDistance(event.touches), zoom };
+        startX.current = null;
+        multiTouch.current = true;
+      } else if (event.touches.length === 1 && !multiTouch.current) {
+        startX.current = event.touches[0].clientX;
       }
     };
     const onMove = (event: TouchEvent) => {
       if (event.touches.length !== 2) return;
       if (event.cancelable) event.preventDefault();
-      startX = null;
-      multiTouch = true;
-      if (!snapshot) snapshot = { distance: twoFingerDistance(event.touches), zoom };
-      if (snapshot.distance > 0) setZoom(zoomFromPinch(snapshot, event.touches));
+      startX.current = null;
+      multiTouch.current = true;
+      if (!pinch.current) pinch.current = { distance: twoFingerDistance(event.touches), zoom };
+      if (pinch.current.distance > 0) setZoom(zoomFromPinch(pinch.current, event.touches));
     };
     const onEnd = (event: TouchEvent) => {
-      if (multiTouch) {
-        if (event.touches.length === 0) { multiTouch = false; snapshot = null; }
-        startX = null;
+      if (multiTouch.current) {
+        if (event.touches.length === 0) { multiTouch.current = false; pinch.current = null; }
+        startX.current = null;
         return;
       }
-      if (event.touches.length || zoom > 1 || startX === null ||
+      if (event.touches.length || zoom > 1 || startX.current === null ||
           event.changedTouches.length !== 1) return;
-      const delta = event.changedTouches[0].clientX - startX;
-      startX = null;
+      const delta = event.changedTouches[0].clientX - startX.current;
+      startX.current = null;
       const direction = rtlSwipePageDelta(delta, swipeThreshold);
       if (direction) goTo(page + direction);
     };
-    const onCancel = () => { snapshot = null; startX = null; multiTouch = false; };
+    const onCancel = () => { pinch.current = null; startX.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
       if (!event.ctrlKey && !event.metaKey) return;
       if (event.cancelable) event.preventDefault();
