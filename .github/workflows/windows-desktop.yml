@@ -90,13 +90,28 @@ jobs:
         run: |
           python -m pip install Pillow==11.3.0
           python desktop/scripts/create-icon.py public/icon-512.png desktop/assets/rihab.ico
-      - name: Install exact Electron and installer dependencies
-        run: npm install --prefix desktop --no-audit --no-fund
-      - name: Build Windows x64 NSIS installable executable
-        working-directory: desktop
+      - name: Isolate packager outside the parent TanStack project and its dependency tree
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP "rihab-isolated-build"
+          New-Item -ItemType Directory -Path $root -Force | Out-Null
+          Copy-Item -Path "desktop" -Destination (Join-Path $root "desktop") -Recurse -Force
+          Copy-Item -Path "dist-mobile" -Destination (Join-Path $root "dist-mobile") -Recurse -Force
+          if (!(Test-Path (Join-Path $root "desktop/package.json"))) { throw "Missing isolated Electron project" }
+          if (!(Test-Path (Join-Path $root "dist-mobile/index.html"))) { throw "Missing isolated Quran application" }
+      - name: Install pinned Electron and NSIS strictly inside standalone staging
+        working-directory: ${{ runner.temp }}/rihab-isolated-build/desktop
+        run: npm install --no-audit --no-fund
+      - name: Build Windows x64 NSIS installer from isolated staging
+        working-directory: ${{ runner.temp }}/rihab-isolated-build/desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: npm run package:win
+      - name: Copy verified isolated installer to release artifact directory
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "release-desktop" -Force | Out-Null
+          Copy-Item -Path (Join-Path $env:RUNNER_TEMP "rihab-isolated-build/release-desktop/*") -Destination "release-desktop" -Force
       - name: Verify EXE and generate SHA256
         shell: pwsh
         run: |

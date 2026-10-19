@@ -37,8 +37,10 @@ function isWithin(root, target) {
   return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel));
 }
 
-function createDesktopServer(directory) {
-  const root = fs.realpathSync(directory);
+async function createDesktopServer(directory) {
+  // Use the same asynchronous realpath API for root and targets on Windows.
+  // Mixed sync/async resolution can produce RUNNER~1 vs runneradmin, a false 403.
+  const root = await fs.promises.realpath(directory);
   if (!fs.statSync(path.join(root, "index.html")).isFile()) {
     throw new Error("Missing bundled offline frontend: index.html");
   }
