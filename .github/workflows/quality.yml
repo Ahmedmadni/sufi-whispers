@@ -64,3 +64,15 @@ jobs:
         run: |
           python -m pip install PyMuPDF==1.26.5
           python scripts/generate-nafahat-index.py --verify
+
+  desktop-offline-server:
+    name: Desktop loopback server safety tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test PDF byte ranges and local-only file serving
+        run: node --test desktop/tests/server.test.cjs

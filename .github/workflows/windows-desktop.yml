@@ -1,0 +1,129 @@
+name: Windows Desktop Offline Installer
+# Windows x64, self-contained Quran and books; unsigned test build.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "desktop/**"
+      - ".github/workflows/windows-desktop.yml"
+      - "src/**"
+      - "mobile/**"
+      - "scripts/**"
+      - "vite.mobile.config.ts"
+      - "package.json"
+      - "bun.lock"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: rihab-windows-desktop-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  prepare-offline-library:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout immutable approved Quran scan archive
+        uses: actions/checkout@v4
+        with:
+          ref: 0b944b349fd28295803a0a96fbf2906a14286245
+          path: _verified-mushaf-source
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.3'
+      - name: Install source dependencies and offline book rendering requirements
+        run: |
+          bun install --frozen-lockfile
+          python -m pip install Pillow==11.3.0 PyMuPDF==1.26.5
+      - name: Prepare authentic Quran and pinned Arabic fonts
+        run: |
+          node scripts/prepare-android-fonts.mjs
+          python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
+      - name: Compile desktop frontend from verified offline Android source
+        env:
+          CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
+          VITE_DESKTOP: "true"
+        run: bun run mobile:build
+      - name: Audit presence of all 604 Quran pages and 1040 book pages
+        run: node desktop/scripts/verify-bundle.cjs dist-mobile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rihab-windows-offline-web
+          path: dist-mobile/
+          retention-days: 3
+          compression-level: 0
+          if-no-files-found: error
+
+  build-windows-x64:
+    needs: prepare-offline-library
+    runs-on: windows-latest
+    timeout-minutes: 55
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: rihab-windows-offline-web
+          path: dist-mobile
+      - name: Test offline server and verify downloaded content
+        run: |
+          node --test desktop/tests/server.test.cjs
+          node desktop/scripts/verify-bundle.cjs dist-mobile
+      - name: Render native Windows icon from approved visual identity
+        run: |
+          python -m pip install Pillow==11.3.0
+          python desktop/scripts/create-icon.py public/icon-512.png desktop/assets/rihab.ico
+      - name: Install exact Electron and installer dependencies
+        run: npm install --prefix desktop --no-audit --no-fund
+      - name: Build Windows x64 NSIS installable executable
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: npm run package:win --prefix desktop
+      - name: Verify EXE and generate SHA256
+        shell: pwsh
+        run: |
+          $installer = @(Get-ChildItem -Path release-desktop -Filter "Rihab-Al-Khaliliyya-Windows-Setup-1.0.4-x64.exe" -File)
+          if ($installer.Count -ne 1 -or $installer[0].Length -lt 100000000) { throw "Missing valid Windows setup executable" }
+          $hash = (Get-FileHash -Algorithm SHA256 $installer[0].FullName).Hash.ToLowerInvariant()
+          "$hash  $($installer[0].Name)" | Out-File -FilePath "release-desktop/SHA256SUMS-windows.txt" -Encoding utf8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rihab-windows-1-0-4-installer
+          path: |
+            release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.4-x64.exe
+            release-desktop/SHA256SUMS-windows.txt
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+      - name: Publish separate unsigned Windows prerelease
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          @'
+          رحاب الخليلية Windows x64 1.0.4 — نسخة تثبيت تجريبية كاملة دون الحاجة لاتصال الإنترنت أثناء القراءة.
+          تتضمن المصحف المصور 604 صفحات، و1040 صفحة من الكتب السبعة، وفهرس جامع النفحات والخطوط الأصلية.
+          برنامج Windows هذا غير موقّع بشهادة Authenticode؛ وقد يظهر تحذير ناشر غير معروف من SmartScreen.
+          يجب التحقق من التثبيت والقراءة والبحث والتكبير على جهاز Windows فعلي قبل التوزيع الواسع.
+          '@ | Out-File -FilePath "release-desktop/RELEASE_NOTES.md" -Encoding utf8
+          $tag = "v1.0.4-windows-rc1"
+          $exists = gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -eq 0) { Write-Host "Existing immutable Windows release retained"; exit 0 }
+          gh release create $tag "release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.4-x64.exe" "release-desktop/SHA256SUMS-windows.txt" --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "رحاب الخليلية Windows 1.0.4 (Unsigned RC)" --notes-file "release-desktop/RELEASE_NOTES.md" --prerelease
+          if ($LASTEXITCODE -ne 0) { throw "Windows release publication failed" }

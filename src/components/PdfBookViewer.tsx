@@ -11,6 +11,7 @@ import {
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -91,7 +92,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [pageWidth, setPageWidth] = useState(360);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
-  const pinchRef = useRef<{ distance: number; scale: number } | null>(null);
+  const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
 
   // Swipe sensitivity: smaller threshold = more sensitive.
   // Higher values reduce accidental navigation.
@@ -194,7 +195,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     let active = false;
     const onStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
-        pinchRef.current = { distance: Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY), scale };
+        pinchRef.current = { distance: twoFingerDistance(e.touches), zoom: printedIndexOpen ? printedIndexZoom : scale, printed: printedIndexOpen };
         active = false;
         return;
       }
@@ -205,8 +206,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     };
     const onMove = (e: TouchEvent) => {
       if (e.touches.length === 2 && pinchRef.current && pinchRef.current.distance > 0) {
-        const current = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
-        setScale(Math.max(.75, Math.min(3, Math.round(100 * pinchRef.current.scale * current / pinchRef.current.distance) / 100)));
+        if (e.cancelable) e.preventDefault();
+        const next = zoomFromPinch(pinchRef.current, e.touches, 1, 4);
+        if (pinchRef.current.printed) setPrintedIndexZoom(next);
+        else setScale(next);
       }
     };
     const onEnd = (e: TouchEvent) => {
@@ -229,13 +232,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
-    el.addEventListener("touchmove", onMove, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    const onCancel = () => { pinchRef.current = null; active = false; };
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      if (e.cancelable) e.preventDefault();
+      if (printedIndexOpen) setPrintedIndexZoom(value => zoomFromWheel(value, e.deltaY));
+      else setScale(value => zoomFromWheel(value, e.deltaY));
+    };
+    el.addEventListener("touchcancel", onCancel);
+    el.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchend", onEnd);
       el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchcancel", onCancel);
+      el.removeEventListener("wheel", onWheel);
     };
-  }, [page, goTo, swipeThreshold, scale]);
+  }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -302,14 +316,14 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             <div className="flex items-center gap-2">
               <button type="button" aria-label="تصغير صفحة الفهرس"
                 disabled={printedIndexZoom <= 1}
-                onClick={() => setPrintedIndexZoom(v => Math.max(1, +(v - .25).toFixed(2)))}
+                onClick={() => setPrintedIndexZoom(v => boundedBookZoom(v - .25))}
                 className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
                 <ZoomOut className="mx-auto h-4 w-4" />
               </button>
               <span className="min-w-12 tabular-nums">{Math.round(printedIndexZoom * 100)}٪</span>
               <button type="button" aria-label="تكبير صفحة الفهرس"
-                disabled={printedIndexZoom >= 2.5}
-                onClick={() => setPrintedIndexZoom(v => Math.min(2.5, +(v + .25).toFixed(2)))}
+                disabled={printedIndexZoom >= 4}
+                onClick={() => setPrintedIndexZoom(v => boundedBookZoom(v + .25))}
                 className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
                 <ZoomIn className="mx-auto h-4 w-4" />
               </button>
@@ -348,14 +362,14 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setScale((s) => Math.max(0.5, +(s - 0.15).toFixed(2)))}
+            onClick={() => setScale((s) => boundedBookZoom(s - 0.2))}
             className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تصغير"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => setScale((s) => Math.min(2.5, +(s + 0.15).toFixed(2)))}
+            onClick={() => setScale((s) => boundedBookZoom(s + 0.2))}
             className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تكبير"
           >
@@ -434,7 +448,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className={`reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center min-h-[70vh] touch-pan-y select-none overflow-x-auto ${printedIndexOpen ? "items-start" : "items-center"}`}
+        className={`reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center min-h-[70vh] select-none overflow-auto ${printedIndexOpen ? "items-start" : "items-center"}`}
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
