@@ -563,3 +563,17 @@
 @media (prefers-reduced-motion: reduce) {
   .book-page-arrive { animation: none !important; }
 }
+
+
+/* Reader gestures: custom non-passive pinch scales the BOOK ONLY. Allow native
+   one-finger scroll/pan; never pinch the surrounding app or lose page controls. */
+.offline-book-stage, .book-pdf-stage {
+  touch-action: pan-x pan-y;
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.book-pdf-stage .react-pdf__Document {
+  max-width: none;
+  flex: none;
+}

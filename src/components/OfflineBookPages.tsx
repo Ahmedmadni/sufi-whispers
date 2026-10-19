@@ -5,6 +5,7 @@ import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-inde
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 
@@ -26,8 +27,6 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
-  const startX = useRef<number | null>(null);
-  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
@@ -80,15 +79,74 @@ export default function OfflineBookPages({ bookId }: Props) {
   const image = useMemo(() => entry?.pages[page - 1], [entry, page]);
   const imageUrl = image ? `/offline-books/${encodeURIComponent(bookId)}/${image.name}${imageRetry ? `?retry=${imageRetry}` : ""}` : "";
 
+  // Native non-passive listeners are required: React's delegated touchmove
+  // can be passive in Chromium. Do not allow a two-finger gesture to zoom the
+  // entire WebView; zoom this actual book image and retain one-finger panning.
+  useEffect(() => {
+    const el = scroll.current;
+    if (!el || !image) return;
+    let startX: number | null = null;
+    let snapshot: { distance: number; zoom: number } | null = null;
+    let multiTouch = false;
+    const onStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        snapshot = { distance: twoFingerDistance(event.touches), zoom };
+        startX = null;
+        multiTouch = true;
+      } else if (event.touches.length === 1 && !multiTouch) {
+        startX = event.touches[0].clientX;
+      }
+    };
+    const onMove = (event: TouchEvent) => {
+      if (event.touches.length !== 2) return;
+      if (event.cancelable) event.preventDefault();
+      startX = null;
+      multiTouch = true;
+      if (!snapshot) snapshot = { distance: twoFingerDistance(event.touches), zoom };
+      if (snapshot.distance > 0) setZoom(zoomFromPinch(snapshot, event.touches));
+    };
+    const onEnd = (event: TouchEvent) => {
+      if (multiTouch) {
+        if (event.touches.length === 0) { multiTouch = false; snapshot = null; }
+        startX = null;
+        return;
+      }
+      if (event.touches.length || zoom > 1 || startX === null ||
+          event.changedTouches.length !== 1) return;
+      const delta = event.changedTouches[0].clientX - startX;
+      startX = null;
+      const direction = rtlSwipePageDelta(delta, swipeThreshold);
+      if (direction) goTo(page + direction);
+    };
+    const onCancel = () => { snapshot = null; startX = null; multiTouch = false; };
+    const onWheel = (event: WheelEvent) => {
+      if (!event.ctrlKey && !event.metaKey) return;
+      if (event.cancelable) event.preventDefault();
+      setZoom(value => zoomFromWheel(value, event.deltaY));
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("touchcancel", onCancel, { passive: true });
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onCancel);
+      el.removeEventListener("wheel", onWheel);
+    };
+  }, [page, zoom, swipeThreshold, image?.name]);
+
   return (
     <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
       <div className="reader-toolbar glass mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2">
         <div className="flex items-center gap-2">
           <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تصغير"
-            onClick={() => setZoom(value => Math.max(1, +(value - 0.25).toFixed(2)))}><ZoomOut size={17} /></button>
+            onClick={() => setZoom(value => boundedBookZoom(value - 0.25))}><ZoomOut size={17} /></button>
           <span className="min-w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}٪</span>
           <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تكبير"
-            onClick={() => setZoom(value => Math.min(3, +(value + 0.25).toFixed(2)))}><ZoomIn size={17} /></button>
+            onClick={() => setZoom(value => boundedBookZoom(value + 0.25))}><ZoomIn size={17} /></button>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
@@ -126,28 +184,8 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
-          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y pinch-zoom" }}
-          onTouchStart={e => {
-            startX.current = e.touches.length === 1 ? e.touches[0].clientX : null;
-            if (e.touches.length === 2) {
-              const distance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-              pinch.current = { distance, zoom };
-            }
-          }}
-          onTouchMove={e => {
-            if (e.touches.length === 2 && pinch.current && pinch.current.distance > 0) {
-              const distance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-              setZoom(Math.max(1, Math.min(3, Math.round(100 * pinch.current.zoom * distance / pinch.current.distance) / 100)));
-            }
-          }}
-          onTouchEnd={e => {
-            if (pinch.current) { pinch.current = null; startX.current = null; return; }
-            if (zoom > 1 || startX.current === null || e.changedTouches.length !== 1) return;
-            const delta = e.changedTouches[0].clientX - startX.current;
-            startX.current = null;
-            const deltaPages = rtlSwipePageDelta(delta, swipeThreshold);
-            if (deltaPages) goTo(page + deltaPages);
-          }}
+          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y" }}
+
         >
           <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
             width={image.width} height={image.height} draggable={false}
