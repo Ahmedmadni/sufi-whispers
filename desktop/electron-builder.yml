@@ -3,6 +3,7 @@ productName: رحاب الخليلية
 asar: true
 compression: normal
 directories:
+  app: .
   output: ../release-desktop
 files:
   - main.cjs

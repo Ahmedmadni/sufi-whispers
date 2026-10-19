@@ -29,7 +29,11 @@ const CSP = [
 ].join("; ");
 const loopback = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
 function isWithin(root, target) {
-  const rel = path.relative(root, target);
+  // Windows fs.realpathSync and fs.promises.realpath can differ in their
+  // \\?\ drive prefix; compare both in the same canonical namespace.
+  const from = process.platform === "win32" ? path.toNamespacedPath(root) : root;
+  const to = process.platform === "win32" ? path.toNamespacedPath(target) : target;
+  const rel = path.relative(from, to);
   return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel));
 }
 
@@ -46,7 +50,7 @@ function createDesktopServer(directory) {
         "Cache-Control":"no-store",
       });res.end(value);
     }
-    if (!loopback.has(req.socket.remoteAddress)) return fail(403, "Forbidden");
+    if (!loopback.has(req.socket.remoteAddress)) { if (process.env.RIHAB_DIAGNOSTICS === "1") console.warn("Reject remote:",req.socket.remoteAddress); return fail(403,"Forbidden"); }
     if (req.method !== "GET" && req.method !== "HEAD") return fail(405, "Method Not Allowed");
     let requested;
     try {
@@ -56,11 +60,11 @@ function createDesktopServer(directory) {
       if (requested.includes("\0") || requested.includes("\\")) return fail(403, "Forbidden");
     } catch { return fail(400, "Bad Request"); }
     let file = path.resolve(root, "." + (requested === "/" ? "/index.html" : requested));
-    if (!isWithin(root, file)) return fail(403, "Forbidden");
+    if (!isWithin(root, file)) { if (process.env.RIHAB_DIAGNOSTICS === "1") console.warn("Reject path:",root,file); return fail(403, "Forbidden"); }
     let stat;
     try {
       const actual = await fs.promises.realpath(file);
-      if (!isWithin(root, actual)) return fail(403, "Forbidden");
+      if (!isWithin(root, actual)) { if (process.env.RIHAB_DIAGNOSTICS === "1") console.warn("Reject resolved:",root,actual); return fail(403, "Forbidden"); }
       file = actual;
       stat = await fs.promises.stat(file);
       if (!stat.isFile()) return fail(404, "Not Found");

@@ -81,6 +81,8 @@ jobs:
           name: rihab-windows-offline-web
           path: dist-mobile
       - name: Test offline server and verify downloaded content
+        env:
+          RIHAB_DIAGNOSTICS: "1"
         run: |
           node --test desktop/tests/server.test.cjs
           node desktop/scripts/verify-bundle.cjs dist-mobile
@@ -91,9 +93,10 @@ jobs:
       - name: Install exact Electron and installer dependencies
         run: npm install --prefix desktop --no-audit --no-fund
       - name: Build Windows x64 NSIS installable executable
+        working-directory: desktop
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
-        run: npm run package:win --prefix desktop
+        run: npm run package:win
       - name: Verify EXE and generate SHA256
         shell: pwsh
         run: |
