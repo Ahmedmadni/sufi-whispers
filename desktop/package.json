@@ -1,0 +1,17 @@
+{
+  "name": "rihab-al-khaliliyya-desktop",
+  "version": "1.0.4",
+  "private": true,
+  "description": "رحاب الخليلية — مكتبة ومصحف دون اتصال على Windows",
+  "main": "main.cjs",
+  "author": "Rihab Al Khaliliyya",
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "package:win": "electron-builder --config electron-builder.yml --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "39.0.0",
+    "electron-builder": "26.0.12"
+  }
+}

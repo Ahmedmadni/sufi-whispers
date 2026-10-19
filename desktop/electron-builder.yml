@@ -1,0 +1,28 @@
+appId: com.rihabalkhaliliyya.desktop
+productName: رحاب الخليلية
+asar: true
+compression: normal
+directories:
+  output: ../release-desktop
+files:
+  - main.cjs
+  - server.cjs
+  - package.json
+extraResources:
+  - from: ../dist-mobile
+    to: web
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: assets/rihab.ico
+  signAndEditExecutable: false
+nsis:
+  artifactName: Rihab-Al-Khaliliyya-Windows-Setup-${version}-${arch}.${ext}
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: رحاب الخليلية
