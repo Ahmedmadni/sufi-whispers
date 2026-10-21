@@ -48,6 +48,10 @@ export function useBookReaderChrome(
     if (!immersive) setToolbarVisible(true);
   }, [immersive]);
 
+  const suppressSurfaceTap = useCallback((durationMs = 340) => {
+    clearTap();
+    skipTapUntil.current = Date.now() + durationMs;
+  }, [clearTap]);
   const onSurfaceClick = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
     const target = event.target;
     if (target instanceof Element && target.closest("button,a,input,textarea,select,summary,[contenteditable=true]")) return;
@@ -85,7 +89,7 @@ export function useBookReaderChrome(
     clearTap();
     setToolbarVisible(value => !value);
   }, [clearTap]);
-  return { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown };
+  return { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap };
 }
 
 export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label }: {

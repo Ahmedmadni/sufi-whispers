@@ -97,7 +97,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
   const lastWheelTurn = useRef(0);
-  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown } = useBookReaderChrome(
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(
     immersive, viewerRef, printedIndexOpen ? printedIndexZoom : scale,
     next => { if (printedIndexOpen) setPrintedIndexZoom(next); else setScale(next); },
   );
@@ -205,6 +205,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     let startedAt: ScrollViewport | null = null;
     const onStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
+        suppressSurfaceTap();
         pinchRef.current = { distance: twoFingerDistance(e.touches), zoom: printedIndexOpen ? printedIndexZoom : scale, printed: printedIndexOpen };
         active = false;
         startedAt = null;
@@ -231,6 +232,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const t = e.changedTouches[0];
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
+      if (Math.hypot(dx,dy) > 12) suppressSurfaceTap();
       if (!startedAt) return;
       const turn = readerGesturePageDelta({
         page, maxPage: numPages, zoom: printedIndexOpen ? printedIndexZoom : scale, scroll: startedAt,
@@ -240,7 +242,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: false });
-    const onCancel = () => { pinchRef.current = null; active = false; };
+    const onCancel = () => { suppressSurfaceTap(); pinchRef.current = null; active = false; };
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey || e.metaKey) {
         if (e.cancelable) e.preventDefault();
@@ -269,7 +271,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       el.removeEventListener("touchcancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
-  }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom]);
+  }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom, numPages, suppressSurfaceTap]);
   useEffect(() => { viewerRef.current?.scrollTo({ top: 0, left: 0 }); }, [page, bookId]);
 
   // Keyboard navigation

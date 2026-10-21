@@ -39,7 +39,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
-  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -98,6 +98,7 @@ export default function OfflineBookPages({ bookId }: Props) {
     if (!el || !image) return;
     const onStart = (event: TouchEvent) => {
       if (event.touches.length === 2) {
+        suppressSurfaceTap();
         pinch.current = { distance: twoFingerDistance(event.touches), zoom };
         startX.current = null;
         startY.current = null;
@@ -129,6 +130,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           event.changedTouches.length !== 1) return;
       const dx = event.changedTouches[0].clientX - startX.current;
       const dy = event.changedTouches[0].clientY - startY.current;
+      if (Math.hypot(dx,dy) > 12) suppressSurfaceTap();
       const start = startScroll.current;
       startX.current = null;
       startY.current = null;
@@ -140,7 +142,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       }, { dx, dy, threshold: swipeThreshold }) : 0;
       if (direction) goTo(page + direction);
     };
-    const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
+    const onCancel = () => { suppressSurfaceTap(); pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
       if (event.ctrlKey || event.metaKey) {
         if (event.cancelable) event.preventDefault();
@@ -172,7 +174,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       el.removeEventListener("touchcancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
-  }, [page, zoom, swipeThreshold, image?.name]);
+  }, [page, zoom, swipeThreshold, image?.name, suppressSurfaceTap]);
 
   return (
     <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}

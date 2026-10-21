@@ -758,8 +758,8 @@
 @media (max-width: 620px) {
   .reader-topbar .reader-icon-button,
   .reader-topbar .reader-nav-popover > summary {
-    width: 42px;
-    min-width: 42px;
+    width: 44px;
+    min-width: 44px;
     height: 44px;
     min-height: 44px;
   }
