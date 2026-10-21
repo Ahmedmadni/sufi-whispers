@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
@@ -158,39 +159,36 @@ export default function OfflineBookPages({ bookId }: Props) {
 
   return (
     <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
-      <div className="reader-toolbar glass mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2">
-        <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تصغير"
-            onClick={() => setZoom(value => boundedBookZoom(value - 0.25))}><ZoomOut size={17} /></button>
-          <span className="min-w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}٪</span>
-          <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تكبير"
-            onClick={() => setZoom(value => boundedBookZoom(value + 0.25))}><ZoomIn size={17} /></button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
-          <details className="relative text-sm">
-            <summary className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border border-gold/30 text-gold-soft" aria-label="إعداد حساسية تقليب الصفحات" title="حساسية التمرير">
-              <SlidersHorizontal size={18} />
+      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
+        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
+        <div className="reader-topbar__actions" dir="ltr">
+          <BookQuickIndex compact maxPage={maxPage} page={page}
+            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
+            onJump={goTo} />
+          <button type="button" className="reader-icon-button" aria-label="تصغير الكتاب" title="تصغير"
+            disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
+          <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
+            disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
+          {!immersive && <details className="reader-nav-popover">
+            <summary className="reader-icon-button cursor-pointer" aria-label="إعداد حساسية تقليب الصفحات" title="الحساسية">
+              <SlidersHorizontal size={19}/>
             </summary>
-            <div className="absolute left-0 top-full z-30 mt-1 w-52 rounded-xl border border-gold/25 bg-card p-3 shadow-lg">
-              <label className="grid gap-2 text-xs text-foreground">حساسية تقليب الصفحات
-                <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="مسافة التمرير باللمس"
-                  onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
-                    try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
-                  }} />
-                <span>{swipeThreshold} بكسل — الأصغر أكثر حساسية</span>
-              </label>
+            <div className="reader-nav-popover__body" dir="rtl">
+              <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="حساسية التقليب"
+                onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
+                  try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
+                }}/>
             </div>
-          </details>
+          </details>}
+          <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
+            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
           <button type="button" onClick={() => setImmersive(value => !value)}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
-            aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
-            {immersive ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
+            className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
+            {immersive ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}
           </button>
         </div>
       </div>
-      <BookQuickIndex maxPage={maxPage} page={page} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
-        onJump={goTo} />
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">
           <p>{error}</p>
@@ -202,7 +200,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
-          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y" }}
+          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >
           <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
@@ -213,7 +211,6 @@ export default function OfflineBookPages({ bookId }: Props) {
           />
         </div>
       )}
-      <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
     </BookReaderLayout>

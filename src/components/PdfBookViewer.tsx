@@ -4,6 +4,7 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import {
@@ -24,6 +25,7 @@ import {
   ZoomIn,
   ZoomOut,
   Settings2,
+  CornerDownLeft,
   List,
   X,
 } from "lucide-react";
@@ -290,61 +292,36 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
   return (
     <BookReaderLayout immersive={immersive} label="قارئ الكتاب">
-      {bookId === "nafahat" ? (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-gold/25 bg-card/60 px-3 py-2" dir="rtl">
-          <button type="button"
-            onClick={() => { setPrintedIndexSheet(NAFAHAT_INDEX_FIRST); setPrintedIndexOpen(value => !value); }}
-            aria-expanded={printedIndexOpen}
-            aria-label={printedIndexOpen ? "إغلاق فهرس جامع النفحات" : "فتح فهرس جامع النفحات الأصلي"}
-            className="inline-flex min-h-11 items-center gap-2 text-sm font-body text-gold-soft">
-            <List size={20} aria-hidden="true" />
-            <span className="sr-only">فهرس جامع النفحات الأصلي</span>
-          </button>
-          {printedIndexOpen && (
-            <button type="button" onClick={() => setPrintedIndexOpen(false)}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
-              aria-label="إغلاق فهرس الكتاب"><X size={19}/></button>
+      {/* Single reader bar: title, index, zoom, paging and exit only. */}
+      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
+        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
+        <div className="reader-topbar__actions" dir="ltr">
+          {bookId === "nafahat" ? (
+            <button type="button" className="reader-icon-button"
+              aria-label={printedIndexOpen ? "إغلاق الفهرس" : "فهرس جامع النفحات"}
+              title="فهرس جامع النفحات"
+              aria-expanded={printedIndexOpen}
+              onClick={() => { setPrintedIndexSheet(NAFAHAT_INDEX_FIRST); setPrintedIndexOpen(v => !v); }}>
+              {printedIndexOpen ? <X size={19}/> : <List size={19}/>}
+            </button>
+          ) : (
+            <BookQuickIndex compact maxPage={numPages} page={page}
+              headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
+              onJump={goTo} />
           )}
-        </div>
-      ) : (
-        <BookQuickIndex maxPage={numPages} page={page} headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
-      )}
-      {printedIndexOpen && bookId === "nafahat" && (
-        <div className="mb-2 flex items-center justify-between gap-2 rounded-xl border border-gold/20 px-3 py-2 text-xs font-body" dir="rtl">
-          <button type="button" disabled={printedIndexSheet <= NAFAHAT_INDEX_FIRST}
-            onClick={() => setPrintedIndexSheet(n => Math.max(NAFAHAT_INDEX_FIRST, n - 1))}
-            className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
-            <ChevronRight className="inline h-4 w-4" />
-          </button>
-          <div className="flex flex-col items-center gap-1 text-center text-foreground/85">
-            <span>اضغط على أي عنوان للانتقال مباشرة · {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1} / 7</span>
-            <div className="flex items-center gap-2">
-              <button type="button" aria-label="تصغير صفحة الفهرس"
-                disabled={printedIndexZoom <= 1}
-                onClick={() => setPrintedIndexZoom(v => boundedBookZoom(v - .25))}
-                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
-                <ZoomOut className="mx-auto h-4 w-4" />
-              </button>
-              <span className="min-w-12 tabular-nums">{Math.round(printedIndexZoom * 100)}٪</span>
-              <button type="button" aria-label="تكبير صفحة الفهرس"
-                disabled={printedIndexZoom >= 4}
-                onClick={() => setPrintedIndexZoom(v => boundedBookZoom(v + .25))}
-                className="min-h-9 min-w-9 rounded-md border border-gold/25 text-gold-soft disabled:opacity-30">
-                <ZoomIn className="mx-auto h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          <button type="button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
-            onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST, n + 1))}
-            className="min-h-10 rounded-md border border-gold/25 px-3 text-gold-soft disabled:opacity-40">
-            <ChevronLeft className="inline h-4 w-4" />
-          </button>
-        </div>
-      )}
+          {printedIndexOpen && bookId === "nafahat" && (
+            <>
+              <button type="button" className="reader-icon-button" disabled={printedIndexSheet <= NAFAHAT_INDEX_FIRST}
+                onClick={() => setPrintedIndexSheet(n => Math.max(NAFAHAT_INDEX_FIRST,n-1))}
+                aria-label="صفحة الفهرس السابقة" title="السابق"><ChevronRight size={19}/></button>
+              <span className="reader-topbar__page tabular-nums" dir="ltr">{printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}/7</span>
+              <button type="button" className="reader-icon-button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
+                onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST,n+1))}
+                aria-label="صفحة الفهرس التالية" title="التالي"><ChevronLeft size={19}/></button>
+            </>
+          )}
 
-      {/* Controls */}
-      <div className="glass reader-toolbar rounded-xl p-2 mb-2 flex items-center gap-2 justify-between">
-        <form onSubmit={onSubmit} className="flex items-center gap-1.5 min-w-0">
+        <form onSubmit={onSubmit} className="reader-page-form flex items-center gap-1 min-w-0">
           <div className="relative">
             <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold/60 pointer-events-none" />
             <input
@@ -361,20 +338,21 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             type="submit"
             className="glass-gold rounded-md px-2.5 py-1.5 text-xs font-body text-gold-soft"
           >
-            انتقل
+            <CornerDownLeft className="h-4 w-4" aria-hidden="true" />
+            <span className="sr-only">الانتقال إلى رقم الصفحة</span>
           </button>
         </form>
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setScale((s) => boundedBookZoom(s - 0.2))}
+            onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v - .25)) : setScale(v => boundedBookZoom(v - .25))}
             className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تصغير"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => setScale((s) => boundedBookZoom(s + 0.2))}
+            onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v + .25)) : setScale(v => boundedBookZoom(v + .25))}
             className="p-1.5 rounded-md glass text-gold-soft"
             aria-label="تكبير"
           >
@@ -444,6 +422,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               </div>
             </PopoverContent>
           </Popover>
+          <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} immersive={immersive}
+            headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
         </div>
       </div>
 
@@ -453,7 +433,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           containerRef.current = el;
           viewerRef.current = el;
         }}
-        className={`reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-center min-h-[70vh] select-none overflow-auto ${printedIndexOpen ? "items-start" : "items-center"}`}
+        className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-start items-start min-h-[65vh] select-none overflow-auto"
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
@@ -593,7 +573,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         </Document>}
       </div>
 
-      <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
     </BookReaderLayout>
   );
 }
