@@ -11,7 +11,7 @@ export const DEFAULT_WIRD_TIMES: WirdTimes = { first: "09:00", second: "21:00" }
 export function validateWirdTimes(value: unknown): WirdTimes {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("أوقات تذكير الأوراد غير صالحة.");
   const { first, second } = value as Partial<WirdTimes>;
-  const valid = (v: unknown): v is string => typeof v === "string" && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(v);
+  const valid = (v: unknown): v is string => typeof v === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(v);
   if (!valid(first) || !valid(second)) throw new Error("أدخل أوقاتًا صحيحة بصيغة الساعة والدقيقة.");
   return { first, second };
 }
