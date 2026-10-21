@@ -4,7 +4,7 @@ import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
-import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
@@ -29,6 +29,8 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [zoom, setZoom] = useState(1);
   // Persist the gesture across every zoom-driven React render.
   const startX = useRef<number | null>(null);
+  const startY = useRef<number | null>(null);
+  const startScroll = useRef<ScrollViewport | null>(null);
   const pinch = useRef<{ distance: number; zoom: number } | null>(null);
   const multiTouch = useRef(false);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
@@ -81,6 +83,7 @@ export default function OfflineBookPages({ bookId }: Props) {
     scroll.current?.scrollTo({ left: 0, top: 0 });
   };
   const image = useMemo(() => entry?.pages[page - 1], [entry, page]);
+  useEffect(() => { scroll.current?.scrollTo({ left: 0, top: 0 }); }, [page, bookId]);
   const imageUrl = image ? `/offline-books/${encodeURIComponent(bookId)}/${image.name}${imageRetry ? `?retry=${imageRetry}` : ""}` : "";
 
   // Native non-passive listeners are required: React's delegated touchmove
@@ -93,15 +96,21 @@ export default function OfflineBookPages({ bookId }: Props) {
       if (event.touches.length === 2) {
         pinch.current = { distance: twoFingerDistance(event.touches), zoom };
         startX.current = null;
+        startY.current = null;
+        startScroll.current = null;
         multiTouch.current = true;
       } else if (event.touches.length === 1 && !multiTouch.current) {
         startX.current = event.touches[0].clientX;
+        startY.current = event.touches[0].clientY;
+        startScroll.current = { scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
       }
     };
     const onMove = (event: TouchEvent) => {
       if (event.touches.length !== 2) return;
       if (event.cancelable) event.preventDefault();
       startX.current = null;
+      startY.current = null;
+      startScroll.current = null;
       multiTouch.current = true;
       if (!pinch.current) pinch.current = { distance: twoFingerDistance(event.touches), zoom };
       if (pinch.current.distance > 0) setZoom(zoomFromPinch(pinch.current, event.touches));
@@ -112,14 +121,22 @@ export default function OfflineBookPages({ bookId }: Props) {
         startX.current = null;
         return;
       }
-      if (event.touches.length || zoom > 1 || startX.current === null ||
+      if (event.touches.length || startX.current === null || startY.current === null ||
           event.changedTouches.length !== 1) return;
-      const delta = event.changedTouches[0].clientX - startX.current;
+      const dx = event.changedTouches[0].clientX - startX.current;
+      const dy = event.changedTouches[0].clientY - startY.current;
+      const start = startScroll.current;
       startX.current = null;
-      const direction = rtlSwipePageDelta(delta, swipeThreshold);
+      startY.current = null;
+      startScroll.current = null;
+      // Zoomed images should pan freely in both axes. Page turns require
+      // an intentional vertical gesture starting at the top/bottom edge.
+      const direction = Math.abs(dy) > Math.abs(dx)
+        ? (start ? verticalPageTurn(dy, swipeThreshold, start) : 0)
+        : zoom > 1 ? 0 : rtlSwipePageDelta(dx, swipeThreshold);
       if (direction) goTo(page + direction);
     };
-    const onCancel = () => { pinch.current = null; startX.current = null; multiTouch.current = false; };
+    const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
       if (!event.ctrlKey && !event.metaKey) return;
       if (event.cancelable) event.preventDefault();

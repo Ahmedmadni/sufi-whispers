@@ -10,7 +10,7 @@ import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
-import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -181,6 +181,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     (p: number) => {
       if (numPages < 1) return;
       setPage(clampPage(p, numPages));
+      viewerRef.current?.scrollTo({ top: 0, left: 0 });
     },
     [numPages]
   );
@@ -193,13 +194,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     let startX = 0;
     let startY = 0;
     let active = false;
+    let startedAt: ScrollViewport | null = null;
     const onStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
         pinchRef.current = { distance: twoFingerDistance(e.touches), zoom: printedIndexOpen ? printedIndexZoom : scale, printed: printedIndexOpen };
         active = false;
+        startedAt = null;
         return;
       }
       if (e.touches.length !== 1) return;
+      startedAt = { scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
       active = true;
@@ -223,9 +227,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const absY = Math.abs(dy);
       if (Math.max(absX, absY) < swipeThreshold) return;
       if (absY >= absX) {
-        if (dy < 0) goTo(page + 1); // up → next
-        else goTo(page - 1);
-      } else {
+        const turn = startedAt ? verticalPageTurn(dy, swipeThreshold, startedAt) : 0;
+        if (turn) goTo(page + turn);
+      } else if (scale <= 1 && !printedIndexOpen) {
         const next = rtlSwipePageDelta(dx, swipeThreshold);
         if (next) goTo(page + next);
       }
@@ -250,6 +254,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       el.removeEventListener("wheel", onWheel);
     };
   }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom]);
+  useEffect(() => { viewerRef.current?.scrollTo({ top: 0, left: 0 }); }, [page, bookId]);
 
   // Keyboard navigation
   useEffect(() => {
