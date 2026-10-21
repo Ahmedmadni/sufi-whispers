@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { Eye, Minimize2 } from "lucide-react";
 import { focalScrollAfterZoom, zoomOnDoubleTap } from "@/lib/reader-interaction";
@@ -48,7 +48,7 @@ export function useBookReaderChrome(
     if (!immersive) setToolbarVisible(true);
   }, [immersive]);
 
-  const onSurfaceClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
+  const onSurfaceClick = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
     const target = event.target;
     if (target instanceof Element && target.closest("button,a,input,textarea,select,summary,[contenteditable=true]")) return;
     if (Date.now() < skipTapUntil.current) return;
@@ -78,7 +78,7 @@ export function useBookReaderChrome(
       tapTimeout.current = null;
     }, 260);
   }, [clearTap, setZoom, viewport, zoom]);
-  const onSurfaceKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+  const onSurfaceKeyDown = useCallback((event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return;
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
