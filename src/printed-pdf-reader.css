@@ -577,3 +577,142 @@
   max-width: none;
   flex: none;
 }
+
+/* Unified one-bar book viewer: accessible icons, title on the right and
+   page/zoom/index tools at the left. No secondary footer in fullscreen. */
+.reader-topbar {
+  position: relative;
+  z-index: 60;
+  flex: 0 0 auto;
+  min-height: 54px;
+  background: #fffdf9;
+  border: 1px solid #cddbcf;
+  border-top: 2px solid #b89c60;
+  box-shadow: 0 3px 15px rgb(25 57 46 / .08);
+}
+.reader-topbar__title {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: min(28vw, 220px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #19392e;
+  font-size: clamp(.77rem, 2.5vw, 1.06rem);
+  font-weight: 700;
+  line-height: 1.5;
+}
+.reader-topbar__actions {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: .25rem;
+  align-items: center;
+  justify-content: flex-start;
+  margin-inline-start: 0;
+}
+.reader-topbar .reader-icon-button,
+.reader-topbar .reader-nav-popover > summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  height: 40px;
+  min-height: 40px;
+  width: 40px;
+  min-width: 40px;
+  padding: 0;
+  border: 1px solid #c5d8c6;
+  border-radius: 10px;
+  background: #eaf1e8;
+  color: #204937;
+  list-style: none;
+  text-decoration: none;
+}
+.reader-topbar .reader-icon-button svg { flex-shrink: 0; }
+.reader-topbar .reader-icon-button:hover:not(:disabled),
+.reader-topbar .reader-icon-button:focus-visible,
+.reader-topbar .reader-nav-popover > summary:focus-visible {
+  background: #d6e5d5;
+  color: #142f26;
+  outline: 2px solid #9d8654;
+  outline-offset: 1px;
+}
+.reader-topbar .reader-icon-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.reader-topbar__nav { margin: 0; padding: 0; border: 0; background: transparent; box-shadow: none; }
+.reader-topbar__page { min-width: 39px; text-align: center; color: #244b38; font-size: .76rem; font-weight: 650; }
+.reader-topbar .book-quick-index--compact { padding: 0; margin: 0; background: none; border: 0; box-shadow: none; }
+.reader-topbar .book-quick-index--compact > div { padding: 0; background: none; border: 0; }
+.reader-index-popover,
+.reader-nav-popover__body {
+  position: absolute;
+  top: calc(100% + 7px);
+  inset-inline-start: 0;
+  width: min(88vw, 440px);
+  z-index: 80;
+  padding: .5rem;
+  background: #fffdf8;
+  color: #1d3729;
+  border: 1px solid #cddacb;
+  border-radius: 12px;
+  box-shadow: 0 15px 38px rgb(10 34 24 / .2);
+  direction: rtl;
+}
+.reader-nav-popover { position: relative; }
+.reader-nav-popover__body { min-width: 185px; width: min(72vw,260px); inset-inline-start: auto; right: 0; }
+.reader-nav-popover > summary::-webkit-details-marker { display: none; }
+.reader-nav-popover > summary::marker { content: ""; }
+.reader-topbar .reader-page-form button { display: inline-flex; align-items: center; justify-content: center; min-height: 37px; min-width: 36px; }
+.reader-topbar .reader-page-form input { background: #f9f8f1; color: #1f3f30; border: 1px solid #c5d3c8; }
+.book-pdf-stage {
+  justify-content: flex-start;
+  align-items: flex-start;
+  max-height: min(78dvh, 1020px);
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.book-pdf-stage .react-pdf__Document,
+.book-pdf-stage .react-pdf__Page {
+  margin-inline: auto;
+  flex-shrink: 0;
+}
+.offline-book-stage {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.book-reader--immersive { padding: max(4px, env(safe-area-inset-top)) max(4px, env(safe-area-inset-right)) max(4px, env(safe-area-inset-bottom)) max(4px, env(safe-area-inset-left)); }
+.book-reader--immersive .reader-topbar {
+  flex: 0 0 auto;
+  max-height: 30dvh;
+  margin-bottom: .25rem;
+}
+.book-reader--immersive .reader-page-form,
+.book-reader--immersive .reader-nav-popover,
+.book-reader--immersive > .book-reader-nav {
+  display: none !important;
+}
+.book-reader--immersive .book-pdf-stage,
+.book-reader--immersive .offline-book-stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none !important;
+  height: 100%;
+  overflow: auto;
+}
+.book-reader--immersive .book-quick-index .reader-index-popover {
+  max-height: min(68dvh, 650px);
+}
+@media (max-width: 620px) {
+  .reader-topbar { gap: .3rem; padding: .35rem; }
+  .reader-topbar__title { max-width: 98px; font-size: .78rem; }
+  .reader-topbar .reader-icon-button,
+  .reader-topbar .reader-nav-popover > summary { width: 35px; min-width: 35px; height: 39px; min-height: 39px; }
+  .reader-topbar__actions { gap: .18rem; }
+  .reader-topbar .reader-page-form { display: none; }
+  .reader-topbar .reader-topbar__page { min-width: 33px; font-size: .7rem; }
+}

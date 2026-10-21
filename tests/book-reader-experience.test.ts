@@ -43,7 +43,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
     expect(offline).toContain("BookReaderLayout immersive={immersive}");
     expect(offline).toContain('aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}');
     expect(offline).toContain("BookQuickIndex");
-    expect(offline).toContain("rtlSwipePageDelta(delta, swipeThreshold)");
+    expect(offline).toContain("rtlSwipePageDelta(dx, swipeThreshold)");
     expect(offline).toContain('event.key === "ArrowRight"');
   });
 

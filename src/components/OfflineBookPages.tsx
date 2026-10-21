@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
-import { rtlSwipePageDelta } from "@/lib/book-paging";
+import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
@@ -29,11 +30,14 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [zoom, setZoom] = useState(1);
   // Persist the gesture across every zoom-driven React render.
   const startX = useRef<number | null>(null);
+  const startY = useRef<number | null>(null);
+  const startScroll = useRef<ScrollViewport | null>(null);
   const pinch = useRef<{ distance: number; zoom: number } | null>(null);
   const multiTouch = useRef(false);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
+  const lastWheelTurn = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -81,6 +85,7 @@ export default function OfflineBookPages({ bookId }: Props) {
     scroll.current?.scrollTo({ left: 0, top: 0 });
   };
   const image = useMemo(() => entry?.pages[page - 1], [entry, page]);
+  useEffect(() => { scroll.current?.scrollTo({ left: 0, top: 0 }); }, [page, bookId]);
   const imageUrl = image ? `/offline-books/${encodeURIComponent(bookId)}/${image.name}${imageRetry ? `?retry=${imageRetry}` : ""}` : "";
 
   // Native non-passive listeners are required: React's delegated touchmove
@@ -93,15 +98,21 @@ export default function OfflineBookPages({ bookId }: Props) {
       if (event.touches.length === 2) {
         pinch.current = { distance: twoFingerDistance(event.touches), zoom };
         startX.current = null;
+        startY.current = null;
+        startScroll.current = null;
         multiTouch.current = true;
       } else if (event.touches.length === 1 && !multiTouch.current) {
         startX.current = event.touches[0].clientX;
+        startY.current = event.touches[0].clientY;
+        startScroll.current = { scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight };
       }
     };
     const onMove = (event: TouchEvent) => {
       if (event.touches.length !== 2) return;
       if (event.cancelable) event.preventDefault();
       startX.current = null;
+      startY.current = null;
+      startScroll.current = null;
       multiTouch.current = true;
       if (!pinch.current) pinch.current = { distance: twoFingerDistance(event.touches), zoom };
       if (pinch.current.distance > 0) setZoom(zoomFromPinch(pinch.current, event.touches));
@@ -112,18 +123,40 @@ export default function OfflineBookPages({ bookId }: Props) {
         startX.current = null;
         return;
       }
-      if (event.touches.length || zoom > 1 || startX.current === null ||
+      if (event.touches.length || startX.current === null || startY.current === null ||
           event.changedTouches.length !== 1) return;
-      const delta = event.changedTouches[0].clientX - startX.current;
+      const dx = event.changedTouches[0].clientX - startX.current;
+      const dy = event.changedTouches[0].clientY - startY.current;
+      const start = startScroll.current;
       startX.current = null;
-      const direction = rtlSwipePageDelta(delta, swipeThreshold);
+      startY.current = null;
+      startScroll.current = null;
+      // Zoomed images should pan freely in both axes. Page turns require
+      // an intentional vertical gesture starting at the top/bottom edge.
+      const direction = Math.abs(dy) > Math.abs(dx)
+        ? (start ? verticalPageTurn(dy, swipeThreshold, start) : 0)
+        : zoom > 1 ? 0 : rtlSwipePageDelta(dx, swipeThreshold);
       if (direction) goTo(page + direction);
     };
-    const onCancel = () => { pinch.current = null; startX.current = null; multiTouch.current = false; };
+    const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
-      if (!event.ctrlKey && !event.metaKey) return;
-      if (event.cancelable) event.preventDefault();
-      setZoom(value => zoomFromWheel(value, event.deltaY));
+      if (event.ctrlKey || event.metaKey) {
+        if (event.cancelable) event.preventDefault();
+        setZoom(value => zoomFromWheel(value, event.deltaY));
+        return;
+      }
+      // Native scrolling handles the page body. At the starting boundary,
+      // a further wheel turn advances/returns the book, including on Windows.
+      const now = Date.now();
+      if (now - lastWheelTurn.current < 500 || Math.abs(event.deltaY) < 12) return;
+      const direction = verticalPageTurn(-event.deltaY, 12, {
+        scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
+      });
+      if (direction) {
+        if (event.cancelable) event.preventDefault();
+        lastWheelTurn.current = now;
+        goTo(page + direction);
+      }
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: false });
@@ -141,39 +174,36 @@ export default function OfflineBookPages({ bookId }: Props) {
 
   return (
     <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
-      <div className="reader-toolbar glass mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl px-3 py-2">
-        <div className="flex items-center gap-2">
-          <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تصغير"
-            onClick={() => setZoom(value => boundedBookZoom(value - 0.25))}><ZoomOut size={17} /></button>
-          <span className="min-w-10 text-center text-xs tabular-nums">{Math.round(zoom * 100)}٪</span>
-          <button type="button" className="rounded-lg border border-gold/25 p-2 text-gold-soft" aria-label="تكبير"
-            onClick={() => setZoom(value => boundedBookZoom(value + 0.25))}><ZoomIn size={17} /></button>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-body text-foreground/80">صفحة {page} من {maxPage || "…"}</span>
-          <details className="relative text-sm">
-            <summary className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border border-gold/30 text-gold-soft" aria-label="إعداد حساسية تقليب الصفحات" title="حساسية التمرير">
-              <SlidersHorizontal size={18} />
+      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
+        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
+        <div className="reader-topbar__actions" dir="ltr">
+          <BookQuickIndex compact maxPage={maxPage} page={page}
+            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
+            onJump={goTo} />
+          <button type="button" className="reader-icon-button" aria-label="تصغير الكتاب" title="تصغير"
+            disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
+          <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
+            disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
+          {!immersive && <details className="reader-nav-popover">
+            <summary className="reader-icon-button cursor-pointer" aria-label="إعداد حساسية تقليب الصفحات" title="الحساسية">
+              <SlidersHorizontal size={19}/>
             </summary>
-            <div className="absolute left-0 top-full z-30 mt-1 w-52 rounded-xl border border-gold/25 bg-card p-3 shadow-lg">
-              <label className="grid gap-2 text-xs text-foreground">حساسية تقليب الصفحات
-                <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="مسافة التمرير باللمس"
-                  onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
-                    try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
-                  }} />
-                <span>{swipeThreshold} بكسل — الأصغر أكثر حساسية</span>
-              </label>
+            <div className="reader-nav-popover__body" dir="rtl">
+              <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="حساسية التقليب"
+                onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
+                  try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
+                }}/>
             </div>
-          </details>
+          </details>}
+          <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
+            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
           <button type="button" onClick={() => setImmersive(value => !value)}
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gold/30 text-gold-soft"
-            aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
-            {immersive ? <Minimize2 size={19} /> : <Maximize2 size={19} />}
+            className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
+            {immersive ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}
           </button>
         </div>
       </div>
-      <BookQuickIndex maxPage={maxPage} page={page} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
-        onJump={goTo} />
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">
           <p>{error}</p>
@@ -185,7 +215,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
-          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "55vh", touchAction: "pan-x pan-y" }}
+          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >
           <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
@@ -196,7 +226,6 @@ export default function OfflineBookPages({ bookId }: Props) {
           />
         </div>
       )}
-      <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
     </BookReaderLayout>

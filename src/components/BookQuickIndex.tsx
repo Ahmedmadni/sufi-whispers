@@ -2,10 +2,10 @@ import { useId, useMemo, useState } from "react";
 import { List, Search, X } from "lucide-react";
 import { currentReadingSection, readingSections, summarizedBookIndex, type OriginalBookHeading, type BookReadingSection } from "@/lib/book-index";
 
-type Props = { maxPage: number; page: number; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
+type Props = { maxPage: number; page: number; compact?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
 /** Full source-grounded PDF index. Khaliliya poems show genuine page ranges;
  * ordinary books keep their authentic PDF bookmark titles and page numbers. */
-export function BookQuickIndex({ maxPage, page, headings = [], onJump }: Props) {
+export function BookQuickIndex({ maxPage, page, compact = false, headings = [], onJump }: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const id = useId();
@@ -40,19 +40,19 @@ export function BookQuickIndex({ maxPage, page, headings = [], onJump }: Props) 
   };
 
   return (
-    <div className="book-quick-index relative mb-2 rounded-xl border border-gold/20 bg-card/60 p-2" dir="rtl">
-      <div className="flex items-center justify-between">
+    <div className={compact ? "book-quick-index book-quick-index--compact relative" : "book-quick-index relative mb-2 rounded-xl border border-gold/20 bg-card/60 p-2"} dir="rtl">
+      <div className={compact ? "flex items-center" : "flex items-center justify-between"}>
         <button type="button" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls={id}
           aria-label={open ? "إغلاق الفهرس" : "فتح فهرس الكتاب"} title="الفهرس"
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-gold-soft">
+          className={compact ? "reader-icon-button" : "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-gold-soft"}>
           {open ? <X size={20} aria-hidden="true" /> : <List size={20} aria-hidden="true" />}
         </button>
-        <span className="text-xs text-muted-foreground">
+        {!compact && <span className="text-xs text-muted-foreground">
           {hasPoems ? `${poems.length} قصيدة · حسب صفحات النسخة الأصلية` : entries.length ? `${entries.length} عنوانًا مرتبطًا بالصفحات` : "لا توجد عناوين مفهرسة في ملف الكتاب"}
-        </span>
+        </span>}
       </div>
       {open && (
-        <div id={id} className="mt-2 max-h-[min(65dvh,650px)] overflow-y-auto overscroll-contain rounded-xl" aria-label="فهرس الكتاب الكامل">
+        <div id={id} className={compact ? "reader-index-popover max-h-[min(66dvh,600px)] overflow-y-auto overscroll-contain rounded-xl" : "mt-2 max-h-[min(65dvh,650px)] overflow-y-auto overscroll-contain rounded-xl"} aria-label="فهرس الكتاب الكامل">
           {sections.length ? (
             <div className="space-y-3">
               {hasPoems && (

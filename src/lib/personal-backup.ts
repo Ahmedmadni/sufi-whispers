@@ -5,6 +5,7 @@
 import { books } from "@/data/books";
 import { DHIKR_NAMES, NAME_TARGET } from "@/data/dhikr";
 import { validatePrayerTimes } from "@/lib/wird-times";
+import { validateWirdTimes, WIRD_TIMES_KEY } from "@/lib/wird-reminders";
 
 export const PERSONAL_BACKUP_FORMAT = "rihab-khaliliyya-personal-data";
 export const PERSONAL_BACKUP_VERSION = 1;
@@ -15,6 +16,7 @@ const CORE_KEYS = [
   "rihab:printed-mushaf:bookmarks:v1",
   "rihab:printed-mushaf:last-page:v1",
   "rihab-prayer-times-v1",
+  WIRD_TIMES_KEY,
   "rihab:dhikr:tap-sound:v1",
   "rihab-font-scale",
   "rihab-theme",
@@ -79,6 +81,10 @@ function validDhikr(raw: string): void {
 }
 function validateEntry(key: string, raw: string): void {
   if (key === "rihab-dhikr-v1") return validDhikr(raw);
+  if (key === WIRD_TIMES_KEY) {
+    validateWirdTimes(json(raw, key));
+    return;
+  }
   if (key === "rihab-prayer-times-v1") {
     validatePrayerTimes(json(raw, key));
     return;
