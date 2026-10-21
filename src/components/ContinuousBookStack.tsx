@@ -19,6 +19,7 @@ type Props = {
 export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActivePage,renderPage,ref}:Props) {
   const [snapshot,setSnapshot]=useState({top:0,height:760});
   const didInitialJump=useRef(false);
+  const initialPageRef=useRef(initialPage);
   const liveCallback=useRef(onActivePage);
   const lastActive=useRef(initialPage);
   const frames=useRef<number|null>(null);
@@ -42,7 +43,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
     // zoom and render-window changes must NEVER snap reading back to start.
     if(!didInitialJump.current && layout.pageCount>0) {
       didInitialJump.current=true;
-      const clamped=Math.min(layout.pageCount,Math.max(1,Math.round(initialPage)));
+      const clamped=Math.min(layout.pageCount,Math.max(1,Math.round(initialPageRef.current)));
       el.scrollTop=layout.starts[clamped-1];
     }
     const update=()=>{
@@ -67,13 +68,11 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
       observer?.disconnect();
       if(frames.current!==null){cancelAnimationFrame(frames.current);frames.current=null;}
     };
-  },[layout,viewportRef,initialPage]);
+  },[layout,viewportRef]);
 
   const view=continuousWindow(layout,snapshot.top,snapshot.height);
   const pages:number[]=[];
   for(let p=view.first;p<=view.last;p++)pages.push(p);
-  const gap=layout.pageCount>1
-    ?Math.max(0,layout.starts[1]-layout.starts[0]-layout.heights[0]):0;
   return (
     <div className="continuous-book-stack relative flex-shrink-0" dir="ltr"
       style={{width:Math.round(width),height:layout.totalHeight}}
@@ -81,7 +80,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
       {pages.map(page=>(
         <div key={page} role="listitem" aria-label={`صفحة ${page} من ${layout.pageCount}`}
           className="continuous-book-page absolute inset-x-0"
-          style={{top:layout.starts[page-1],height:layout.heights[page-1],paddingBottom:page<layout.pageCount?gap:0}}>
+          style={{top:layout.starts[page-1],height:layout.heights[page-1]}}>
           {renderPage(page)}
         </div>
       ))}
