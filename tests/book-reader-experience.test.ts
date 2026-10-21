@@ -43,7 +43,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
     expect(offline).toContain("BookReaderLayout immersive={immersive}");
     expect(offline).toContain('aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}');
     expect(offline).toContain("BookQuickIndex");
-    expect(offline).toContain("rtlSwipePageDelta(dx, swipeThreshold)");
+    expect(offline).toContain("readerGesturePageDelta({");
     expect(offline).toContain('event.key === "ArrowRight"');
   });
 
@@ -56,7 +56,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
     expect(source).toContain('aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}');
     expect(source).toContain("BookQuickIndex");
     expect(source).toContain("BookReaderLayout immersive={immersive}");
-    expect(source).toContain("rtlSwipePageDelta(dx, swipeThreshold)");
+    expect(source).toContain("readerGesturePageDelta({");
     expect(source).toContain('e.key === "ArrowRight"');
     expect(source).toContain("if (!numPages || isOfflineAndroid) return [];");
   });

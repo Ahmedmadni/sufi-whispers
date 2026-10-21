@@ -4,8 +4,9 @@ import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
-import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
-import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
+import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { readerGesturePageDelta } from "@/lib/reader-interaction";
 import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
@@ -38,6 +39,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -133,9 +135,9 @@ export default function OfflineBookPages({ bookId }: Props) {
       startScroll.current = null;
       // Zoomed images should pan freely in both axes. Page turns require
       // an intentional vertical gesture starting at the top/bottom edge.
-      const direction = Math.abs(dy) > Math.abs(dx)
-        ? (start ? verticalPageTurn(dy, swipeThreshold, start) : 0)
-        : zoom > 1 ? 0 : rtlSwipePageDelta(dx, swipeThreshold);
+      const direction = start ? readerGesturePageDelta({
+        page, maxPage, zoom, scroll: start,
+      }, { dx, dy, threshold: swipeThreshold }) : 0;
       if (direction) goTo(page + direction);
     };
     const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
@@ -173,7 +175,9 @@ export default function OfflineBookPages({ bookId }: Props) {
   }, [page, zoom, swipeThreshold, image?.name]);
 
   return (
-    <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
+    <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
+      onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
+      label="قارئ الكتاب دون إنترنت">
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
@@ -215,6 +219,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
+          onClick={onSurfaceClick}
           style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >

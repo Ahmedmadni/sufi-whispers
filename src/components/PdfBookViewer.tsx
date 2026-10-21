@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
-import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
+import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
@@ -11,7 +11,8 @@ import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
-import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { readerGesturePageDelta } from "@/lib/reader-interaction";
 import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -96,6 +97,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
   const lastWheelTurn = useRef(0);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick } = useBookReaderChrome(
+    immersive, viewerRef, printedIndexOpen ? printedIndexZoom : scale,
+    next => { if (printedIndexOpen) setPrintedIndexZoom(next); else setScale(next); },
+  );
 
   // Swipe sensitivity: smaller threshold = more sensitive.
   // Higher values reduce accidental navigation.
@@ -226,16 +231,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const t = e.changedTouches[0];
       const dx = t.clientX - startX;
       const dy = t.clientY - startY;
-      const absX = Math.abs(dx);
-      const absY = Math.abs(dy);
-      if (Math.max(absX, absY) < swipeThreshold) return;
-      if (absY >= absX) {
-        const turn = startedAt ? verticalPageTurn(dy, swipeThreshold, startedAt) : 0;
-        if (turn) goTo(page + turn);
-      } else if (scale <= 1 && !printedIndexOpen) {
-        const next = rtlSwipePageDelta(dx, swipeThreshold);
-        if (next) goTo(page + next);
-      }
+      if (!startedAt) return;
+      const turn = readerGesturePageDelta({
+        page, maxPage: numPages, zoom: printedIndexOpen ? printedIndexZoom : scale, scroll: startedAt,
+      }, {dx, dy, threshold: swipeThreshold, indexOpen: printedIndexOpen});
+      if (turn) goTo(page + turn);
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
@@ -305,7 +305,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
 
   return (
-    <BookReaderLayout immersive={immersive} label="قارئ الكتاب">
+    <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
+      onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
+      label="قارئ الكتاب">
       {/* Single reader bar: title, index, zoom, paging and exit only. */}
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
@@ -449,6 +451,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           viewerRef.current = el;
         }}
         className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-start items-start min-h-[65vh] select-none overflow-auto"
+        onClick={onSurfaceClick}
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">
