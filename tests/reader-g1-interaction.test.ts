@@ -1,5 +1,5 @@
 import {describe, expect, test} from "bun:test";
-import { readerGesturePageDelta, readerNextPage, zoomOnDoubleTap, focalScrollAfterZoom } from "../src/lib/reader-interaction";
+import { readerGesturePageDelta, readerNextPage, zoomOnDoubleTap, focalScrollAfterZoom, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "../src/lib/reader-interaction";
 import { readFileSync } from "node:fs";
 const state = (scrollTop: number, zoom=1) => ({page:5, maxPage:25, zoom, scroll:{scrollTop,scrollHeight:1200,clientHeight:400}});
 const read=(p:string)=>readFileSync(p,"utf8");
@@ -26,6 +26,12 @@ describe("G1 shared book ReaderGestureEngine",()=>{
   test("zoom retains user focal position rather than resetting to page corner",()=>{
     expect(focalScrollAfterZoom({x:150,y:200,left:50,top:100,scrollLeft:70,scrollTop:210,currentZoom:1,nextZoom:2}))
       .toEqual({left:240,top:520});
+  });
+  test("two-finger focal point follows pinch zoom and movement",()=>{
+    const anchor = captureReaderPinchAnchor({left:10,top:20,scrollLeft:50,scrollTop:150},{x:110,y:220},1);
+    expect(anchor).toEqual({contentX:150,contentY:350});
+    expect(scrollToReaderPinchAnchor(anchor,{x:160,y:280},{left:10,top:20},2))
+      .toEqual({left:150,top:440});
   });
   test("fullscreen never traps users and does not rely on hidden text controls",()=>{
     const layout=read("src/components/BookReaderLayout.tsx");

@@ -35,3 +35,27 @@ export function focalScrollAfterZoom(input: ZoomFocal): { left: number; top: num
     top: Math.max(0, (input.scrollTop + input.y - input.top) * ratio - (input.y - input.top)),
   };
 }
+
+export type ReaderPinchAnchor = { contentX: number; contentY: number };
+export type ReaderViewportRect = { left: number; top: number };
+/** Capture the exact document point below the beginning two-finger midpoint. */
+export function captureReaderPinchAnchor(
+  viewport: ReaderViewportRect & { scrollLeft: number; scrollTop: number },
+  center: {x: number; y: number},
+  zoom: number,
+): ReaderPinchAnchor {
+  const safeZoom = zoom > 0 && Number.isFinite(zoom) ? zoom : 1;
+  return {
+    contentX: (Math.max(0, viewport.scrollLeft) + center.x - viewport.left) / safeZoom,
+    contentY: (Math.max(0, viewport.scrollTop) + center.y - viewport.top) / safeZoom,
+  };
+}
+/** Focal point remains under the moving midpoint, even during two-finger pan. */
+export function scrollToReaderPinchAnchor(
+  anchor: ReaderPinchAnchor, center: {x: number;y: number}, viewport: ReaderViewportRect, zoom: number,
+): {left: number;top: number} {
+  return {
+    left: Math.max(0, anchor.contentX * zoom - (center.x - viewport.left)),
+    top: Math.max(0, anchor.contentY * zoom - (center.y - viewport.top)),
+  };
+}

@@ -1,12 +1,13 @@
 import { describe, test, expect } from "bun:test";
 import { readFileSync } from "node:fs";
-import { boundedBookZoom, twoFingerDistance, zoomFromPinch, zoomFromWheel } from "../src/lib/book-pinch";
+import { boundedBookZoom, twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel } from "../src/lib/book-pinch";
 const read = (p: string) => readFileSync(p,"utf8");
 const fingers = (a:number,b:number) => [{clientX:a,clientY:0},{clientX:b,clientY:0}];
 describe("Reliable 2 finger zoom in both book readers",()=>{
   test("math, bounds and touch positions",()=>{
     expect(twoFingerDistance(fingers(0,80))).toBe(80);
     expect(twoFingerDistance([fingers(0,80)[0]])).toBe(0);
+    expect(twoFingerCenter(fingers(0,100))).toEqual({x:50,y:0});
     expect(zoomFromPinch({distance:80,zoom:1},fingers(0,160))).toBe(2);
     expect(zoomFromPinch({distance:80,zoom:1},fingers(0,700))).toBe(4);
     expect(zoomFromPinch({distance:80,zoom:2},fingers(0,1))).toBe(1);

@@ -6,8 +6,8 @@ import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-inde
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
-import { readerGesturePageDelta } from "@/lib/reader-interaction";
-import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
+import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
+import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 
@@ -33,7 +33,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
   const startScroll = useRef<ScrollViewport | null>(null);
-  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
+  const pinch = useRef<{ distance: number; zoom: number; anchor: {contentX:number;contentY:number} } | null>(null);
   const multiTouch = useRef(false);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
@@ -99,7 +99,12 @@ export default function OfflineBookPages({ bookId }: Props) {
     const onStart = (event: TouchEvent) => {
       if (event.touches.length === 2) {
         suppressSurfaceTap();
-        pinch.current = { distance: twoFingerDistance(event.touches), zoom };
+        const center = twoFingerCenter(event.touches);
+        const rect = el.getBoundingClientRect();
+        if (center) pinch.current = {
+          distance: twoFingerDistance(event.touches), zoom,
+          anchor: captureReaderPinchAnchor({left:rect.left,top:rect.top,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop},center,zoom),
+        };
         startX.current = null;
         startY.current = null;
         startScroll.current = null;
@@ -117,8 +122,23 @@ export default function OfflineBookPages({ bookId }: Props) {
       startY.current = null;
       startScroll.current = null;
       multiTouch.current = true;
-      if (!pinch.current) pinch.current = { distance: twoFingerDistance(event.touches), zoom };
-      if (pinch.current.distance > 0) setZoom(zoomFromPinch(pinch.current, event.touches));
+      const center = twoFingerCenter(event.touches);
+      if (!pinch.current && center) {
+        const rect = el.getBoundingClientRect();
+        pinch.current = {
+          distance: twoFingerDistance(event.touches), zoom,
+          anchor: captureReaderPinchAnchor({left:rect.left,top:rect.top,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop},center,zoom),
+        };
+      }
+      if (pinch.current?.distance && center) {
+        const next = zoomFromPinch(pinch.current, event.touches);
+        const rect = el.getBoundingClientRect();
+        const target = scrollToReaderPinchAnchor(pinch.current.anchor,center,{left:rect.left,top:rect.top},next);
+        setZoom(next);
+        requestAnimationFrame(() => {
+          if (el.isConnected) el.scrollTo({left:target.left,top:target.top,behavior:"auto"});
+        });
+      }
     };
     const onEnd = (event: TouchEvent) => {
       if (multiTouch.current) {

@@ -12,8 +12,8 @@ import {
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
 import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
-import { readerGesturePageDelta } from "@/lib/reader-interaction";
-import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
+import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
+import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -95,7 +95,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [pageWidth, setPageWidth] = useState(360);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
-  const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
+  const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean; anchor: {contentX:number;contentY:number} } | null>(null);
   const lastWheelTurn = useRef(0);
   const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(
     immersive, viewerRef, printedIndexOpen ? printedIndexZoom : scale,
@@ -206,7 +206,13 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     const onStart = (e: TouchEvent) => {
       if (e.touches.length === 2) {
         suppressSurfaceTap();
-        pinchRef.current = { distance: twoFingerDistance(e.touches), zoom: printedIndexOpen ? printedIndexZoom : scale, printed: printedIndexOpen };
+        const center = twoFingerCenter(e.touches);
+        const rect = el.getBoundingClientRect();
+        const startingZoom = printedIndexOpen ? printedIndexZoom : scale;
+        if (center) pinchRef.current = {
+          distance: twoFingerDistance(e.touches), zoom: startingZoom, printed: printedIndexOpen,
+          anchor: captureReaderPinchAnchor({left:rect.left,top:rect.top,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop},center,startingZoom),
+        };
         active = false;
         startedAt = null;
         return;
@@ -221,8 +227,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       if (e.touches.length === 2 && pinchRef.current && pinchRef.current.distance > 0) {
         if (e.cancelable) e.preventDefault();
         const next = zoomFromPinch(pinchRef.current, e.touches, 1, 4);
+        const center = twoFingerCenter(e.touches);
+        if (!center) return;
+        const rect = el.getBoundingClientRect();
+        const target = scrollToReaderPinchAnchor(pinchRef.current.anchor,center,{left:rect.left,top:rect.top},next);
         if (pinchRef.current.printed) setPrintedIndexZoom(next);
         else setScale(next);
+        requestAnimationFrame(() => {
+          if (el.isConnected) el.scrollTo({left:target.left,top:target.top,behavior:"auto"});
+        });
       }
     };
     const onEnd = (e: TouchEvent) => {
