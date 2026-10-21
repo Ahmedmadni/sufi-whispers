@@ -609,8 +609,8 @@
   flex-wrap: wrap;
   gap: .25rem;
   align-items: center;
-  justify-content: flex-end;
-  margin-inline-start: auto;
+  justify-content: flex-start;
+  margin-inline-start: 0;
 }
 .reader-topbar .reader-icon-button,
 .reader-topbar .reader-nav-popover > summary {
