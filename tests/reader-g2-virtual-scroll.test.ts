@@ -1,6 +1,6 @@
 import {describe,expect,test} from "bun:test";
 import {readFileSync} from "node:fs";
-import {createContinuousLayout,continuousWindow,pageAtContinuousOffset,storedReaderMode,persistReaderMode} from "../src/lib/reader-continuous";
+import {createContinuousLayout,continuousWindow,pageAtContinuousOffset,preserveContinuousScroll,storedReaderMode,persistReaderMode} from "../src/lib/reader-continuous";
 describe("G2 bounded continuous book geometry",()=>{
   const lay=createContinuousLayout(1040,360,()=>1.5,12);
   test("does not render or allocate page pixels to create a full scroll geometry",()=>{
@@ -25,6 +25,15 @@ describe("G2 bounded continuous book geometry",()=>{
     expect(pageAtContinuousOffset(lay,Infinity)).toBe(1);
     expect(pageAtContinuousOffset(lay,lay.totalHeight)).toBe(1040);
     expect(continuousWindow(createContinuousLayout(0,360,()=>1),0,300).rendered).toBe(0);
+  });
+  test("rotation preserves current page and percentage-of-page even when dimensions change",()=>{
+    const before=createContinuousLayout(800,360,()=>1.4);
+    const after=createContinuousLayout(800,560,()=>1.4);
+    const previous=before.starts[249]+before.heights[249]*.35;
+    const target=preserveContinuousScroll(before,after,previous);
+    expect(pageAtContinuousOffset(after,target)).toBe(250);
+    expect(Math.abs((target-after.starts[249])/after.heights[249]-.35)).toBeLessThan(.02);
+    expect(preserveContinuousScroll(createContinuousLayout(0,360,()=>1),after,200)).toBe(0);
   });
   test("different source image page dimensions generate correct independent offsets",()=>{
     const g=createContinuousLayout(3,200,p=>p===2?2:1,10);

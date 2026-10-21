@@ -67,3 +67,15 @@ export function continuousWindow(
   const last=Math.min(layout.pageCount,pageAtContinuousOffset(layout,top+view)+buffer);
   return {first,last,current:pageAtContinuousOffset(layout,top+view*.32),rendered:last-first+1};
 }
+
+/** Preserve the same part of the active source page after rotation, resizing
+ * or lazy PDF ratio correction. Does NOT access DOM or preload more pages. */
+export function preserveContinuousScroll(
+  oldLayout: ContinuousLayout, nextLayout: ContinuousLayout, scrollTop: number,
+): number {
+  if(!oldLayout.pageCount || !nextLayout.pageCount)return 0;
+  const page=Math.min(nextLayout.pageCount,pageAtContinuousOffset(oldLayout,scrollTop));
+  const oldHeight=oldLayout.heights[page-1] || 1;
+  const position=Math.max(0,Math.min(1,(scrollTop-oldLayout.starts[page-1])/oldHeight));
+  return Math.max(0,Math.round(nextLayout.starts[page-1]+position*nextLayout.heights[page-1]));
+}

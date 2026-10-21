@@ -1,5 +1,5 @@
 import {useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefObject} from "react";
-import {continuousWindow, type ContinuousLayout} from "@/lib/reader-continuous";
+import {continuousWindow, preserveContinuousScroll, type ContinuousLayout} from "@/lib/reader-continuous";
 
 export type ContinuousBookHandle = { jumpToPage: (page: number) => void };
 type Props = {
@@ -20,6 +20,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
   const [snapshot,setSnapshot]=useState({top:0,height:760});
   const didInitialJump=useRef(false);
   const initialPageRef=useRef(initialPage);
+  const previousLayout=useRef(layout);
   const liveCallback=useRef(onActivePage);
   const lastActive=useRef(initialPage);
   const frames=useRef<number|null>(null);
@@ -45,7 +46,10 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
       didInitialJump.current=true;
       const clamped=Math.min(layout.pageCount,Math.max(1,Math.round(initialPageRef.current)));
       el.scrollTop=layout.starts[clamped-1];
+    } else if(previousLayout.current!==layout && didInitialJump.current) {
+      el.scrollTop=preserveContinuousScroll(previousLayout.current,layout,el.scrollTop);
     }
+    previousLayout.current=layout;
     const update=()=>{
       if(frames.current!==null)cancelAnimationFrame(frames.current);
       frames.current=requestAnimationFrame(()=>{
