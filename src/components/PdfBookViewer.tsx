@@ -595,7 +595,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             />
           ) : mode==="continuous" && numPages>0 ? (
             <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={pageWidth*scale}
-              initialPage={page} viewportRef={viewerRef} onActivePage={setPage}
+              initialPage={page} overscan={scale < 1.75 ? 1 : 0} viewportRef={viewerRef} onActivePage={setPage}
               renderPage={(target)=>(
                 <Page key={target} pageNumber={target} width={pageWidth*scale}
                   renderTextLayer={false} renderAnnotationLayer={false}

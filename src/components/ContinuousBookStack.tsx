@@ -9,6 +9,7 @@ type Props = {
   viewportRef: RefObject<HTMLDivElement | null>;
   onActivePage: (page: number) => void;
   renderPage: (page: number) => ReactNode;
+  overscan?: number;
   ref?: Ref<ContinuousBookHandle>;
 };
 
@@ -16,7 +17,7 @@ type Props = {
  * scroll geometry, but neither adjacent images nor PDF canvases are mounted.
  * Each page remains in its own original, unmodified source order.
  */
-export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActivePage,renderPage,ref}:Props) {
+export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActivePage,renderPage,overscan=1,ref}:Props) {
   const [snapshot,setSnapshot]=useState({top:0,height:760});
   const didInitialJump=useRef(false);
   const initialPageRef=useRef(initialPage);
@@ -74,7 +75,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
     };
   },[layout,viewportRef]);
 
-  const view=continuousWindow(layout,snapshot.top,snapshot.height);
+  const view=continuousWindow(layout,snapshot.top,snapshot.height,overscan);
   const pages:number[]=[];
   for(let p=view.first;p<=view.last;p++)pages.push(p);
   return (

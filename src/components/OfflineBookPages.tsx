@@ -286,7 +286,7 @@ export default function OfflineBookPages({ bookId }: Props) {
         >
           {mode==="continuous" && entry ? (
             <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={viewportWidth*zoom}
-              initialPage={page} viewportRef={scroll} onActivePage={setPage}
+              initialPage={page} overscan={zoom < 2.5 ? 1 : 0} viewportRef={scroll} onActivePage={setPage}
               renderPage={(target)=>{
                 const item=entry.pages[target-1];
                 if(!item)return null;

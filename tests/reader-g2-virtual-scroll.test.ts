@@ -19,6 +19,12 @@ describe("G2 bounded continuous book geometry",()=>{
       expect(snap.last).toBeGreaterThanOrEqual(p);
     }
   });
+  test("high zoom renders fewer adjacent canvases instead of exhausting mobile WebView",()=>{
+    const huge=createContinuousLayout(1040,1600,()=>1.4,12);
+    const near=continuousWindow(huge,huge.starts[399],800,0);
+    expect(near.rendered).toBe(1);
+    expect(near.current).toBe(400);
+  });
   test("boundary offsets and active page are stable",()=>{
     expect(pageAtContinuousOffset(lay,0)).toBe(1);
     expect(pageAtContinuousOffset(lay,lay.starts[50])).toBe(51);
