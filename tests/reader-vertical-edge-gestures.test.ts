@@ -28,8 +28,8 @@ describe("Vertical page turning without locking one-finger image panning",()=>{
   });
   test("both viewers retain native vertical pan and detect edge turns",()=>{
     const pdf=src("src/components/PdfBookViewer.tsx"),offline=src("src/components/OfflineBookPages.tsx");
-    expect(pdf).toContain("verticalPageTurn(dy, swipeThreshold, startedAt)");
-    expect(offline).toContain("verticalPageTurn(dy, swipeThreshold, start)");
+    expect(pdf).toContain("readerGesturePageDelta({");
+    expect(offline).toContain("readerGesturePageDelta({");
     expect(pdf).toContain('touchmove", onMove, { passive: false }');
     expect(offline).toContain('touchmove", onMove, { passive: false }');
     expect(offline).toContain('touchAction: "pan-x pan-y"');

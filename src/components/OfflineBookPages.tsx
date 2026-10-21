@@ -4,9 +4,10 @@ import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
-import { BookReaderLayout, useBookImmersive } from "@/components/BookReaderLayout";
-import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
-import { twoFingerDistance, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
+import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
+import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
+import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 
@@ -32,12 +33,13 @@ export default function OfflineBookPages({ bookId }: Props) {
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
   const startScroll = useRef<ScrollViewport | null>(null);
-  const pinch = useRef<{ distance: number; zoom: number } | null>(null);
+  const pinch = useRef<{ distance: number; zoom: number; anchor: {contentX:number;contentY:number} } | null>(null);
   const multiTouch = useRef(false);
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -96,7 +98,13 @@ export default function OfflineBookPages({ bookId }: Props) {
     if (!el || !image) return;
     const onStart = (event: TouchEvent) => {
       if (event.touches.length === 2) {
-        pinch.current = { distance: twoFingerDistance(event.touches), zoom };
+        suppressSurfaceTap();
+        const center = twoFingerCenter(event.touches);
+        const rect = el.getBoundingClientRect();
+        if (center) pinch.current = {
+          distance: twoFingerDistance(event.touches), zoom,
+          anchor: captureReaderPinchAnchor({left:rect.left,top:rect.top,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop},center,zoom),
+        };
         startX.current = null;
         startY.current = null;
         startScroll.current = null;
@@ -114,8 +122,23 @@ export default function OfflineBookPages({ bookId }: Props) {
       startY.current = null;
       startScroll.current = null;
       multiTouch.current = true;
-      if (!pinch.current) pinch.current = { distance: twoFingerDistance(event.touches), zoom };
-      if (pinch.current.distance > 0) setZoom(zoomFromPinch(pinch.current, event.touches));
+      const center = twoFingerCenter(event.touches);
+      if (!pinch.current && center) {
+        const rect = el.getBoundingClientRect();
+        pinch.current = {
+          distance: twoFingerDistance(event.touches), zoom,
+          anchor: captureReaderPinchAnchor({left:rect.left,top:rect.top,scrollLeft:el.scrollLeft,scrollTop:el.scrollTop},center,zoom),
+        };
+      }
+      if (pinch.current?.distance && center) {
+        const next = zoomFromPinch(pinch.current, event.touches);
+        const rect = el.getBoundingClientRect();
+        const target = scrollToReaderPinchAnchor(pinch.current.anchor,center,{left:rect.left,top:rect.top},next);
+        setZoom(next);
+        requestAnimationFrame(() => {
+          if (el.isConnected) el.scrollTo({left:target.left,top:target.top,behavior:"auto"});
+        });
+      }
     };
     const onEnd = (event: TouchEvent) => {
       if (multiTouch.current) {
@@ -127,18 +150,19 @@ export default function OfflineBookPages({ bookId }: Props) {
           event.changedTouches.length !== 1) return;
       const dx = event.changedTouches[0].clientX - startX.current;
       const dy = event.changedTouches[0].clientY - startY.current;
+      if (Math.hypot(dx,dy) > 12) suppressSurfaceTap();
       const start = startScroll.current;
       startX.current = null;
       startY.current = null;
       startScroll.current = null;
       // Zoomed images should pan freely in both axes. Page turns require
       // an intentional vertical gesture starting at the top/bottom edge.
-      const direction = Math.abs(dy) > Math.abs(dx)
-        ? (start ? verticalPageTurn(dy, swipeThreshold, start) : 0)
-        : zoom > 1 ? 0 : rtlSwipePageDelta(dx, swipeThreshold);
+      const direction = start ? readerGesturePageDelta({
+        page, maxPage, zoom, scroll: start,
+      }, { dx, dy, threshold: swipeThreshold }) : 0;
       if (direction) goTo(page + direction);
     };
-    const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
+    const onCancel = () => { suppressSurfaceTap(); pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
       if (event.ctrlKey || event.metaKey) {
         if (event.cancelable) event.preventDefault();
@@ -170,10 +194,12 @@ export default function OfflineBookPages({ bookId }: Props) {
       el.removeEventListener("touchcancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
-  }, [page, zoom, swipeThreshold, image?.name]);
+  }, [page, zoom, swipeThreshold, image?.name, suppressSurfaceTap]);
 
   return (
-    <BookReaderLayout immersive={immersive} label="قارئ الكتاب دون إنترنت">
+    <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
+      onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
+      label="قارئ الكتاب دون إنترنت">
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
@@ -215,6 +241,11 @@ export default function OfflineBookPages({ bookId }: Props) {
       ) : (
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
+          onClick={onSurfaceClick}
+          onKeyDown={onSurfaceKeyDown}
+          tabIndex={0}
+          role="region"
+          aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
           style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >

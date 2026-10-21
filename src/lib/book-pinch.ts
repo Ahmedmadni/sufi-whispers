@@ -28,3 +28,13 @@ export function zoomFromPinch(snapshot: PinchSnapshot, points: ArrayLike<TouchPo
 export function zoomFromWheel(current: number, deltaY: number, minimum = 1, maximum = 4): number {
   return boundedBookZoom(current * Math.exp(-deltaY * 0.005), minimum, maximum);
 }
+
+export type TwoFingerCenter = { x: number; y: number };
+/** Client-space midpoint: works regardless of the two fingers' order. */
+export function twoFingerCenter(points: ArrayLike<TouchPoint>): TwoFingerCenter | null {
+  if (points.length !== 2) return null;
+  return {
+    x: (points[0].clientX + points[1].clientX) / 2,
+    y: (points[0].clientY + points[1].clientY) / 2,
+  };
+}
