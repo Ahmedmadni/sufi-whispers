@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowRight, BellRing, Copy, Download, FileUp, HardDriveDownload, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
-import { enableWirdReminders, disableWirdReminders, nativeReminders, WIRD_REMINDER_KEY } from "@/lib/wird-reminders";
+import { enableWirdReminders, disableWirdReminders, nativeReminders, WIRD_REMINDER_KEY, readWirdTimes, updateWirdTimes, type WirdTimes } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -28,11 +28,13 @@ function SettingsPage() {
   const [error, setError] = useState("");
   const pickFile = useRef<HTMLInputElement>(null);
   const [reminderStatus, setReminderStatus] = useState("off");
+  const [wirdTimes, setWirdTimes] = useState<WirdTimes>({ first: "09:00", second: "21:00" });
   const [reminderBusy, setReminderBusy] = useState(false);
   const [reminderNotice, setReminderNotice] = useState("");
   const [remindersAvailable, setRemindersAvailable] = useState(false);
   useEffect(() => {
     setRemindersAvailable(Boolean(nativeReminders()));
+    setWirdTimes(readWirdTimes());
     try { setReminderStatus(localStorage.getItem(WIRD_REMINDER_KEY) === "on" ? "on" : "off"); } catch { /* optional */ }
   }, []);
   async function toggleReminder() {
@@ -42,10 +44,24 @@ function SettingsPage() {
       if (reminderStatus === "on") {
         await disableWirdReminders(); setReminderStatus("off"); setReminderNotice("تم إيقاف تذكيري الورد.");
       } else {
-        setReminderNotice(await enableWirdReminders()); setReminderStatus("on");
+        setReminderNotice(await enableWirdReminders(wirdTimes)); setReminderStatus("on");
       }
     } catch (reason) { setReminderNotice(reason instanceof Error ? reason.message : "تعذّر ضبط التذكير."); }
     finally { setReminderBusy(false); }
+  }
+
+  async function saveReminderTimes() {
+    setReminderBusy(true);
+    setReminderNotice("");
+    try {
+      const saved = await updateWirdTimes(wirdTimes);
+      setWirdTimes(saved);
+      setReminderNotice(reminderStatus === "on"
+        ? "تم تحديث مواعيد الإشعارات اليومية في Android."
+        : "تم حفظ المواعيد على الجهاز. يمكنك تفعيل الإشعارات في Android لاحقًا.");
+    } catch (reason) {
+      setReminderNotice(reason instanceof Error ? reason.message : "تعذّر تحديث مواعيد التذكير.");
+    } finally { setReminderBusy(false); }
   }
 
   function clearMessages() { setNotice(""); setError(""); }
@@ -164,7 +180,27 @@ function SettingsPage() {
             <BellRing size={20} className="text-gold-soft" />
             <h2 id="wird-reminders-heading" className="font-display text-lg">تذكير ورد الاستغفار</h2>
           </div>
-          <p className="text-sm text-muted-foreground">الحزب الأول الساعة 9:00 صباحًا (ص 4)، والحزب الثاني الساعة 9:00 مساءً (ص 22) بتوقيت الهاتف المحلي. يمكنك فتح الورد مباشرة من الإشعار.</p>
+          <p className="text-sm text-muted-foreground">اختر الموعد المناسب لكل حزب. يفتح الإشعار الحزب الأول عند الصفحة 4 والثاني عند الصفحة 22.</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1.5 text-sm text-foreground">
+              <span>الحزب الأول</span>
+              <input type="time" dir="ltr" value={wirdTimes.first}
+                onChange={event => setWirdTimes(old => ({ ...old, first: event.currentTarget.value }))}
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-foreground"
+                aria-label="موعد تذكير الحزب الأول" />
+            </label>
+            <label className="flex flex-col gap-1.5 text-sm text-foreground">
+              <span>الحزب الثاني</span>
+              <input type="time" dir="ltr" value={wirdTimes.second}
+                onChange={event => setWirdTimes(old => ({ ...old, second: event.currentTarget.value }))}
+                className="min-h-11 w-full rounded-xl border border-border bg-background px-3 text-foreground"
+                aria-label="موعد تذكير الحزب الثاني" />
+            </label>
+          </div>
+          <button type="button" onClick={() => void saveReminderTimes()} disabled={reminderBusy}
+            className="inline-flex min-h-11 items-center rounded-xl border border-gold/35 px-4 py-2 text-sm text-foreground disabled:opacity-40">
+            حفظ مواعيد الأوراد
+          </button>
           <p className="text-xs text-muted-foreground">الإشعارات اختيارية وتعمل دون خادم أو حساب. قد يتأخر ظهورها مع توفير طاقة البطارية؛ لا نطلب صلاحية المنبّه الدقيق.</p>
           <button type="button" onClick={() => void toggleReminder()} disabled={!remindersAvailable || reminderBusy}
             aria-pressed={reminderStatus === "on"}
