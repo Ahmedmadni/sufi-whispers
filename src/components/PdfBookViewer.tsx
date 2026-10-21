@@ -4,6 +4,8 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
+import { createContinuousLayout, storedReaderMode, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
@@ -29,6 +31,8 @@ import {
   CornerDownLeft,
   List,
   X,
+  Rows3,
+  BookOpen,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -92,7 +96,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [page, setPage] = useState(1);
   const [input, setInput] = useState("1");
   const [scale, setScale] = useState(1);
+  const [mode, setMode] = useState<ReaderMode>(()=>storedReaderMode(bookId));
+  const [pdfRatio,setPdfRatio] = useState(1.414);
+  const continuousRef = useRef<ContinuousBookHandle>(null);
+  const changeReaderMode = (next:ReaderMode) => {
+    persistReaderMode(bookId,next);
+    setMode(next);
+    setPrintedIndexOpen(false);
+  };
   const [pageWidth, setPageWidth] = useState(360);
+  const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean; anchor: {contentX:number;contentY:number} } | null>(null);
@@ -188,10 +201,12 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const goTo = useCallback(
     (p: number) => {
       if (numPages < 1) return;
-      setPage(clampPage(p, numPages));
-      viewerRef.current?.scrollTo({ top: 0, left: 0 });
+      const destination=clampPage(p,numPages);
+      setPage(destination);
+      if(mode==="continuous" && !printedIndexOpen)continuousRef.current?.jumpToPage(destination);
+      else viewerRef.current?.scrollTo({top:0,left:0});
     },
-    [numPages]
+    [numPages,mode,printedIndexOpen]
   );
 
   // Match the printed Arabic Mushaf: swipe RIGHT for the next page;
@@ -250,7 +265,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const turn = readerGesturePageDelta({
         page, maxPage: numPages, zoom: printedIndexOpen ? printedIndexZoom : scale, scroll: startedAt,
       }, {dx, dy, threshold: swipeThreshold, indexOpen: printedIndexOpen});
-      if (turn) goTo(page + turn);
+      if (turn && mode==="paged") goTo(page + turn);
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchend", onEnd, { passive: true });
@@ -263,7 +278,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         else setScale(value => zoomFromWheel(value, e.deltaY));
         return;
       }
-      if (printedIndexOpen) return;
+      if (printedIndexOpen || mode==="continuous") return;
       const now = Date.now();
       if (now - lastWheelTurn.current < 500 || Math.abs(e.deltaY) < 12) return;
       const direction = verticalPageTurn(-e.deltaY, 12, {
@@ -284,8 +299,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       el.removeEventListener("touchcancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
-  }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom, numPages, suppressSurfaceTap]);
-  useEffect(() => { viewerRef.current?.scrollTo({ top: 0, left: 0 }); }, [page, bookId]);
+  }, [page, goTo, swipeThreshold, scale, printedIndexOpen, printedIndexZoom, numPages, suppressSurfaceTap, mode]);
+  useEffect(() => { if(mode==="paged")viewerRef.current?.scrollTo({top:0,left:0}); }, [page, bookId, mode]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -310,13 +325,13 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
   const neighbors = useMemo<number[]>(() => {
     // Hidden PDF canvases can exhaust WebView memory on larger offline books.
-    if (!numPages || isOfflineAndroid) return [];
+    if (!numPages || isOfflineAndroid || mode==="continuous") return [];
     const set = new Set<number>();
     [page - 1, page + 1, page - 2, page + 2].forEach((p) => {
       if (p >= 1 && p <= numPages && p !== page) set.add(p);
     });
     return Array.from(set);
-  }, [page, numPages, isOfflineAndroid]);
+  }, [page, numPages, isOfflineAndroid, mode]);
 
 
   return (
@@ -327,6 +342,13 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
+          <button type="button" className="reader-icon-button"
+            aria-label={mode==="paged"?"القراءة المتواصلة":"وضع تقليب الصفحات"}
+            aria-pressed={mode==="continuous"}
+            title={mode==="paged"?"عرض صفحات الكتاب متتابعة":"العودة لتقليب الصفحات"}
+            onClick={()=>changeReaderMode(mode==="paged"?"continuous":"paged")}>
+            {mode==="paged"?<Rows3 size={19}/>:<BookOpen size={19}/>}
+          </button>
           {bookId === "nafahat" ? (
             <button type="button" className="reader-icon-button"
               aria-label={printedIndexOpen ? "إغلاق الفهرس" : "فهرس جامع النفحات"}
@@ -486,6 +508,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             setReaderError("");
             setNumPages(n);
             setPage((current) => clampPage(current, n));
+            void document.getPage(1).then(first=>{
+              const vp=first.getViewport({scale:1});
+              if(vp.width>0 && vp.height>0)setPdfRatio(vp.height/vp.width);
+            }).catch(()=>{ /* preserve a safe aspect ratio fallback */ });
             setOutline([]);
             // Read actual PDF bookmark destinations. Do not manufacture poem
             // titles or index positions in the books of madih.
@@ -567,6 +593,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 setPrintedIndexOpen(false);
               }}
             />
+          ) : mode==="continuous" && numPages>0 ? (
+            <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={pageWidth*scale}
+              initialPage={page} viewportRef={viewerRef} onActivePage={setPage}
+              renderPage={(target)=>(
+                <Page key={target} pageNumber={target} width={pageWidth*scale}
+                  renderTextLayer={false} renderAnnotationLayer={false}
+                  loading={<Skeleton style={{width:pageWidth*scale,height:continuousLayout.heights[target-1]||pageWidth*scale*1.414}} className="rounded-lg"/>}
+                  className="reader-paper rounded-lg overflow-hidden" />
+              )} />
           ) : (
             <Page
               key={page}
