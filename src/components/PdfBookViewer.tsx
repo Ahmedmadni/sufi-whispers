@@ -95,6 +95,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
+  const lastWheelTurn = useRef(0);
 
   // Swipe sensitivity: smaller threshold = more sensitive.
   // Higher values reduce accidental navigation.
@@ -241,10 +242,23 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     el.addEventListener("touchmove", onMove, { passive: false });
     const onCancel = () => { pinchRef.current = null; active = false; };
     const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      if (e.cancelable) e.preventDefault();
-      if (printedIndexOpen) setPrintedIndexZoom(value => zoomFromWheel(value, e.deltaY));
-      else setScale(value => zoomFromWheel(value, e.deltaY));
+      if (e.ctrlKey || e.metaKey) {
+        if (e.cancelable) e.preventDefault();
+        if (printedIndexOpen) setPrintedIndexZoom(value => zoomFromWheel(value, e.deltaY));
+        else setScale(value => zoomFromWheel(value, e.deltaY));
+        return;
+      }
+      if (printedIndexOpen) return;
+      const now = Date.now();
+      if (now - lastWheelTurn.current < 500 || Math.abs(e.deltaY) < 12) return;
+      const direction = verticalPageTurn(-e.deltaY, 12, {
+        scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
+      });
+      if (direction) {
+        if (e.cancelable) e.preventDefault();
+        lastWheelTurn.current = now;
+        goTo(page + direction);
+      }
     };
     el.addEventListener("touchcancel", onCancel);
     el.addEventListener("wheel", onWheel, { passive: false });

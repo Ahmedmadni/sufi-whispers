@@ -1,6 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getBook, type Book } from "@/data/books";
 
@@ -83,25 +82,7 @@ function BookPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <section className="flex-1 w-full max-w-5xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
-        <div
-          dir="rtl"
-          className="reader-book-header grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 mb-3 rounded-xl px-4 py-3"
-        >
-          <Link
-            to="/library"
-            className="shrink-0 inline-flex items-center gap-1 text-xs text-gold-soft/80 hover:text-gold-soft font-body"
-          >
-            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
-            <span>المكتبة</span>
-          </Link>
-          <h1
-            className="min-w-0 font-display text-gold-soft text-sm sm:text-base text-left truncate"
-            title={book.title}
-          >
-            {book.title}
-          </h1>
-        </div>
+      <section className="flex-1 w-full max-w-5xl mx-auto px-1.5 sm:px-4 py-2 sm:py-4">
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
             {import.meta.env.VITE_MOBILE === "true" && book.id !== "nafahat" ? (

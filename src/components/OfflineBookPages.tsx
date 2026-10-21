@@ -37,6 +37,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [swipeThreshold, setSwipeThreshold] = useState(75);
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
+  const lastWheelTurn = useRef(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -139,9 +140,23 @@ export default function OfflineBookPages({ bookId }: Props) {
     };
     const onCancel = () => { pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
-      if (!event.ctrlKey && !event.metaKey) return;
-      if (event.cancelable) event.preventDefault();
-      setZoom(value => zoomFromWheel(value, event.deltaY));
+      if (event.ctrlKey || event.metaKey) {
+        if (event.cancelable) event.preventDefault();
+        setZoom(value => zoomFromWheel(value, event.deltaY));
+        return;
+      }
+      // Native scrolling handles the page body. At the starting boundary,
+      // a further wheel turn advances/returns the book, including on Windows.
+      const now = Date.now();
+      if (now - lastWheelTurn.current < 500 || Math.abs(event.deltaY) < 12) return;
+      const direction = verticalPageTurn(-event.deltaY, 12, {
+        scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
+      });
+      if (direction) {
+        if (event.cancelable) event.preventDefault();
+        lastWheelTurn.current = now;
+        goTo(page + direction);
+      }
     };
     el.addEventListener("touchstart", onStart, { passive: true });
     el.addEventListener("touchmove", onMove, { passive: false });

@@ -17,6 +17,15 @@ describe("Vertical page turning without locking one-finger image panning",()=>{
     expect(verticalPageTurn(100,65,{scrollTop:0,scrollHeight:500,clientHeight:500})).toBe(-1);
     expect(verticalPageTurn(Number.NaN,65,{scrollTop:0,scrollHeight:500,clientHeight:500})).toBe(0);
   });
+  test("wheel scroll advances at page edges while pinch-wheel zoom still works",()=>{
+    for(const file of ["src/components/PdfBookViewer.tsx","src/components/OfflineBookPages.tsx"]){
+      const source=src(file);
+      expect(source).toContain("lastWheelTurn");
+      expect(source).toContain("verticalPageTurn(-");
+      expect(source).toContain("500");
+      expect(source).toContain("preventDefault()");
+    }
+  });
   test("both viewers retain native vertical pan and detect edge turns",()=>{
     const pdf=src("src/components/PdfBookViewer.tsx"),offline=src("src/components/OfflineBookPages.tsx");
     expect(pdf).toContain("verticalPageTurn(dy, swipeThreshold, startedAt)");
