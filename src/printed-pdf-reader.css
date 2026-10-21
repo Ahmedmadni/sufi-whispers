@@ -771,3 +771,19 @@
   outline: 3px solid #a18a57;
   outline-offset: -3px;
 }
+
+/* G2: bounded virtual continuous pages, never >the visible window in the DOM.
+   Page backgrounds and spacings preserve original scanned printed content. */
+.continuous-book-stack {position:relative;max-width:none;min-width:0;align-self:flex-start;}
+.continuous-book-page {display:flex;flex-direction:column;justify-content:flex-start;align-items:center;overflow:visible;}
+.continuous-book-page img,
+.continuous-book-page canvas {display:block;max-width:none;box-shadow:0 3px 12px rgb(22 46 33 / .12);}
+.continuous-book-page .react-pdf__Page {max-width:none;}
+.reader-topbar [aria-pressed="true"].reader-icon-button {
+  background:#254c3c;
+  border-color:#c7a36e;
+  color:#fff1cd;
+}
+.reader-topbar [aria-pressed="true"].reader-icon-button:focus-visible {
+  outline:3px solid #c7a36e;outline-offset:2px;
+}

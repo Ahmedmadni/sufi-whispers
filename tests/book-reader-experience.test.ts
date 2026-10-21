@@ -58,7 +58,7 @@ describe("Phase 33: 8 book readers and source-grounded navigation", () => {
     expect(source).toContain("BookReaderLayout immersive={immersive}");
     expect(source).toContain("readerGesturePageDelta({");
     expect(source).toContain('e.key === "ArrowRight"');
-    expect(source).toContain("if (!numPages || isOfflineAndroid) return [];");
+    expect(source).toContain('if (!numPages || isOfflineAndroid || mode==="continuous") return [];');
   });
 
   test("reader uses portal to escape animated mobile ancestors and keeps visible exit", () => {

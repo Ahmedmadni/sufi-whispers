@@ -54,7 +54,7 @@ describe("Actual Android device regression gates", () => {
 
   test("offline Android PDF reader does not render hidden neighboring canvases", () => {
     const component = readFileSync(new URL("../src/components/PdfBookViewer.tsx", import.meta.url), "utf8");
-    expect(component).toContain("if (!numPages || isOfflineAndroid) return [];");
+    expect(component).toContain('if (!numPages || isOfflineAndroid || mode==="continuous") return [];');
     expect(component).toContain("setRetry((n) => n + 1)");
   });
 
