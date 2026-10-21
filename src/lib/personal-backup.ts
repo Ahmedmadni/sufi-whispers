@@ -6,6 +6,7 @@ import { books } from "@/data/books";
 import { DHIKR_NAMES, NAME_TARGET } from "@/data/dhikr";
 import { validatePrayerTimes } from "@/lib/wird-times";
 import { validateWirdTimes, WIRD_TIMES_KEY } from "@/lib/wird-reminders";
+import { readerModeKey } from "@/lib/reader-continuous";
 
 export const PERSONAL_BACKUP_FORMAT = "rihab-khaliliyya-personal-data";
 export const PERSONAL_BACKUP_VERSION = 1;
@@ -25,6 +26,7 @@ const CORE_KEYS = [
 export const PERSONAL_BACKUP_KEYS = [
   ...CORE_KEYS,
   ...books.map((book) => `reader.page.${book.id}`),
+  ...books.map((book) => readerModeKey(book.id)),
 ] as const;
 const SAFE_KEYS = new Set<string>(PERSONAL_BACKUP_KEYS);
 export type PersonalBackup = {
@@ -104,6 +106,10 @@ function validateEntry(key: string, raw: string): void {
   if (key === "reader.swipeThreshold") {
     const n = Number(raw);
     if (!Number.isInteger(n) || n < 30 || n > 200) throw new Error("حساسية التقليب غير صالحة.");
+    return;
+  }
+  if (key.startsWith("reader.mode.")) {
+    if (raw !== "paged" && raw !== "continuous") throw new Error("وضع عرض الكتاب غير صالح.");
     return;
   }
   if (key.startsWith("reader.page.") || key === "rihab:printed-mushaf:last-page:v1") {

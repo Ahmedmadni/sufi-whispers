@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
+import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal, Rows3, BookOpen } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
+import { createContinuousLayout, persistReaderMode, storedReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
@@ -29,6 +31,13 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
+  const [mode, setMode] = useState<ReaderMode>(() => storedReaderMode(bookId));
+  const [viewportWidth, setViewportWidth] = useState(360);
+  const continuousRef = useRef<ContinuousBookHandle>(null);
+  const setReaderMode = (next: ReaderMode) => {
+    persistReaderMode(bookId, next);
+    setMode(next);
+  };
   // Persist the gesture across every zoom-driven React render.
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
@@ -39,6 +48,22 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
+  useEffect(() => {
+    const el=scroll.current;
+    if(!el)return;
+    const refresh=()=>setViewportWidth(el.clientWidth||360);
+    refresh();
+    const observer=typeof ResizeObserver!=="undefined"?new ResizeObserver(refresh):null;
+    observer?.observe(el);
+    return ()=>observer?.disconnect();
+  },[entry,immersive,mode]);
+  const continuousLayout=useMemo(()=>createContinuousLayout(
+    entry?.pageCount??0,viewportWidth*zoom,
+    target=>{
+      const item=entry?.pages[target-1];
+      return item?.width&&item?.height?item.height/item.width:1.414;
+    },12
+  ),[entry,viewportWidth,zoom]);
   const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
@@ -83,11 +108,13 @@ export default function OfflineBookPages({ bookId }: Props) {
   }, [key, page, maxPage]);
   const goTo = (target: number) => {
     if (!maxPage) return;
-    setPage(clampPage(target, maxPage));
-    scroll.current?.scrollTo({ left: 0, top: 0 });
+    const destination=clampPage(target,maxPage);
+    setPage(destination);
+    if(mode==="continuous")continuousRef.current?.jumpToPage(destination);
+    else scroll.current?.scrollTo({left:0,top:0});
   };
   const image = useMemo(() => entry?.pages[page - 1], [entry, page]);
-  useEffect(() => { scroll.current?.scrollTo({ left: 0, top: 0 }); }, [page, bookId]);
+  useEffect(() => { if(mode==="paged")scroll.current?.scrollTo({left:0,top:0}); }, [page, bookId, mode]);
   const imageUrl = image ? `/offline-books/${encodeURIComponent(bookId)}/${image.name}${imageRetry ? `?retry=${imageRetry}` : ""}` : "";
 
   // Native non-passive listeners are required: React's delegated touchmove
@@ -160,7 +187,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       const direction = start ? readerGesturePageDelta({
         page, maxPage, zoom, scroll: start,
       }, { dx, dy, threshold: swipeThreshold }) : 0;
-      if (direction) goTo(page + direction);
+      if (direction && mode==="paged") goTo(page + direction);
     };
     const onCancel = () => { suppressSurfaceTap(); pinch.current = null; startX.current = null; startY.current = null; startScroll.current = null; multiTouch.current = false; };
     const onWheel = (event: WheelEvent) => {
@@ -169,6 +196,7 @@ export default function OfflineBookPages({ bookId }: Props) {
         setZoom(value => zoomFromWheel(value, event.deltaY));
         return;
       }
+      if(mode==="continuous")return;
       // Native scrolling handles the page body. At the starting boundary,
       // a further wheel turn advances/returns the book, including on Windows.
       const now = Date.now();
@@ -194,7 +222,7 @@ export default function OfflineBookPages({ bookId }: Props) {
       el.removeEventListener("touchcancel", onCancel);
       el.removeEventListener("wheel", onWheel);
     };
-  }, [page, zoom, swipeThreshold, image?.name, suppressSurfaceTap]);
+  }, [page, zoom, swipeThreshold, image?.name, suppressSurfaceTap, mode]);
 
   return (
     <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
@@ -206,6 +234,13 @@ export default function OfflineBookPages({ bookId }: Props) {
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
+          <button type="button" className="reader-icon-button"
+            aria-label={mode==="paged"?"القراءة المتواصلة":"وضع تقليب الصفحات"}
+            title={mode==="paged"?"عرض الصفحات متتابعة":"العودة إلى وضع الصفحات"}
+            aria-pressed={mode==="continuous"}
+            onClick={()=>setReaderMode(mode==="paged"?"continuous":"paged")}>
+            {mode==="paged"?<Rows3 size={19}/>:<BookOpen size={19}/>}
+          </button>
           <button type="button" className="reader-icon-button" aria-label="تصغير الكتاب" title="تصغير"
             disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
           <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
@@ -249,12 +284,28 @@ export default function OfflineBookPages({ bookId }: Props) {
           style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >
-          <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
-            width={image.width} height={image.height} draggable={false}
-            className="book-page-arrive mx-auto block h-auto max-w-none select-none"
-            style={{ width: `${zoom * 100}%`, minWidth: zoom > 1 ? `${zoom * 100}%` : undefined }}
-            onError={() => setError("تعذّر عرض صفحة الكتاب من الملفات المحلية.")}
-          />
+          {mode==="continuous" && entry ? (
+            <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={viewportWidth*zoom}
+              initialPage={page} viewportRef={scroll} onActivePage={setPage}
+              renderPage={(target)=>{
+                const item=entry.pages[target-1];
+                if(!item)return null;
+                return <img key={item.name} draggable={false}
+                  loading="lazy" decoding="async"
+                  src={`/offline-books/${encodeURIComponent(bookId)}/${item.name}`}
+                  alt={`صفحة ${target} من الكتاب`} width={item.width} height={item.height}
+                  className="mx-auto block h-auto max-w-none select-none"
+                  style={{width:viewportWidth*zoom}}
+                  onError={()=>setError(`تعذّر تحميل صفحة ${target} من الكتاب.`)} />;
+              }} />
+          ) : (
+            <img key={imageUrl} src={imageUrl} alt={`صفحة ${page} من الكتاب`}
+              width={image.width} height={image.height} draggable={false}
+              className="book-page-arrive mx-auto block h-auto max-w-none select-none"
+              style={{ width: `${zoom * 100}%`, minWidth: zoom > 1 ? `${zoom * 100}%` : undefined }}
+              onError={() => setError("تعذّر عرض صفحة الكتاب من الملفات المحلية.")}
+            />
+          )}
         </div>
       )}
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
