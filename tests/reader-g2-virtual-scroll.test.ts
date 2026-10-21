@@ -63,7 +63,7 @@ describe("G2 bounded continuous book geometry",()=>{
   test("the component never mounts every source image or PDF canvas",()=>{
     const s=readFileSync("src/components/ContinuousBookStack.tsx","utf8");
     expect(s).toContain("pages.map(page=>(");
-    expect(s).toContain("continuousWindow(layout,snapshot.top,snapshot.height)");
+    expect(s).toContain("continuousWindow(layout,snapshot.top,snapshot.height,overscan)");
     expect(s).toContain("scrollTo({top,behavior:\"auto\"})");
     expect(s).not.toContain("Array.from({length:layout.pageCount}");
   });
