@@ -764,3 +764,10 @@
     min-height: 44px;
   }
 }
+
+/* Keyboard focus should be visible even while the quiet toolbar is hidden. */
+.book-pdf-stage:focus-visible,
+.offline-book-stage:focus-visible {
+  outline: 3px solid #a18a57;
+  outline-offset: -3px;
+}

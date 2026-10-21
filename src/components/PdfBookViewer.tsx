@@ -97,7 +97,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean } | null>(null);
   const lastWheelTurn = useRef(0);
-  const { toolbarVisible, setToolbarVisible, onSurfaceClick } = useBookReaderChrome(
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown } = useBookReaderChrome(
     immersive, viewerRef, printedIndexOpen ? printedIndexZoom : scale,
     next => { if (printedIndexOpen) setPrintedIndexZoom(next); else setScale(next); },
   );
@@ -452,6 +452,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         }}
         className="reader-surface book-pdf-stage rounded-xl p-2 flex flex-col justify-start items-start min-h-[65vh] select-none overflow-auto"
         onClick={onSurfaceClick}
+          onKeyDown={onSurfaceKeyDown}
+          tabIndex={0}
+          role="region"
+          aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
       >
         {isOfflineAndroid && !readerSource ? (
           <div role={sourceError ? "alert" : "status"} className="rounded-xl p-6 text-center font-body text-sm text-gold-soft">

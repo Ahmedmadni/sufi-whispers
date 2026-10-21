@@ -39,7 +39,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
-  const { toolbarVisible, setToolbarVisible, onSurfaceClick } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -220,6 +220,10 @@ export default function OfflineBookPages({ bookId }: Props) {
         <div ref={scroll}
           className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
           onClick={onSurfaceClick}
+          onKeyDown={onSurfaceKeyDown}
+          tabIndex={0}
+          role="region"
+          aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
           style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
 
         >

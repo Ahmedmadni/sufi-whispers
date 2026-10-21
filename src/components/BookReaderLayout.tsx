@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { Eye, Minimize2 } from "lucide-react";
 import { focalScrollAfterZoom, zoomOnDoubleTap } from "@/lib/reader-interaction";
@@ -67,7 +67,7 @@ export function useBookReaderChrome(
       skipTapUntil.current = Date.now() + 240;
       // React paints the resized PDF canvas/image before adjusting scroll position.
       requestAnimationFrame(() => requestAnimationFrame(() => {
-        if (el.isConnected) el.scrollTo({left: focal.left, top: focal.top, behavior:"instant"});
+        if (el.isConnected) el.scrollTo({left: focal.left, top: focal.top, behavior:"auto"});
       }));
       return;
     }
@@ -78,7 +78,14 @@ export function useBookReaderChrome(
       tapTimeout.current = null;
     }, 260);
   }, [clearTap, setZoom, viewport, zoom]);
-  return { toolbarVisible, setToolbarVisible, onSurfaceClick };
+  const onSurfaceKeyDown = useCallback((event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    clearTap();
+    setToolbarVisible(value => !value);
+  }, [clearTap]);
+  return { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown };
 }
 
 export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label }: {
