@@ -425,6 +425,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} immersive={immersive}
             headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
         </div>
+        </div>
       </div>
 
       {/* Viewer */}
