@@ -63,6 +63,11 @@ export function requestedWirdPage(bookId: string, location: Pick<Location, "sear
   const value = new URLSearchParams(query).get("wird");
   return value === "4" || value === "22" ? Number(value) : null;
 }
+/** Resolves notification actions to a strict local route. No arbitrary page targets. */
+export function wirdReminderDestination(page: unknown, actionId?: string): string | null {
+  if (page !== 4 && page !== 22) return null;
+  return "#/books/ward?wird=" + page + (actionId === "listen-wird" ? "&listen=1" : "");
+}
 export async function enableWirdReminders(times: WirdTimes = readWirdTimes()): Promise<string> {
   const valid = validateWirdTimes(times);
   const native = nativeReminders();
@@ -107,15 +112,10 @@ export async function listenForWirdOpens(): Promise<void> {
     actions: [{ id: "open-wird", title: "فتح الورد", foreground: true },
       { id: "listen-wird", title: "الاستماع للحزب", foreground: true }] }] });
   await native.addListener("localNotificationActionPerformed", event => {
-    const page = event.notification?.extra?.wird;
-    if (page !== 4 && page !== 22) return;
-    const destination = "#/books/ward?wird=" + page + (event.actionId === "listen-wird" ? "&listen=1" : "");
-    if (window.location.hash === destination) {
-      // Hash-routing the same book does not remount its restored page.
-      window.location.reload();
-    } else {
-      window.location.hash = destination;
-      window.location.reload();
-    }
+    const destination = wirdReminderDestination(event.notification?.extra?.wird, event.actionId);
+    if (!destination) return;
+    if (window.location.hash !== destination) window.location.hash = destination;
+    // A repeated same-book notification must still reopen the requested chapter.
+    window.location.reload();
   });
 }

@@ -1,4 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { wirdReminderDestination, requestedWirdPage } from "../src/lib/wird-reminders";
+import { readFileSync } from "node:fs";
 import {
   WIRD_AUDIO_POSITION_KEYS, WIRD_AUDIO_TRACKS, requestedWirdListening,
   safeWirdAudioPosition, wirdAudioPositionKey, wirdPartForPage,
@@ -17,6 +19,25 @@ describe("Wird audio routing and persistence", () => {
     expect(requestedWirdListening({ hash: "#/books/ward?wird=4&listen=1", search: "" })).toBe(true);
     expect(requestedWirdListening({ hash: "#/books/ward?wird=22", search: "" })).toBe(false);
     expect(requestedWirdListening({ hash: "", search: "?wird=22&listen=1" })).toBe(true);
+  });
+  test("notification buttons navigate only to approved chapter pages", () => {
+    const first = wirdReminderDestination(4, "listen-wird");
+    const second = wirdReminderDestination(22, "listen-wird");
+    expect(first).toBe("#/books/ward?wird=4&listen=1");
+    expect(second).toBe("#/books/ward?wird=22&listen=1");
+    expect(wirdReminderDestination(4, "open-wird")).toBe("#/books/ward?wird=4");
+    expect(wirdReminderDestination(22)).toBe("#/books/ward?wird=22");
+    expect(wirdReminderDestination(99, "listen-wird")).toBeNull();
+    expect(wirdReminderDestination("22", "listen-wird")).toBeNull();
+    expect(requestedWirdPage("ward", { hash: second!, search: "" })).toBe(22);
+  });
+  test("player always requires an explicit gesture and stops detached audio", () => {
+    const player = readFileSync("src/components/WirdAudioPlayer.tsx", "utf8");
+    expect(player).toContain("player?.pause()");
+    expect(player).toContain("previous.pause()");
+    expect(player).toContain("event.currentTarget.ended ? 0");
+    expect(player).toContain("manuallySelected.current = true");
+    expect(player).not.toContain("autoPlay");
   });
   test("supports a distinct validated checkpoint per hizb", () => {
     expect(wirdAudioPositionKey("first")).toBe(WIRD_AUDIO_POSITION_KEYS[0]);

@@ -26,14 +26,24 @@ export function WirdAudioPlayer({ page }: { page: number }) {
   const [error, setError] = useState("");
   const audio = useRef<HTMLAudioElement>(null);
   const lastSaved = useRef(-1);
+  const manuallySelected = useRef(false);
   const track = WIRD_AUDIO_TRACKS[part];
   const durationDisplay = duration || track.durationSeconds;
 
-  // The book's page 4/22 shortcuts update the suggested recording.
-  // Stay on the same recording while reading adjacent pages.
+  // Only an explicit chapter landing may select another track. Continuous scrolling
+  // across page 22 must not interrupt a recording already in progress.
   useEffect(() => {
-    setPart(inferred);
-  }, [inferred]);
+    if (!manuallySelected.current && (page === 4 || page === 22) && audio.current?.paused !== false) {
+      setPart(wirdPartForPage(page));
+    }
+  }, [page]);
+
+  // Pausing at unmount prevents detached HTMLAudioElement instances from
+  // continuing after navigation or a fullscreen-portal remount.
+  useEffect(() => {
+    const player = audio.current;
+    return () => { player?.pause(); };
+  }, []);
 
   useEffect(() => {
     const player = audio.current;
@@ -75,7 +85,14 @@ export function WirdAudioPlayer({ page }: { page: number }) {
 
   function choose(next: WirdPart) {
     setExpanded(true);
-    if (next !== part) setPart(next);
+    manuallySelected.current = true;
+    if (next === part) return;
+    const previous = audio.current;
+    if (previous) {
+      savePosition(previous.ended ? 0 : previous.currentTime, true);
+      previous.pause();
+    }
+    setPart(next);
   }
 
   function seek(value: number) {
@@ -126,8 +143,16 @@ export function WirdAudioPlayer({ page }: { page: number }) {
           savePosition(value);
         }}
         onPlay={() => setPlaying(true)}
-        onPause={event => { setPlaying(false); savePosition(event.currentTarget.currentTime, true); }}
-        onEnded={() => { setPlaying(false); savePosition(0, true); }}
+        onPause={event => {
+          setPlaying(false);
+          savePosition(event.currentTarget.ended ? 0 : event.currentTarget.currentTime, true);
+        }}
+        onEnded={event => {
+          setPlaying(false);
+          savePosition(0, true);
+          event.currentTarget.currentTime = 0;
+          setElapsed(0);
+        }}
         onError={() => {
           setPlaying(false);
           setError("ملف التسجيل غير متاح. يرجى التأكد من تضمين التسجيلين في نسخة التطبيق.");
