@@ -12,7 +12,7 @@ const MIME = Object.freeze({
   ".pdf":"application/pdf", ".wasm":"application/wasm", ".webp":"image/webp",
   ".png":"image/png", ".jpg":"image/jpeg", ".jpeg":"image/jpeg", ".svg":"image/svg+xml",
   ".ico":"image/x-icon", ".ttf":"font/ttf", ".woff":"font/woff", ".woff2":"font/woff2",
-  ".mp4":"video/mp4", ".webm":"video/webm", ".txt":"text/plain; charset=utf-8",
+  ".mp4":"video/mp4", ".webm":"video/webm", ".mp3":"audio/mpeg", ".txt":"text/plain; charset=utf-8",
 });
 const CSP = [
   "default-src 'self' data: blob:",

@@ -227,7 +227,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   return (
     <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
       onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
-      label="قارئ الكتاب دون إنترنت">
+      label="قارئ الكتاب دون إنترنت" audioPage={bookId === "ward" ? page : undefined}>
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">

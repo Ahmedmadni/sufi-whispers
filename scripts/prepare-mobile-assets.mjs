@@ -51,6 +51,26 @@ mkdirSync(assetsDir, { recursive: true });
 // Keep source public resources, including the /book.pdf catalog entry.
 cpSync(join(root, "public"), output, { recursive: true, force: true });
 
+// Fail closed: the audio-capable Android and Windows bundles must include both owner recordings.
+const wirdAudio = [
+  { name: "hizb-1.mp3", bytes: 9357687, sha256: "92f50015584fe52add33cc919e4371785957e9bacb54131597294b4a61a095c1" },
+  { name: "hizb-2.mp3", bytes: 11343344, sha256: "e973da3691fd34f60f7047028c646226d9c205245ae7c5a819f6469a40b5abaf" },
+];
+for (const recording of wirdAudio) {
+  const location = join(output, "audio", "wird", recording.name);
+  if (!existsSync(location)) {
+    throw new Error("Missing original Wird audio: " + location +
+      ". Add public/audio/wird/" + recording.name + " from the owner-provided archive.");
+  }
+  const bytes = readFileSync(location);
+  const actualSha = createHash("sha256").update(bytes).digest("hex");
+  if (bytes.length !== recording.bytes || actualSha !== recording.sha256) {
+    throw new Error("Wird recording integrity mismatch: " + recording.name);
+  }
+  console.log("Verified original Wird recording: " + recording.name);
+}
+
+
 const checksums = [];
 for (const asset of descriptors) {
   const { filename, size, url } = asset;

@@ -37,7 +37,7 @@ type Native = {
   schedule(options: { notifications: Reminder[] }): Promise<unknown>;
   cancel(options: { notifications: Array<{ id: number }> }): Promise<void>;
   getPending(): Promise<{ notifications: Array<{ id: number }> }>;
-  addListener(event: string, callback: (event: { notification?: { extra?: { wird?: number } } }) => void): Promise<Handle>;
+  addListener(event: string, callback: (event: { actionId?: string; notification?: { extra?: { wird?: number } } }) => void): Promise<Handle>;
 };
 type CapBridge = { Plugins?: { LocalNotifications?: Native }; registerPlugin?: (name: string) => Native; isNativePlatform?: () => boolean };
 export function nativeReminders(): Native | null {
@@ -49,10 +49,10 @@ export function nativeReminders(): Native | null {
 export function reminderItems(times: WirdTimes = DEFAULT_WIRD_TIMES): Reminder[] {
   const valid = validateWirdTimes(times);
   return [
-    { id: IDS[0], title: "ورد الاستغفار — الحزب الأول", body: "حان وقت قراءة الحزب الأول. اضغط لفتح صفحة 4.",
+    { id: IDS[0], title: "ورد الاستغفار — الحزب الأول", body: "حان وقت الحزب الأول. افتح الورد للقراءة أو اختر الاستماع للتسجيل الصوتي.",
       schedule: { on: clock(valid.first), allowWhileIdle: true }, isExactNotification: false,
       actionTypeId: "RIHAB_WIRD_OPEN", extra: { wird: 4 } },
-    { id: IDS[1], title: "ورد الاستغفار — الحزب الثاني", body: "حان وقت قراءة الحزب الثاني. اضغط لفتح صفحة 22.",
+    { id: IDS[1], title: "ورد الاستغفار — الحزب الثاني", body: "حان وقت الحزب الثاني. افتح الورد للقراءة أو اختر الاستماع للتسجيل الصوتي.",
       schedule: { on: clock(valid.second), allowWhileIdle: true }, isExactNotification: false,
       actionTypeId: "RIHAB_WIRD_OPEN", extra: { wird: 22 } },
   ];
@@ -71,7 +71,8 @@ export async function enableWirdReminders(times: WirdTimes = readWirdTimes()): P
   if (permission.display !== "granted") permission = await native.requestPermissions();
   if (permission.display !== "granted") throw new Error("لم تسمح بإظهار الإشعارات. يمكنك منح الإذن من إعدادات Android.");
   await native.registerActionTypes({ types: [{ id: "RIHAB_WIRD_OPEN",
-    actions: [{ id: "open-wird", title: "فتح الورد", foreground: true }] }] });
+    actions: [{ id: "open-wird", title: "فتح الورد", foreground: true },
+      { id: "listen-wird", title: "الاستماع للحزب", foreground: true }] }] });
   await native.cancel({ notifications: IDS.map(id => ({ id })) });
   await native.schedule({ notifications: reminderItems(valid) });
   const pending = await native.getPending();
@@ -103,11 +104,12 @@ export async function listenForWirdOpens(): Promise<void> {
   const native = nativeReminders();
   if (!native) return;
   await native.registerActionTypes({ types: [{ id: "RIHAB_WIRD_OPEN",
-    actions: [{ id: "open-wird", title: "فتح الورد", foreground: true }] }] });
+    actions: [{ id: "open-wird", title: "فتح الورد", foreground: true },
+      { id: "listen-wird", title: "الاستماع للحزب", foreground: true }] }] });
   await native.addListener("localNotificationActionPerformed", event => {
     const page = event.notification?.extra?.wird;
     if (page !== 4 && page !== 22) return;
-    const destination = `#/books/ward?wird=${page}`;
+    const destination = "#/books/ward?wird=" + page + (event.actionId === "listen-wird" ? "&listen=1" : "");
     if (window.location.hash === destination) {
       // Hash-routing the same book does not remount its restored page.
       window.location.reload();
