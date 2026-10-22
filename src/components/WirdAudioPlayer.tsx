@@ -76,7 +76,6 @@ export function WirdAudioPlayer({ page }: { page: number }) {
   function choose(next: WirdPart) {
     setExpanded(true);
     if (next !== part) setPart(next);
-    else if (audio.current?.paused) void togglePlay();
   }
 
   function seek(value: number) {
@@ -99,10 +98,10 @@ export function WirdAudioPlayer({ page }: { page: number }) {
           {(["first", "second"] as const).map((id) => (
             <button key={id} type="button" onClick={() => choose(id)}
               aria-pressed={expanded && part === id}
-              aria-label={"استمع إلى " + WIRD_AUDIO_TRACKS[id].label}
+              aria-label={"عرض تسجيل " + WIRD_AUDIO_TRACKS[id].label}
               className={"inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary " +
                 (part === id && expanded ? "border-gold/60 bg-primary text-primary-foreground" : "border-border bg-background text-foreground")}>
-              <Play size={15} aria-hidden="true" /> {WIRD_AUDIO_TRACKS[id].label}
+              <Headphones size={15} aria-hidden="true" /> {WIRD_AUDIO_TRACKS[id].label}
             </button>
           ))}
           <button type="button" aria-expanded={expanded} onClick={() => setExpanded(v => !v)}
