@@ -93,7 +93,7 @@ export function useBookReaderChrome(
   return { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap };
 }
 
-export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label, audioPage }: {
+export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label, audioPage, onAudioJump }: {
   immersive: boolean;
   toolbarVisible?: boolean;
   onRevealToolbar?: () => void;
@@ -101,6 +101,7 @@ export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToo
   children: ReactNode;
   label: string;
   audioPage?: number;
+  onAudioJump?: (page: number) => void;
 }) {
   const content = (
     <section dir="rtl" aria-label={label}
@@ -113,7 +114,7 @@ export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToo
             onClick={onExit} className="reader-chrome-rescue__button"><Minimize2 size={20} aria-hidden="true"/></button>
         </div>
       )}
-      {audioPage !== undefined && <WirdAudioPlayer page={audioPage} />}
+      {audioPage !== undefined && <WirdAudioPlayer page={audioPage} onJump={onAudioJump} />}
       {children}
     </section>
   );

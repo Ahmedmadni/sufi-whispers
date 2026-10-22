@@ -31,6 +31,17 @@ describe("Wird audio routing and persistence", () => {
     expect(wirdReminderDestination("22", "listen-wird")).toBeNull();
     expect(requestedWirdPage("ward", { hash: second!, search: "" })).toBe(22);
   });
+  test("the same audio controls are mounted on both book readers with chapter jumping", () => {
+    for (const path of ["src/components/PdfBookViewer.tsx", "src/components/OfflineBookPages.tsx"]) {
+      const source = readFileSync(path, "utf8");
+      expect(source).toContain('audioPage={bookId === "ward" ? page : undefined}');
+      expect(source).toContain('onAudioJump={bookId === "ward" ? goTo : undefined}');
+    }
+    const layout = readFileSync("src/components/BookReaderLayout.tsx", "utf8");
+    expect(layout).toContain("onJump={onAudioJump}");
+    const player = readFileSync("src/components/WirdAudioPlayer.tsx", "utf8");
+    expect(player).toContain("onJump?.(WIRD_AUDIO_TRACKS[next].page)");
+  });
   test("player always requires an explicit gesture and stops detached audio", () => {
     const player = readFileSync("src/components/WirdAudioPlayer.tsx", "utf8");
     expect(player).toContain("player?.pause()");

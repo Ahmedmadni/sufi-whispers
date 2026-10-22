@@ -14,7 +14,7 @@ function clock(seconds: number): string {
  * Never autoplay on navigation, from a notification, or after a restore.
  * HTMLAudio is compatible with web, Capacitor WebView and Electron.
  */
-export function WirdAudioPlayer({ page }: { page: number }) {
+export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page: number) => void }) {
   const inferred = wirdPartForPage(page);
   const [part, setPart] = useState<WirdPart>(inferred);
   const [expanded, setExpanded] = useState(() =>
@@ -86,6 +86,8 @@ export function WirdAudioPlayer({ page }: { page: number }) {
   function choose(next: WirdPart) {
     setExpanded(true);
     manuallySelected.current = true;
+    // Keep the printed book aligned with the selected recording.
+    onJump?.(WIRD_AUDIO_TRACKS[next].page);
     if (next === part) return;
     const previous = audio.current;
     if (previous) {
