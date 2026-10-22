@@ -108,7 +108,7 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
 
   return (
     <section dir="rtl" aria-label="الاستماع إلى ورد الاستغفار"
-      className="reader-toolbar mb-2 rounded-2xl border border-gold/25 bg-background/90 p-3 shadow-sm">
+      className="wird-audio-player reader-toolbar mb-2 rounded-2xl border border-gold/25 bg-background/90 p-3 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
           <Headphones size={18} aria-hidden="true" /> الاستماع إلى ورد الاستغفار

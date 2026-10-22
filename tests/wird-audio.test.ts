@@ -49,6 +49,9 @@ describe("Wird audio routing and persistence", () => {
     expect(player).toContain("event.currentTarget.ended ? 0");
     expect(player).toContain("manuallySelected.current = true");
     expect(player).not.toContain("autoPlay");
+    const readerCss = readFileSync("src/printed-pdf-reader.css", "utf8");
+    expect(readerCss).toContain(".book-reader--immersive > .wird-audio-player");
+    expect(readerCss).toContain(".book-reader--chrome-hidden > .wird-audio-player");
   });
   test("supports a distinct validated checkpoint per hizb", () => {
     expect(wirdAudioPositionKey("first")).toBe(WIRD_AUDIO_POSITION_KEYS[0]);

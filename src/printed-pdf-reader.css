@@ -787,3 +787,17 @@
 .reader-topbar [aria-pressed="true"].reader-icon-button:focus-visible {
   outline:3px solid #c7a36e;outline-offset:2px;
 }
+
+
+/* The immersive book must remain visible: audio controls have a bounded
+   footprint. When reading chrome is hidden, hide visual controls too; the
+   audio element stays mounted so an active recording is not interrupted. */
+.book-reader--immersive > .wird-audio-player {
+  flex: 0 0 auto;
+  max-height: min(30dvh, 240px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.book-reader--chrome-hidden > .wird-audio-player {
+  display: none !important;
+}
