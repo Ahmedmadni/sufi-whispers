@@ -9,6 +9,7 @@ import json
 import sys
 import zipfile
 from pathlib import Path
+from verify_wird_audio import verify_wird_audio_archive
 
 def checksum(path: Path) -> str:
     with path.open("rb") as file:
@@ -50,6 +51,7 @@ def verify(archive_path: Path, prefix: str) -> None:
             item = quran["pages"].get(str(page))
             if not item or prefix + "printed-mushaf/pages/" + item["name"] not in names:
                 raise RuntimeError(f"Missing original Mushaf page {page}")
+        verify_wird_audio_archive(archive, prefix)
         corrupted = archive.testzip()
         if corrupted:
             raise RuntimeError(f"Corrupted Android release archive entry: {corrupted}")
