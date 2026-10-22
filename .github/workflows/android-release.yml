@@ -15,6 +15,7 @@ on:
       - "scripts/verify-android-launcher-icons.py"
       - "src/**"
       - "mobile/**"
+      - "public/audio/wird/**"
       - "config/android-release.json"
       - "scripts/android-dev.mjs"
       - "scripts/prepare-android-fonts.mjs"

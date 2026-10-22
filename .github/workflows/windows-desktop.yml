@@ -8,6 +8,7 @@ on:
       - ".github/workflows/windows-desktop.yml"
       - "src/**"
       - "mobile/**"
+      - "public/audio/wird/**"
       - "scripts/**"
       - "vite.mobile.config.ts"
       - "package.json"
