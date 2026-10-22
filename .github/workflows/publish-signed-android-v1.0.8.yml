@@ -2,10 +2,10 @@ name: Publish Rihab Android 1.0.8 Signed Files
 
 # Only publish artifacts from a successful, fully audited signed release build.
 # A GitHub prerelease is NOT a Google Play store deployment.
+# Immutable historical 1.0.8 release; publishing was superseded by 1.0.9.
+# Keep this workflow file for provenance without reacting to new signed builds.
 on:
-  workflow_run:
-    workflows: ["Android Signed Release Candidate"]
-    types: [completed]
+  workflow_dispatch:
 
 permissions:
   actions: read
@@ -18,6 +18,7 @@ concurrency:
 jobs:
   publish:
     if: >-
+      false &&
       github.repository == 'Ahmedmadni/sufi-whispers' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&

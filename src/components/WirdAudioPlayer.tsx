@@ -38,13 +38,9 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
     }
   }, [page]);
 
-  // Pausing at unmount prevents detached HTMLAudioElement instances from
-  // continuing after navigation or a fullscreen-portal remount.
-  useEffect(() => {
-    const player = audio.current;
-    return () => { player?.pause(); };
-  }, []);
-
+  // Capture the audio element belonging to *this* selected track. An effect
+  // with [] would keep the FIRST element forever: switching to the second
+  // recording would leave that new element playing after reader unmount.
   useEffect(() => {
     const player = audio.current;
     if (!player) return;
@@ -55,6 +51,15 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
     setSpeed(1);
     setError("");
     lastSaved.current = -1;
+    return () => {
+      const position = player.ended ? 0 : player.currentTime;
+      player.pause();
+      if (Number.isFinite(position) && position >= 0) {
+        try {
+          localStorage.setItem(wirdAudioPositionKey(part), String(Math.round(position * 1000) / 1000));
+        } catch { /* Retain playback safety if storage is disabled. */ }
+      }
+    };
   }, [part]);
 
   function savePosition(value: number, force = false) {

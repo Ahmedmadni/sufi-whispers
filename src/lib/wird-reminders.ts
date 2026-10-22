@@ -68,6 +68,45 @@ export function wirdReminderDestination(page: unknown, actionId?: string): strin
   if (page !== 4 && page !== 22) return null;
   return "#/books/ward?wird=" + page + (actionId === "listen-wird" ? "&listen=1" : "");
 }
+/** Replace the two notifications transactionally. If a device rejects the new
+ * schedule or reports only a partial installation, restore the previous
+ * schedule instead of leaving the user's reminders silently disabled.
+ *
+ * The pure helper accepts a small native interface for failure-path tests;
+ * it never reads storage or requests permissions.
+ */
+export async function replaceWirdSchedule(
+  native: Pick<Native, "cancel" | "schedule" | "getPending">,
+  times: WirdTimes,
+  previous: WirdTimes | null = null,
+): Promise<void> {
+  const next = reminderItems(times); // Validate before touching existing alarms.
+  const cancellation = { notifications: IDS.map(id => ({ id })) };
+  try {
+    await native.cancel(cancellation);
+    await native.schedule({ notifications: next });
+    const pending = await native.getPending();
+    if (!IDS.every(id => pending.notifications.some(notification => notification.id === id))) {
+      throw new Error("لم يؤكد Android جدولة التذكيرين. أعد المحاولة.");
+    }
+  } catch (reason) {
+    try {
+      // May have installed just one reminder before the error.
+      await native.cancel(cancellation);
+      if (previous) {
+        await native.schedule({ notifications: reminderItems(previous) });
+        const restored = await native.getPending();
+        if (!IDS.every(id => restored.notifications.some(notification => notification.id === id))) {
+          throw new Error("Previous notifications could not be restored.");
+        }
+      }
+    } catch {
+      throw new Error("تعذّر تحديث التذكيرات ولم يمكن استعادة المواعيد السابقة. افتح الإعدادات وأعد تفعيلها.");
+    }
+    throw reason;
+  }
+}
+
 export async function enableWirdReminders(times: WirdTimes = readWirdTimes()): Promise<string> {
   const valid = validateWirdTimes(times);
   const native = nativeReminders();
@@ -78,12 +117,8 @@ export async function enableWirdReminders(times: WirdTimes = readWirdTimes()): P
   await native.registerActionTypes({ types: [{ id: "RIHAB_WIRD_OPEN",
     actions: [{ id: "open-wird", title: "فتح الورد", foreground: true },
       { id: "listen-wird", title: "الاستماع للحزب", foreground: true }] }] });
-  await native.cancel({ notifications: IDS.map(id => ({ id })) });
-  await native.schedule({ notifications: reminderItems(valid) });
-  const pending = await native.getPending();
-  if (!IDS.every(id => pending.notifications.some(n => n.id === id))) {
-    throw new Error("لم يؤكد Android جدولة التذكيرين. أعد المحاولة.");
-  }
+  const previous = localStorage.getItem(WIRD_REMINDER_KEY) === "on" ? readWirdTimes() : null;
+  await replaceWirdSchedule(native, valid, previous);
   localStorage.setItem(WIRD_TIMES_KEY, JSON.stringify(valid));
   localStorage.setItem(WIRD_REMINDER_KEY, "on");
   return `تم جدولة تذكيري الورد يوميًا عند ${valid.first} و${valid.second} بتوقيت الجهاز. وقد يتأخر التنفيذ بفعل توفير البطارية.`;

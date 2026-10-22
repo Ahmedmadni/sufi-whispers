@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowRight, BellRing, Copy, Download, FileUp, HardDriveDownload, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
-import { enableWirdReminders, disableWirdReminders, nativeReminders, WIRD_REMINDER_KEY, readWirdTimes, updateWirdTimes, type WirdTimes } from "@/lib/wird-reminders";
+import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWirdSchedule, WIRD_REMINDER_KEY, WIRD_TIMES_KEY, readWirdTimes, updateWirdTimes, type WirdTimes } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -147,12 +147,32 @@ function SettingsPage() {
       setError(reason instanceof Error ? reason.message : "النص ليس نسخة احتياطية مدعومة.");
     }
   }
-  function importData() {
+  async function importData() {
     clearMessages();
     if (!candidate) { setError("افحص الملف أولًا."); return; }
+    const remindersEnabled = localStorage.getItem(WIRD_REMINDER_KEY) === "on";
+    const previousTimes = readWirdTimes();
     try {
       // Only restore the exact inspected payload, never unchecked edited text.
       const count = restorePersonalBackup(JSON.stringify(candidate), window.localStorage);
+      // Restoring reminder times in localStorage alone does NOT update Android
+      // scheduled notifications. Reschedule with the previous schedule as a
+      // rollback target, and never claim the new times were applied otherwise.
+      if (remindersEnabled && candidate.data[WIRD_TIMES_KEY] !== undefined) {
+        const native = nativeReminders();
+        try {
+          if (!native) throw new Error("خدمة إشعارات Android غير متاحة.");
+          await replaceWirdSchedule(native, readWirdTimes(), previousTimes);
+        } catch (reason) {
+          // Keep persisted times consistent with the old alarms if Android
+          // rejected the restored ones; other backup data stays restored.
+          localStorage.setItem(WIRD_TIMES_KEY, JSON.stringify(previousTimes));
+          setWirdTimes(previousTimes);
+          setReminderNotice("لم يمكن تغيير التذكيرات من النسخة الاحتياطية؛ احتفظنا بمواعيدها القديمة.");
+          setError("استُعيدت بقية البيانات، لكن تعذّر تحديث إشعارات الورد. راجع المواعيد من الإعدادات.");
+          return;
+        }
+      }
       setNotice(`اكتملت استعادة ${count} بندًا. سيتم تحديث الواجهة الآن.`);
       window.location.reload();
     } catch (reason) {

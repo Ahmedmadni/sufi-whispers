@@ -44,7 +44,9 @@ describe("Wird audio routing and persistence", () => {
   });
   test("player always requires an explicit gesture and stops detached audio", () => {
     const player = readFileSync("src/components/WirdAudioPlayer.tsx", "utf8");
-    expect(player).toContain("player?.pause()");
+    expect(player).toContain("const position = player.ended ? 0 : player.currentTime");
+    expect(player).toContain("player.pause()");
+    expect(player).toContain("}, [part]);");
     expect(player).toContain("previous.pause()");
     expect(player).toContain("event.currentTarget.ended ? 0");
     expect(player).toContain("manuallySelected.current = true");

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { reminderItems, requestedWirdPage, WIRD_REMINDER_KEY, validateWirdTimes, readWirdTimes, WIRD_TIMES_KEY } from "../src/lib/wird-reminders";
+import { reminderItems, replaceWirdSchedule, requestedWirdPage, WIRD_REMINDER_KEY, validateWirdTimes, readWirdTimes, WIRD_TIMES_KEY } from "../src/lib/wird-reminders";
 import { readFileSync } from "node:fs";
 describe("Opt-in Android ward reminder integrity", () => {
   test("exactly two local daily notifications link to source-verified ward pages", () => {
@@ -25,6 +25,58 @@ describe("Opt-in Android ward reminder integrity", () => {
     expect(requestedWirdPage("ward", { hash: "", search: "?wird=22" })).toBe(22);
     expect(requestedWirdPage("ward", { hash: "#/books/ward?wird=666", search: "" })).toBeNull();
     expect(requestedWirdPage("sirah", { hash: "#/books/sirah?wird=4", search: "" })).toBeNull();
+  });
+  test("valid schedule replacement cancels exactly two IDs and verifies both pending", async () => {
+    let pending: Array<{ id: number }> = [];
+    let cancellations = 0;
+    const native = {
+      cancel: async () => { cancellations++; pending = []; },
+      schedule: async ({ notifications }: { notifications: Array<{ id: number }> }) => { pending = notifications.map(({ id }) => ({ id })); },
+      getPending: async () => ({ notifications: pending }),
+    };
+    await replaceWirdSchedule(native, { first: "06:40", second: "19:20" });
+    expect(cancellations).toBe(1);
+    expect(pending.map(n => n.id)).toEqual([904,922]);
+  });
+  test("failed Android scheduling restores previous reminders instead of losing both", async () => {
+    let pending: Array<{ id: number }> = [{ id: 904 }, { id: 922 }];
+    let attempts = 0;
+    const native = {
+      cancel: async () => { pending = []; },
+      schedule: async ({ notifications }: { notifications: Array<{ id: number; schedule: { on: { hour: number } } }> }) => {
+        attempts++;
+        if (notifications[0].schedule.on.hour === 6) throw new Error("device refused reschedule");
+        pending = notifications.map(({ id }) => ({ id }));
+      },
+      getPending: async () => ({ notifications: pending }),
+    };
+    await expect(replaceWirdSchedule(native, { first: "06:00", second: "19:00" },
+      { first: "09:00", second: "21:00" })).rejects.toThrow("device refused reschedule");
+    expect(pending.map(n => n.id)).toEqual([904,922]);
+    expect(attempts).toBe(2);
+  });
+  test("partial Android registration is detected and previous notifications are restored", async () => {
+    let pending: Array<{ id: number }> = [];
+    const native = {
+      cancel: async () => { pending = []; },
+      schedule: async ({ notifications }: { notifications: Array<{ id: number; schedule: { on: { hour: number } } }> }) => {
+        pending = notifications[0].schedule.on.hour === 5 ? [{ id: 904 }] : notifications.map(({ id }) => ({ id }));
+      },
+      getPending: async () => ({ notifications: pending }),
+    };
+    await expect(replaceWirdSchedule(native, { first: "05:15", second: "19:00" },
+      { first: "09:00", second: "21:00" })).rejects.toThrow(/لم يؤكد/);
+    expect(pending.map(n => n.id)).toEqual([904,922]);
+  });
+  test("invalid clock data does not cancel existing notifications", async () => {
+    let cancelled = false;
+    const native = {
+      cancel: async () => { cancelled = true; },
+      schedule: async () => {},
+      getPending: async () => ({ notifications: [] }),
+    };
+    await expect(replaceWirdSchedule(native, { first: "99:59", second: "21:00" })).rejects.toThrow();
+    expect(cancelled).toBe(false);
   });
   test("no unrelated sensitive Android permissions or exact-alarm privileges", () => {
     const script = readFileSync("scripts/android-dev.mjs", "utf8");
