@@ -10,6 +10,7 @@ import math
 import sys
 import zipfile
 from pathlib import Path
+from verify_wird_audio import verify_wird_audio_archive
 
 PART_COUNT = 5
 MAX_PART_BYTES = 90 * 1024 * 1024
@@ -39,6 +40,7 @@ def prepare(apk: Path, directory: Path) -> None:
             raise RuntimeError("Expected seven offline books and 1040 readable pages")
         if mushaf.get("pageCount") != 604:
             raise RuntimeError("Original Mushaf must have 604 pages")
+        verify_wird_audio_archive(archive, "assets/public/")
         if archive.testzip() is not None:
             raise RuntimeError("Android APK has a corrupt ZIP entry")
     total = apk.stat().st_size
