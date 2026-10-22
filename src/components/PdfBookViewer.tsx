@@ -337,7 +337,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   return (
     <BookReaderLayout immersive={immersive} toolbarVisible={toolbarVisible}
       onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
-      label="قارئ الكتاب">
+      label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
+      onAudioJump={bookId === "ward" ? goTo : undefined}>
       {/* Single reader bar: title, index, zoom, paging and exit only. */}
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>

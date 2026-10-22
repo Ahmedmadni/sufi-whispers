@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import { Eye, Minimize2 } from "lucide-react";
+import { WirdAudioPlayer } from "@/components/WirdAudioPlayer";
 import { focalScrollAfterZoom, zoomOnDoubleTap } from "@/lib/reader-interaction";
 
 /** Works on Android WebViews where native fullscreen is denied. Portalling
@@ -92,13 +93,15 @@ export function useBookReaderChrome(
   return { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap };
 }
 
-export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label }: {
+export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToolbar, onExit, children, label, audioPage, onAudioJump }: {
   immersive: boolean;
   toolbarVisible?: boolean;
   onRevealToolbar?: () => void;
   onExit?: () => void;
   children: ReactNode;
   label: string;
+  audioPage?: number;
+  onAudioJump?: (page: number) => void;
 }) {
   const content = (
     <section dir="rtl" aria-label={label}
@@ -111,6 +114,7 @@ export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToo
             onClick={onExit} className="reader-chrome-rescue__button"><Minimize2 size={20} aria-hidden="true"/></button>
         </div>
       )}
+      {audioPage !== undefined && <WirdAudioPlayer page={audioPage} onJump={onAudioJump} />}
       {children}
     </section>
   );

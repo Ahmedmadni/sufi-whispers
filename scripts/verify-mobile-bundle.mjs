@@ -3,11 +3,23 @@
  * Call only after vite build; catches "APK opens but Quran is empty" failures.
  */
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { resolve, join } from "node:path";
 import { assertSafeAssetDescriptor, validateFile, validateQuranFile } from "./mobile-integrity.mjs";
 
 const dist = resolve("dist-mobile");
 const assetDir = join(dist, "mobile-assets");
+for (const recording of [
+  ["hizb-1.mp3", 9357687, "92f50015584fe52add33cc919e4371785957e9bacb54131597294b4a61a095c1"],
+  ["hizb-2.mp3", 11343344, "e973da3691fd34f60f7047028c646226d9c205245ae7c5a819f6469a40b5abaf"],
+]) {
+  const file = join(dist, "audio", "wird", recording[0]);
+  if (!existsSync(file) || statSync(file).size !== recording[1] ||
+    createHash("sha256").update(readFileSync(file)).digest("hex") !== recording[2]) {
+    throw new Error("Android/Windows bundle missing owner-approved audio: " + recording[0]);
+  }
+}
+console.log("Verified both original Wird audio recordings bundled for offline playback.");
 const required = [
   join(dist, "index.html"),
   join(dist, "book.pdf"),

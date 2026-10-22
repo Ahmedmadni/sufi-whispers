@@ -7,6 +7,7 @@ import { DHIKR_NAMES, NAME_TARGET } from "@/data/dhikr";
 import { validatePrayerTimes } from "@/lib/wird-times";
 import { validateWirdTimes, WIRD_TIMES_KEY } from "@/lib/wird-reminders";
 import { readerModeKey } from "@/lib/reader-continuous";
+import { WIRD_AUDIO_POSITION_KEYS, safeWirdAudioPosition } from "@/lib/wird-audio";
 
 export const PERSONAL_BACKUP_FORMAT = "rihab-khaliliyya-personal-data";
 export const PERSONAL_BACKUP_VERSION = 1;
@@ -27,6 +28,7 @@ export const PERSONAL_BACKUP_KEYS = [
   ...CORE_KEYS,
   ...books.map((book) => `reader.page.${book.id}`),
   ...books.map((book) => readerModeKey(book.id)),
+  ...WIRD_AUDIO_POSITION_KEYS,
 ] as const;
 const SAFE_KEYS = new Set<string>(PERSONAL_BACKUP_KEYS);
 export type PersonalBackup = {
@@ -101,6 +103,10 @@ function validateEntry(key: string, raw: string): void {
   }
   if (key === "rihab:dhikr:tap-sound:v1") {
     if (!["on", "off"].includes(raw)) throw new Error("تفضيل صوت الذكر غير صالح.");
+    return;
+  }
+  if (WIRD_AUDIO_POSITION_KEYS.some(positionKey => positionKey === key)) {
+    if (raw !== "0" && safeWirdAudioPosition(raw) === 0) throw new Error("موضع الاستماع غير صالح.");
     return;
   }
   if (key === "reader.swipeThreshold") {
