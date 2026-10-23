@@ -17,9 +17,9 @@ describe("Wird audio release version and immutable media identity", () => {
     const android = JSON.parse(readFileSync("config/android-release.json", "utf8"));
     const desktop = JSON.parse(readFileSync("desktop/package.json", "utf8"));
     expect(android.applicationId).toBe("com.rihabalkhaliliyya.app");
-    expect(android.versionName).toBe("1.0.9");
-    expect(android.versionCode).toBe(10);
-    expect(desktop.version).toBe("1.0.9");
+    expect(android.versionName).toBe("1.0.10");
+    expect(android.versionCode).toBe(11);
+    expect(desktop.version).toBe("1.0.10");
   });
   test("release verifiers inspect both tracks inside APK/AAB and desktop files", () => {
     const source = readFileSync("scripts/verify-android-release.py", "utf8");
@@ -32,16 +32,16 @@ describe("Wird audio release version and immutable media identity", () => {
   });
   test("old immutable release stays untouched, new publisher checks signed SHA", () => {
     const archived = readFileSync(".github/workflows/publish-signed-android-v1.0.7.yml", "utf8");
-    const previous = readFileSync(".github/workflows/publish-signed-android-v1.0.8.yml", "utf8");
-    const next = readFileSync(".github/workflows/publish-signed-android-v1.0.9.yml", "utf8");
+    const previous = readFileSync(".github/workflows/publish-signed-android-v1.0.9.yml", "utf8");
+    const next = readFileSync(".github/workflows/publish-signed-android-v1.0.10.yml", "utf8");
     const windows = readFileSync(".github/workflows/windows-desktop.yml", "utf8");
     expect(archived).toContain("workflow_dispatch");
     expect(previous).toContain("workflow_dispatch");
     expect(previous).toContain("false &&");
-    expect(next).toContain("v1.0.9-android-rc1");
+    expect(next).toContain("v1.0.10-android-rc1");
     expect(next).toContain("python scripts/verify-android-release.py");
-    expect(next).toContain(".versionCode' <<<\"$config\")\" = \"10\"");
-    expect(windows).toContain("v1.0.9-windows-rc1");
-    expect(windows).toContain("Rihab-Al-Khaliliyya-Windows-Setup-1.0.9-x64.exe");
+    expect(next).toContain(".versionCode' <<<\"$config\")\" = \"11\"");
+    expect(windows).toContain("v1.0.10-windows-rc1");
+    expect(windows).toContain("Rihab-Al-Khaliliyya-Windows-Setup-1.0.10-x64.exe");
   });
 });
