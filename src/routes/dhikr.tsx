@@ -345,14 +345,14 @@ function DhikrPage() {
             الأوقات الافتراضية تقريبية ولا تعتمد على موقعك. أدخل مواعيد الفجر والعصر والمغرب لمدينتك،
             وحدثها عند تغيّر المواقيت. جميع الأوقات محلية لجهازك وتعمل دون إنترنت.
           </p>
-          <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {([
               ["fajr", "الفجر"], ["asr", "العصر"], ["maghrib", "المغرب"],
             ] as const).map(([key, name]) => (
               <label key={key} className="flex flex-col gap-2 text-xs text-foreground/90 font-body">
                 <span>{name}</span>
                 <input type="time" lang="en-GB" dir="ltr" step={60} value={timeDraft[key]} onChange={event => updateTimeDraft(key, event.target.value)}
-                  className="w-full min-w-0 rounded-lg border border-gold/30 bg-background/70 px-2 py-2.5 text-foreground tabular-nums"
+                  className="w-full min-w-0 min-h-11 rounded-lg border border-gold/30 bg-background/70 px-3 py-2.5 text-base text-foreground tabular-nums"
                   aria-label={`موعد ${name} بنظام 24 ساعة`}/>
               </label>
             ))}
