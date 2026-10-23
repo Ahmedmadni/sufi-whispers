@@ -64,7 +64,7 @@ describe("Phase 34: genuine complete Jami al-Nafahat printed index", () => {
     expect(fontScript).toContain('resolve("mobile/.public/fonts")');
     expect(pkg).toContain("prepare-calligraphy-font.mjs");
     expect(css).toContain('font-family: "Aref Ruqaa Ink"');
-    expect(hero).toContain('font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif');
+    expect(hero).toContain('font-family: "IBM Plex Sans Arabic", sans-serif');
     expect(offlineFonts).toContain("noto-kufi-variable.ttf");
   });
 });
