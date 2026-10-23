@@ -423,7 +423,7 @@
   min-width: 100vw;
   width: max-content;
   padding-inline: clamp(3rem, 9vw, 7rem);
-  font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif;
+  font-family: "IBM Plex Sans Arabic", sans-serif;
   font-size: clamp(1.05rem, 2.4vw, 1.65rem);
   font-weight: 600;
   font-feature-settings: "kern" 1, "calt" 1, "liga" 1;
@@ -466,4 +466,64 @@
     padding-inline: 1.25rem;
   }
   .hero-mandate__duplicate { display: none; }
+}
+
+/* Decorated turned-wood tasbih counter: concentric engraved brass details and
+   real-looking wooden grain, using CSS only (works completely offline). */
+.dhikr-dial {
+  width: clamp(170px, 43vw, 214px);
+  background: conic-gradient(from -90deg, #e8c88d var(--dhikr-progress, 0%), #6c4a29 0);
+  padding: 6px;
+  box-shadow: 0 5px 24px rgb(45 27 13 / .22), inset 0 0 0 2px #e9c58d;
+}
+.dhikr-dial__button {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 5px double #d8a55e;
+  background:
+    radial-gradient(circle at 28% 20%, rgb(255 231 176 / .42), transparent 48%),
+    repeating-radial-gradient(ellipse at 48% 55%,
+      transparent 0px, rgb(68 32 11 / .19) 2px,
+      transparent 4px, transparent 13px),
+    linear-gradient(144deg, #af793e 0%, #7b431f 32%, #c48b4e 56%, #5c321b 87%, #4b2819 100%);
+  color: #fff2d4;
+  text-shadow: 0 1px 2px rgb(37 17 8 / .85);
+  box-shadow: inset 0 0 0 5px rgb(64 33 16 / .7),
+    inset 0 0 0 8px #d2a36a,
+    inset 0 0 0 11px rgb(72 37 17 / .8),
+    inset 0 9px 19px rgb(255 238 180 / .22),
+    inset 0 -16px 25px rgb(30 13 6 / .37);
+}
+.dhikr-dial__button::before {
+  content: "";
+  position: absolute;
+  inset: 16px;
+  border: 2px dotted rgb(240 203 143 / .8);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgb(70 35 14 / .68), 0 0 0 5px rgb(232 174 92 / .40);
+}
+.dhikr-dial__button::after {
+  content: "✦   ❖   ✦";
+  position: absolute;
+  top: 21%; right: 0; left: 0;
+  font: 500 12px/1 "IBM Plex Sans Arabic", sans-serif;
+  letter-spacing: 1px;
+  color: #ffe4b3;
+  opacity: .95;
+  pointer-events: none;
+}
+.dhikr-dial__button > * { position: relative; z-index: 1; }
+.dhikr-dial__number {
+  font-family: "IBM Plex Sans Arabic", sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+.dhikr-dial__hint { color: #fff1cf; font-weight: 500; }
+@media (prefers-reduced-motion: reduce) {
+  .dhikr-dial__button { transition: none; }
 }

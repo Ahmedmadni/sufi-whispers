@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
-  APPROXIMATE_TIMES, currentWirdPhase, parseClockMinutes, validatePrayerTimes,
+  APPROXIMATE_TIMES, currentWirdPhase, parseClockMinutes, validatePrayerTimes, wirdTimeWindowLabel,
 } from "../src/lib/wird-times";
 import { currentWird } from "../src/data/dhikr";
 
@@ -24,6 +24,12 @@ describe("custom local prayer time windows", () => {
     expect(currentWirdPhase(at(15, 28), sample)).toBe("istighfar");
     expect(currentWirdPhase(at(18, 1), sample)).toBe("asma");
     expect(currentWirdPhase(at(23, 59), sample)).toBe("asma");
+  });
+  test("saved prayer boundaries are visible in the daily dhikr and home widgets", () => {
+    expect(wirdTimeWindowLabel("salawat", sample)).toBe("الفجر 05:04 – العصر 15:28");
+    expect(wirdTimeWindowLabel("istighfar", sample)).toBe("العصر 15:28 – المغرب 18:01");
+    expect(wirdTimeWindowLabel("asma", sample)).toBe("المغرب 18:01 – الفجر 05:04");
+    expect(wirdTimeWindowLabel("asma", null)).toContain("18:00");
   });
   test("existing callers keep explicitly approximate fallback until configured", () => {
     expect(APPROXIMATE_TIMES).toEqual({ fajr: "04:00", asr: "15:00", maghrib: "18:00" });

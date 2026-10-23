@@ -44,6 +44,14 @@ export function clearPrayerTimes(): void {
   localStorage.removeItem(PRAYER_TIMES_KEY);
 }
 
+/** Show real saved time boundaries, not only unchanging descriptive prayer names. */
+export function wirdTimeWindowLabel(phase: "salawat" | "istighfar" | "asma", saved?: PrayerTimeSettings | null): string {
+  const { fajr, asr, maghrib } = saved ?? APPROXIMATE_TIMES;
+  if (phase === "salawat") return `الفجر ${fajr} – العصر ${asr}`;
+  if (phase === "istighfar") return `العصر ${asr} – المغرب ${maghrib}`;
+  return `المغرب ${maghrib} – الفجر ${fajr}`;
+}
+
 export function currentWirdPhase(now: Date, value?: PrayerTimeSettings | null):
   "salawat" | "istighfar" | "asma" {
   const times = value ?? APPROXIMATE_TIMES;

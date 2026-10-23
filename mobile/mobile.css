@@ -12,7 +12,8 @@ html {
 }
 body {
   padding-top: env(safe-area-inset-top);
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: var(--rihab-rail-width, 76px);
   overscroll-behavior-y: contain;
 }
 button, input, a {
