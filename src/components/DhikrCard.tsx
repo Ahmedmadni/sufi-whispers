@@ -5,7 +5,7 @@ import { TasbihIcon } from "@/components/TasbihIcon";
 import { useEffect, useState } from "react";
 import { currentWird, NAME_TARGET } from "@/data/dhikr";
 import { useDhikr, formatNumber } from "@/lib/dhikr-store";
-import { readPrayerTimes } from "@/lib/wird-times";
+import { readPrayerTimes, wirdTimeWindowLabel } from "@/lib/wird-times";
 
 /** بطاقة «ورد هذه الساعة» في الصفحة الرئيسية. */
 export function DhikrCard() {
@@ -14,11 +14,13 @@ export function DhikrCard() {
   // Fixed initial date keeps SSR and first client render identical (no hydration mismatch)
   const [wird, setWird] = useState(() => currentWird(new Date(2000, 0, 1, 12)));
   const [customTimes, setCustomTimes] = useState(false);
+  const [savedTimes, setSavedTimes] = useState<ReturnType<typeof readPrayerTimes>>(null);
 
   useEffect(() => {
     const refresh = () => {
       const saved = readPrayerTimes();
       setCustomTimes(Boolean(saved));
+      setSavedTimes(saved);
       setWird(currentWird(new Date(), saved));
     };
     refresh();
@@ -48,7 +50,7 @@ export function DhikrCard() {
           </span>
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground font-body shrink-0">
             <Clock className="w-3.5 h-3.5" />
-            {wird.window}{!customTimes ? " · تقريبية" : ""}
+            {wirdTimeWindowLabel(wird.phase, savedTimes)}{!customTimes ? " · تقريبية" : ""}
           </span>
         </div>
 
