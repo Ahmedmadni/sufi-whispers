@@ -28,7 +28,7 @@ import { useDhikr, formatDuration, formatNumber, MILESTONES } from "@/lib/dhikr-
 import { TasbihIcon } from "@/components/TasbihIcon";
 import { DHIKR_SOUND_PREF, playDhikrTap } from "@/lib/dhikr-sound";
 import {
-  APPROXIMATE_TIMES, clearPrayerTimes, readPrayerTimes, savePrayerTimes,
+  APPROXIMATE_TIMES, clearPrayerTimes, readPrayerTimes, savePrayerTimes, wirdTimeWindowLabel,
   type PrayerTimeSettings,
 } from "@/lib/wird-times";
 
@@ -164,16 +164,13 @@ function DhikrPage() {
           <h1 className="mt-3 font-display text-2xl sm:text-3xl text-gradient-gold leading-[1.6]">
             لوحة الذكر
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body leading-7">
-            تابع وردك، واحفظ عدّك ومدّتك، وسِر على بركة الله من اسمٍ إلى اسم.
-          </p>
         </header>
 
         {/* ورد الوقت الحالي */}
         <section className="glass dhikr-stage rounded-2xl p-4 sm:p-6 text-center">
           <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground font-body">
             <Clock className="w-3.5 h-3.5" />
-            <span>{wird.window}{!prayerTimes ? " (توقيت تقريبي)" : " (وفق الأوقات المحفوظة)"}</span>
+            <span>{wirdTimeWindowLabel(wird.phase, prayerTimes)}{!prayerTimes ? " (توقيت تقريبي)" : " (وفق الأوقات المحفوظة)"}</span>
           </div>
           <h2 className="mt-1.5 font-display text-gold-soft text-lg sm:text-xl leading-[1.6]">
             {wird.label}
@@ -206,8 +203,8 @@ function DhikrPage() {
               aria-label="زيادة العدّ مرة واحدة"
             >
               <TasbihIcon className="h-6 w-6 opacity-80" />
-              <span className="dhikr-dial__number font-display text-2xl sm:text-3xl">
-                {formatNumber(wird.phase === "asma" ? d.activeProgress.count : dailyCount)}
+              <span lang="en" dir="ltr" className="dhikr-dial__number font-display text-2xl sm:text-3xl">
+                {(wird.phase === "asma" ? d.activeProgress.count : dailyCount).toLocaleString("en-US")}
               </span>
               <span className="dhikr-dial__hint">اضغط للتسبيح</span>
             </button>
@@ -354,12 +351,15 @@ function DhikrPage() {
             ] as const).map(([key, name]) => (
               <label key={key} className="flex flex-col gap-2 text-xs text-foreground/90 font-body">
                 <span>{name}</span>
-                <input type="time" value={timeDraft[key]} onChange={event => updateTimeDraft(key, event.target.value)}
-                  className="w-full min-w-0 rounded-lg border border-gold/30 bg-background/70 px-2 py-2.5 text-foreground"
-                  aria-label={`موعد ${name}`}/>
+                <input type="time" lang="en-GB" dir="ltr" step={60} value={timeDraft[key]} onChange={event => updateTimeDraft(key, event.target.value)}
+                  className="w-full min-w-0 rounded-lg border border-gold/30 bg-background/70 px-2 py-2.5 text-foreground tabular-nums"
+                  aria-label={`موعد ${name} بنظام 24 ساعة`}/>
               </label>
             ))}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground" dir="ltr" aria-live="polite">
+            {timeDraft.fajr} → {timeDraft.asr} → {timeDraft.maghrib} (24h)
+          </p>
           {timeError && <p className="mt-3 text-sm text-destructive" role="alert">{timeError}</p>}
           <div className="mt-4 flex flex-wrap gap-2">
             <button type="button" onClick={applyPrayerTimes}
