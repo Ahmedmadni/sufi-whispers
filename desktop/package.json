@@ -1,6 +1,6 @@
 {
   "name": "rihab-al-khaliliyya-desktop",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "private": true,
   "description": "رحاب الخليلية — مكتبة ومصحف دون اتصال على Windows",
   "main": "main.cjs",
