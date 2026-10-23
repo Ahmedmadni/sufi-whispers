@@ -5,6 +5,9 @@
  */
 export const WIRD_REMINDER_KEY = "rihab:wird-reminders:v1";
 const IDS = [904, 922] as const;
+const TEST_IDS = { 4: 923, 22: 924 } as const;
+// One-time, optional diagnostic events. These IDs never overlap daily reminders.
+const TEST_DELAY_MS = 30_000;
 export const WIRD_TIMES_KEY = "rihab:wird-reminder-times:v1";
 export type WirdTimes = { first: string; second: string };
 export const DEFAULT_WIRD_TIMES: WirdTimes = { first: "09:00", second: "21:00" };
@@ -28,13 +31,14 @@ function clock(value: string): { hour: number; minute: number } {
 }
 
 type Reminder = { id: number; title: string; body: string; schedule: { on: { hour: number; minute: number }; allowWhileIdle: boolean }; isExactNotification: boolean; actionTypeId: string; extra: { wird: number } };
+type TestReminder = { id: number; title: string; body: string; schedule: { at: Date; allowWhileIdle: boolean }; isExactNotification: boolean; actionTypeId: string; extra: { wird: number } };
 type Permission = { display: "granted" | "denied" | "prompt" | "prompt-with-rationale" };
 type Handle = { remove: () => Promise<void> };
 type Native = {
   checkPermissions(): Promise<Permission>;
   requestPermissions(): Promise<Permission>;
   registerActionTypes(options: { types: Array<{ id: string; actions: Array<{ id: string; title: string; foreground: boolean }> }> }): Promise<void>;
-  schedule(options: { notifications: Reminder[] }): Promise<unknown>;
+  schedule(options: { notifications: Array<Reminder | TestReminder> }): Promise<unknown>;
   cancel(options: { notifications: Array<{ id: number }> }): Promise<void>;
   getPending(): Promise<{ notifications: Array<{ id: number }> }>;
   addListener(event: string, callback: (event: { actionId?: string; notification?: { extra?: { wird?: number } } }) => void): Promise<Handle>;
@@ -76,7 +80,7 @@ export function wirdReminderDestination(page: unknown, actionId?: string): strin
  * it never reads storage or requests permissions.
  */
 export async function replaceWirdSchedule(
-  native: Pick<Native, "cancel" | "schedule" | "getPending">,
+  native: Pick<Native, "cancel" | "getPending"> & { schedule(options: { notifications: Reminder[] }): Promise<unknown> },
   times: WirdTimes,
   previous: WirdTimes | null = null,
 ): Promise<void> {
@@ -105,6 +109,52 @@ export async function replaceWirdSchedule(
     }
     throw reason;
   }
+}
+
+/** One-off on-device verification for both notification buttons, without
+ * replacing or editing the user's two recurring reminders. Android inexact
+ * alarms may be delayed by battery management.
+ */
+export function wirdTestReminder(page: 4 | 22, now = new Date()): TestReminder {
+  const id = TEST_IDS[page];
+  return {
+    id,
+    title: "اختبار تذكير ورد الاستغفار",
+    body: "إشعار تجريبي للحزب " + (page === 4 ? "الأول" : "الثاني") + "؛ جرّب زر الاستماع.",
+    schedule: { at: new Date(now.getTime() + TEST_DELAY_MS), allowWhileIdle: true },
+    isExactNotification: false,
+    actionTypeId: "RIHAB_WIRD_OPEN",
+    extra: { wird: page },
+  };
+}
+
+/** Exported for deterministic mock tests; only touches the diagnostic ID. */
+export async function scheduleWirdTest(
+  native: Pick<Native, "cancel" | "getPending"> & { schedule(options: { notifications: TestReminder[] }): Promise<unknown> },
+  page: 4 | 22,
+  now = new Date(),
+): Promise<void> {
+  const notification = wirdTestReminder(page, now);
+  await native.cancel({ notifications: [{ id: notification.id }] });
+  await native.schedule({ notifications: [notification] });
+  const pending = await native.getPending();
+  if (!pending.notifications.some(item => item.id === notification.id)) {
+    throw new Error("لم يؤكد Android جدولة إشعار الاختبار. راجع إعدادات الإشعارات.");
+  }
+}
+
+export async function testWirdNotification(page: 4 | 22): Promise<string> {
+  const native = nativeReminders();
+  if (!native) throw new Error("اختبار الإشعارات متاح في تطبيق Android فقط.");
+  let permission = await native.checkPermissions();
+  if (permission.display !== "granted") permission = await native.requestPermissions();
+  if (permission.display !== "granted") throw new Error("اسمح للتطبيق بإظهار الإشعارات من إعدادات Android أولًا.");
+  await native.registerActionTypes({ types: [{ id: "RIHAB_WIRD_OPEN",
+    actions: [{ id: "open-wird", title: "فتح الورد", foreground: true },
+      { id: "listen-wird", title: "الاستماع للحزب", foreground: true }] }] });
+  await scheduleWirdTest(native, page);
+  return "تم جدولة إشعار اختبار الحزب " + (page === 4 ? "الأول" : "الثاني") +
+    ". يفترض ظهوره بعد قليل، وقد يؤخّره نظام توفير البطارية. لا تتغير التذكيرات اليومية.";
 }
 
 export async function enableWirdReminders(times: WirdTimes = readWirdTimes()): Promise<string> {

@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { ArrowRight, BellRing, Copy, Download, FileUp, HardDriveDownload, ShieldCheck } from "lucide-react";
 import { useEffect } from "react";
-import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWirdSchedule, WIRD_REMINDER_KEY, WIRD_TIMES_KEY, readWirdTimes, updateWirdTimes, type WirdTimes } from "@/lib/wird-reminders";
+import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWirdSchedule, WIRD_REMINDER_KEY, WIRD_TIMES_KEY, readWirdTimes, updateWirdTimes, testWirdNotification, type WirdTimes } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -62,6 +62,18 @@ function SettingsPage() {
     } catch (reason) {
       setReminderNotice(reason instanceof Error ? reason.message : "تعذّر تحديث مواعيد التذكير.");
     } finally { setReminderBusy(false); }
+  }
+
+  async function testReminder(page: 4 | 22) {
+    setReminderBusy(true);
+    setReminderNotice("");
+    try {
+      setReminderNotice(await testWirdNotification(page));
+    } catch (reason) {
+      setReminderNotice(reason instanceof Error ? reason.message : "تعذّر اختبار إشعارات Android.");
+    } finally {
+      setReminderBusy(false);
+    }
   }
 
   function clearMessages() { setNotice(""); setError(""); }
@@ -222,6 +234,23 @@ function SettingsPage() {
             حفظ مواعيد الأوراد
           </button>
           <p className="text-xs text-muted-foreground">الإشعارات اختيارية وتعمل دون خادم أو حساب. قد يتأخر ظهورها مع توفير طاقة البطارية؛ لا نطلب صلاحية المنبّه الدقيق.</p>
+          {remindersAvailable && (
+            <div className="rounded-xl border border-border p-3 space-y-2" aria-label="اختبار إشعارات الورد">
+              <p className="text-xs text-muted-foreground">
+                جرّب وصول الإشعار وزر «الاستماع للحزب» على هاتفك دون تغيير مواعيد التذكيرين اليوميين. الإشعار التجريبي غير دقيق بالثانية.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button type="button" disabled={reminderBusy} onClick={() => void testReminder(4)}
+                  className="min-h-11 rounded-xl border border-gold/35 px-4 py-2 text-sm text-foreground disabled:opacity-40">
+                  اختبار إشعار الحزب الأول
+                </button>
+                <button type="button" disabled={reminderBusy} onClick={() => void testReminder(22)}
+                  className="min-h-11 rounded-xl border border-gold/35 px-4 py-2 text-sm text-foreground disabled:opacity-40">
+                  اختبار إشعار الحزب الثاني
+                </button>
+              </div>
+            </div>
+          )}
           <button type="button" onClick={() => void toggleReminder()} disabled={!remindersAvailable || reminderBusy}
             aria-pressed={reminderStatus === "on"}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground disabled:opacity-40">

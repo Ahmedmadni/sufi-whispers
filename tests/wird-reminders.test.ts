@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { reminderItems, replaceWirdSchedule, requestedWirdPage, WIRD_REMINDER_KEY, validateWirdTimes, readWirdTimes, WIRD_TIMES_KEY } from "../src/lib/wird-reminders";
+import { reminderItems, scheduleWirdTest, wirdTestReminder, replaceWirdSchedule, requestedWirdPage, WIRD_REMINDER_KEY, validateWirdTimes, readWirdTimes, WIRD_TIMES_KEY } from "../src/lib/wird-reminders";
 import { readFileSync } from "node:fs";
 describe("Opt-in Android ward reminder integrity", () => {
   test("exactly two local daily notifications link to source-verified ward pages", () => {
@@ -77,6 +77,48 @@ describe("Opt-in Android ward reminder integrity", () => {
     };
     await expect(replaceWirdSchedule(native, { first: "99:59", second: "21:00" })).rejects.toThrow();
     expect(cancelled).toBe(false);
+  });
+  test("diagnostic notifications are inexact, one-time and distinct from the daily IDs", () => {
+    const now = new Date("2026-10-23T12:00:00.000Z");
+    const first = wirdTestReminder(4, now);
+    const second = wirdTestReminder(22, now);
+    expect([first.id, second.id]).toEqual([923, 924]);
+    expect(first.schedule.at.toISOString()).toBe("2026-10-23T12:00:30.000Z");
+    expect(second.schedule.at.toISOString()).toBe("2026-10-23T12:00:30.000Z");
+    expect([first.extra.wird, second.extra.wird]).toEqual([4, 22]);
+    expect([first, second].every(x => x.isExactNotification === false && x.actionTypeId === "RIHAB_WIRD_OPEN")).toBe(true);
+    expect(reminderItems().map(x => x.id)).toEqual([904, 922]);
+  });
+  test("test notifications only replace their own diagnostic IDs", async () => {
+    const pending: Array<{ id: number }> = [{id:904},{id:922}];
+    const cancelled: number[] = [];
+    const native = {
+      cancel: async ({notifications}: {notifications: Array<{id:number}>}) => {
+        cancelled.push(...notifications.map(x=>x.id));
+        for(const item of notifications) {
+          const index = pending.findIndex(p=>p.id===item.id);
+          if(index>=0) pending.splice(index,1);
+        }
+      },
+      schedule: async ({notifications}: {notifications: Array<{id:number}>}) => {
+        pending.push(...notifications.map(({id})=>({id})));
+      },
+      getPending: async () => ({notifications:pending}),
+    };
+    await scheduleWirdTest(native,4,new Date("2026-10-23T12:00:00.000Z"));
+    await scheduleWirdTest(native,22,new Date("2026-10-23T12:00:00.000Z"));
+    expect(cancelled).toEqual([923,924]);
+    expect(pending.map(x=>x.id).sort()).toEqual([904,922,923,924]);
+  });
+  test("unconfirmed diagnostic scheduling is reported without touching the daily alarms", async () => {
+    const cancelled: number[] = [];
+    const native = {
+      cancel: async ({notifications}: {notifications: Array<{id:number}>}) => { cancelled.push(...notifications.map(x=>x.id)); },
+      schedule: async () => {},
+      getPending: async () => ({notifications:[{id:904},{id:922}]}),
+    };
+    await expect(scheduleWirdTest(native,4)).rejects.toThrow(/لم يؤكد Android/);
+    expect(cancelled).toEqual([923]);
   });
   test("no unrelated sensitive Android permissions or exact-alarm privileges", () => {
     const script = readFileSync("scripts/android-dev.mjs", "utf8");
