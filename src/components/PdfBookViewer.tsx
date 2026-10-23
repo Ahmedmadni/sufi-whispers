@@ -5,10 +5,9 @@ import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, storedReaderMode, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
+import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
-import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
   NAFAHAT_INDEX_REFERENCES,
@@ -22,24 +21,14 @@ import "react-pdf/dist/Page/TextLayer.css";
 import {
   ChevronRight,
   ChevronLeft,
-  Search,
   Maximize2,
   Minimize2,
   ZoomIn,
   ZoomOut,
-  Settings2,
-  CornerDownLeft,
   List,
   X,
-  Rows3,
-  BookOpen,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 // Copied by prepare-pdf-assets.mjs from react-pdf's OWN pdfjs-dist version.
 // Never import the top-level pdfjs-dist worker; it may have a different API.
@@ -94,16 +83,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   );
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
-  const [input, setInput] = useState("1");
   const [scale, setScale] = useState(1);
-  const [mode, setMode] = useState<ReaderMode>(()=>storedReaderMode(bookId));
+  // One consistent page mode; both horizontal swipes and vertical edge drags turn pages.
+  const [mode] = useState<ReaderMode>("paged");
   const [pdfRatio,setPdfRatio] = useState(1.414);
   const continuousRef = useRef<ContinuousBookHandle>(null);
-  const changeReaderMode = (next:ReaderMode) => {
-    persistReaderMode(bookId,next);
-    setMode(next);
-    setPrintedIndexOpen(false);
-  };
   const [pageWidth, setPageWidth] = useState(360);
   const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -115,28 +99,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     next => { if (printedIndexOpen) setPrintedIndexZoom(next); else setScale(next); },
   );
 
-  // Swipe sensitivity: smaller threshold = more sensitive.
-  // Higher values reduce accidental navigation.
-  const SENS_KEY = "reader.swipeThreshold";
-  const [swipeThreshold, setSwipeThreshold] = useState<number>(80);
-  const [swipeLoaded, setSwipeLoaded] = useState(false);
-  useEffect(() => {
-    try {
-      const v = Number(localStorage.getItem(SENS_KEY));
-      if (v >= 30 && v <= 200) setSwipeThreshold(v);
-    } catch {
-      // Storage may be unavailable in restricted browser contexts.
-    }
-    setSwipeLoaded(true);
-  }, []);
-  useEffect(() => {
-    if (!swipeLoaded) return;
-    try {
-      localStorage.setItem(SENS_KEY, String(swipeThreshold));
-    } catch {
-      // Keep the in-memory setting if persistence is disabled.
-    }
-  }, [swipeThreshold, swipeLoaded]);
+  const swipeThreshold = 80; // Natural medium sensitivity, constant across devices.
 
   // Resume last reading position per book
   const POS_KEY = `reader.page.${bookId}`;
@@ -168,10 +131,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       // Reader remains usable without persistent storage.
     }
   }, [bookId, restoredBookId, POS_KEY, page, numPages]);
-
-  useEffect(() => {
-    setInput(String(page));
-  }, [page]);
 
 
   // Light haptic feedback on every successful page change (mobile only)
@@ -315,12 +274,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     return () => window.removeEventListener("keydown", onKey);
   }, [page, goTo]);
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const n = parseInt(input.replace(/[^\d]/g, ""), 10);
-    if (!Number.isNaN(n)) goTo(n);
-  };
-
   const fullscreen = () => setImmersive(value => !value);
 
   const neighbors = useMemo<number[]>(() => {
@@ -343,13 +296,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
-          <button type="button" className="reader-icon-button"
-            aria-label={mode==="paged"?"القراءة المتواصلة":"وضع تقليب الصفحات"}
-            aria-pressed={mode==="continuous"}
-            title={mode==="paged"?"عرض صفحات الكتاب متتابعة":"العودة لتقليب الصفحات"}
-            onClick={()=>changeReaderMode(mode==="paged"?"continuous":"paged")}>
-            {mode==="paged"?<Rows3 size={19}/>:<BookOpen size={19}/>}
-          </button>
           {bookId === "nafahat" ? (
             <button type="button" className="reader-icon-button"
               aria-label={printedIndexOpen ? "إغلاق الفهرس" : "فهرس جامع النفحات"}
@@ -375,27 +321,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             </>
           )}
 
-        <form onSubmit={onSubmit} className="reader-page-form flex items-center gap-1 min-w-0">
-          <div className="relative">
-            <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gold/60 pointer-events-none" />
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              type="text"
-              inputMode="numeric"
-              className="w-16 bg-velvet/40 border border-gold/20 rounded-md pr-7 pl-2 py-1.5 text-xs font-body text-gold-soft focus:outline-none focus:border-gold/60"
-              placeholder="صفحة"
-              aria-label="رقم الصفحة"
-            />
-          </div>
-          <button
-            type="submit"
-            className="glass-gold rounded-md px-2.5 py-1.5 text-xs font-body text-gold-soft"
-          >
-            <CornerDownLeft className="h-4 w-4" aria-hidden="true" />
-            <span className="sr-only">الانتقال إلى رقم الصفحة</span>
-          </button>
-        </form>
+        <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label={`صفحة ${page} من ${numPages}`}>{page}/{numPages || "…"}</span>
 
         <div className="flex items-center gap-1">
           <button
@@ -419,65 +345,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           >
             {immersive ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
           </button>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="p-1.5 rounded-md glass text-gold-soft"
-                aria-label="إعدادات القراءة"
-              >
-                <Settings2 className="w-3.5 h-3.5" />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-64 glass border-gold/20 text-gold-soft"
-            >
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs font-display mb-1">حساسية التمرير باللمس</p>
-                  <p className="text-[10px] text-gold-soft/60 font-body leading-relaxed">
-                    كلما زادت المسافة قلّ الانتقال العرَضي بين الصفحات.
-                  </p>
-                </div>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {[
-                    { label: "عالية", value: 40 },
-                    { label: "متوسطة", value: 80 },
-                    { label: "منخفضة", value: 140 },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setSwipeThreshold(opt.value)}
-                      className={`px-2 py-1.5 rounded-md text-[11px] font-body transition-all ${
-                        swipeThreshold === opt.value
-                          ? "glass-gold text-gold-soft"
-                          : "glass text-gold-soft/80 hover:text-gold-soft"
-                      }`}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="range"
-                    min={30}
-                    max={200}
-                    step={5}
-                    value={swipeThreshold}
-                    onChange={(e) => setSwipeThreshold(Number(e.target.value))}
-                    className="flex-1 accent-[hsl(var(--gold))]"
-                    aria-label="ضبط دقيق للحساسية"
-                  />
-                  <span className="text-[10px] font-body tabular-nums w-10 text-left">
-                    {swipeThreshold}px
-                  </span>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-          <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} immersive={immersive}
-            headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)} onJump={goTo} />
         </div>
         </div>
       </div>
