@@ -116,15 +116,15 @@ jobs:
       - name: Verify EXE and generate SHA256
         shell: pwsh
         run: |
-          $installer = @(Get-ChildItem -Path release-desktop -Filter "Rihab-Al-Khaliliyya-Windows-Setup-1.0.9-x64.exe" -File)
+          $installer = @(Get-ChildItem -Path release-desktop -Filter "Rihab-Al-Khaliliyya-Windows-Setup-1.0.10-x64.exe" -File)
           if ($installer.Count -ne 1 -or $installer[0].Length -lt 100000000) { throw "Missing valid Windows setup executable" }
           $hash = (Get-FileHash -Algorithm SHA256 $installer[0].FullName).Hash.ToLowerInvariant()
           "$hash  $($installer[0].Name)" | Out-File -FilePath "release-desktop/SHA256SUMS-windows.txt" -Encoding utf8
       - uses: actions/upload-artifact@v4
         with:
-          name: rihab-windows-1-0-9-installer
+          name: rihab-windows-1-0-10-installer
           path: |
-            release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.9-x64.exe
+            release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.10-x64.exe
             release-desktop/SHA256SUMS-windows.txt
           retention-days: 30
           compression-level: 0
@@ -136,13 +136,13 @@ jobs:
         shell: pwsh
         run: |
           @'
-          رحاب الخليلية Windows x64 1.0.9 — نسخة تثبيت تجريبية كاملة دون الحاجة لاتصال الإنترنت أثناء القراءة.
+          رحاب الخليلية Windows x64 1.0.10 — نسخة تثبيت تجريبية كاملة دون الحاجة لاتصال الإنترنت أثناء القراءة.
           تتضمن المصحف المصور 604 صفحات، و1040 صفحة من الكتب السبعة، وفهرس جامع النفحات والخطوط الأصلية، وتسجيلَي ورد الاستغفار الأصليين للاستماع دون إنترنت. تشمل تحسينات استقرار الصوت واستعادة التذكيرات من النسخ الاحتياطية.
           برنامج Windows هذا غير موقّع بشهادة Authenticode؛ وقد يظهر تحذير ناشر غير معروف من SmartScreen.
           يضيف وضع القراءة المتواصلة الاختياري بتحميل صفحات PDF القريبة من الشاشة فقط، مع الحفاظ على وضع الصفحات، ودعم الإيماءات والتكبير. يحتاج اختبارًا عمليًا على Windows، وتظل التذكيرات الأصلية لـAndroid فقط. يجب اختبار الإصدار على Windows فعلي قبل التوزيع الواسع.
           '@ | Out-File -FilePath "release-desktop/RELEASE_NOTES.md" -Encoding utf8
-          $tag = "v1.0.9-windows-rc1"
+          $tag = "v1.0.10-windows-rc1"
           $exists = gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
           if ($LASTEXITCODE -eq 0) { Write-Host "Existing immutable Windows release retained"; exit 0 }
-          gh release create $tag "release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.9-x64.exe" "release-desktop/SHA256SUMS-windows.txt" --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "رحاب الخليلية Windows 1.0.9 (Unsigned RC)" --notes-file "release-desktop/RELEASE_NOTES.md" --prerelease
+          gh release create $tag "release-desktop/Rihab-Al-Khaliliyya-Windows-Setup-1.0.10-x64.exe" "release-desktop/SHA256SUMS-windows.txt" --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "رحاب الخليلية Windows 1.0.10 (Unsigned RC)" --notes-file "release-desktop/RELEASE_NOTES.md" --prerelease
           if ($LASTEXITCODE -ne 0) { throw "Windows release publication failed" }
