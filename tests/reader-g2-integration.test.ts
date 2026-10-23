@@ -24,7 +24,9 @@ describe("G2 continuous mode integration in eight books",()=>{
   const pdf=src("src/components/PdfBookViewer.tsx"),offline=src("src/components/OfflineBookPages.tsx");
   expect(pdf).toContain('if (turn && mode==="paged")');
   expect(offline).toContain('if (direction && mode==="paged")');
-  expect(pdf).toContain('printedIndexOpen || mode==="continuous"');
+  expect(pdf).toContain('if (mode==="continuous") return;');
+  expect(pdf).toContain('if (printedIndexOpen) {');
+  expect(pdf).toContain('setPrintedIndexSheet(current =>');
   expect(offline).toContain('if(mode==="continuous")return;');
   expect(pdf).toContain('mode==="continuous") return []');
  });
