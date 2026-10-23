@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize2, Minimize2, SlidersHorizontal, Rows3, BookOpen } from "lucide-react";
+import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, persistReaderMode, storedReaderMode, type ReaderMode } from "@/lib/reader-continuous";
+import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
-import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
@@ -31,21 +30,17 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
-  const [mode, setMode] = useState<ReaderMode>(() => storedReaderMode(bookId));
+  // Swipe left/right or drag at the vertical scroll edge to turn book pages.
+  const [mode] = useState<ReaderMode>("paged");
   const [viewportWidth, setViewportWidth] = useState(360);
   const continuousRef = useRef<ContinuousBookHandle>(null);
-  const setReaderMode = (next: ReaderMode) => {
-    persistReaderMode(bookId, next);
-    setMode(next);
-  };
   // Persist the gesture across every zoom-driven React render.
   const startX = useRef<number | null>(null);
   const startY = useRef<number | null>(null);
   const startScroll = useRef<ScrollViewport | null>(null);
   const pinch = useRef<{ distance: number; zoom: number; anchor: {contentX:number;contentY:number} } | null>(null);
   const multiTouch = useRef(false);
-  const [swipeThreshold, setSwipeThreshold] = useState(75);
-  useEffect(() => { try { const n = Number(localStorage.getItem("reader.swipeThreshold")); if (n >= 30 && n <= 200) setSwipeThreshold(n); } catch { /* optional */ } }, []);
+  const swipeThreshold = 80; // Fixed medium threshold, ignore old custom setting.
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
   useEffect(() => {
@@ -235,30 +230,11 @@ export default function OfflineBookPages({ bookId }: Props) {
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
-          <button type="button" className="reader-icon-button"
-            aria-label={mode==="paged"?"القراءة المتواصلة":"وضع تقليب الصفحات"}
-            title={mode==="paged"?"عرض الصفحات متتابعة":"العودة إلى وضع الصفحات"}
-            aria-pressed={mode==="continuous"}
-            onClick={()=>setReaderMode(mode==="paged"?"continuous":"paged")}>
-            {mode==="paged"?<Rows3 size={19}/>:<BookOpen size={19}/>}
-          </button>
           <button type="button" className="reader-icon-button" aria-label="تصغير الكتاب" title="تصغير"
             disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
           <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
             disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
-          {!immersive && <details className="reader-nav-popover">
-            <summary className="reader-icon-button cursor-pointer" aria-label="إعداد حساسية تقليب الصفحات" title="الحساسية">
-              <SlidersHorizontal size={19}/>
-            </summary>
-            <div className="reader-nav-popover__body" dir="rtl">
-              <input type="range" min="30" max="200" step="5" value={swipeThreshold} aria-label="حساسية التقليب"
-                onChange={event => { const v = Number(event.currentTarget.value); setSwipeThreshold(v);
-                  try { localStorage.setItem("reader.swipeThreshold", String(v)); } catch { /* optional */ }
-                }}/>
-            </div>
-          </details>}
-          <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
-            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)} onJump={goTo} />
+          <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label={`صفحة ${page} من ${maxPage}`}>{page}/{maxPage || "…"}</span>
           <button type="button" onClick={() => setImmersive(value => !value)}
             className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
             title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
