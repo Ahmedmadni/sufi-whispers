@@ -300,7 +300,7 @@
   flex: 1; min-width: 0; text-align: center; font-size: .74rem; line-height: 1.55;
   display: flex; flex-direction: column; justify-content: center;
 }
-.printed-immersive__chapter strong { font: 600 .9rem/1.4 "Amiri", "Cairo", serif; }
+.printed-immersive__chapter strong { font: 600 .9rem/1.4 "IBM Plex Sans Arabic", sans-serif; }
 .printed-immersive__chapter span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .printed-immersive__tools, .printed-immersive__page-tools {
   display: inline-flex; align-items: center; justify-content: center; gap: .25rem;
@@ -396,7 +396,7 @@
 }
 .printed-immersive__drawer-head {
   display: flex; justify-content: space-between; align-items: center; gap: .5rem;
-  margin-bottom: .65rem; font: 600 1.03rem/1.5 "Amiri", serif;
+  margin-bottom: .65rem; font: 600 1.03rem/1.5 "IBM Plex Sans Arabic", sans-serif;
 }
 .printed-immersive__drawer .printed-immersive__button {
   background: #f4e9d4; color: #20463d; border-color: #ae936c;

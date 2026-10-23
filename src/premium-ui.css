@@ -173,7 +173,7 @@ body { overflow-x: clip; }
 .mushaf-signature-title__text {
   margin: 0;
   flex: 1;
-  font: 600 clamp(1rem, 2.75vw, 1.26rem)/1.45 "Amiri", "Cairo", serif;
+  font: 600 clamp(1rem, 2.75vw, 1.26rem)/1.45 "IBM Plex Sans Arabic", sans-serif;
   color: #fff1d0;
   text-shadow: 0 1px 2px rgb(0 0 0 / .3);
 }
