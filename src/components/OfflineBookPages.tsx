@@ -6,7 +6,7 @@ import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
-import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
 import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
@@ -195,10 +195,14 @@ export default function OfflineBookPages({ bookId }: Props) {
       // Native scrolling handles the page body. At the starting boundary,
       // a further wheel turn advances/returns the book, including on Windows.
       const now = Date.now();
-      if (now - lastWheelTurn.current < 500 || Math.abs(event.deltaY) < 12) return;
-      const direction = verticalPageTurn(-event.deltaY, 12, {
-        scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
-      });
+      if (now - lastWheelTurn.current < 500) return;
+      const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) && zoom <= 1;
+      if (!horizontal && Math.abs(event.deltaY) < 12) return;
+      const direction = horizontal
+        ? rtlSwipePageDelta(-event.deltaX, swipeThreshold)
+        : verticalPageTurn(-event.deltaY, 12, {
+          scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
+        });
       if (direction) {
         if (event.cancelable) event.preventDefault();
         lastWheelTurn.current = now;

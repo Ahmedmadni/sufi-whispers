@@ -12,7 +12,7 @@ import {
   NafahatPrintedIndex, NAFAHAT_INDEX_FIRST, NAFAHAT_INDEX_LAST,
   NAFAHAT_INDEX_REFERENCES,
 } from "@/components/NafahatPrintedIndex";
-import { verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
+import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
 import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
 import { requestedWirdPage } from "@/lib/wird-reminders";
@@ -239,10 +239,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       }
       if (printedIndexOpen || mode==="continuous") return;
       const now = Date.now();
-      if (now - lastWheelTurn.current < 500 || Math.abs(e.deltaY) < 12) return;
-      const direction = verticalPageTurn(-e.deltaY, 12, {
-        scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
-      });
+      if (now - lastWheelTurn.current < 500) return;
+      // Trackpads support horizontal *and* vertical scrolling; at zoom >1
+      // horizontal movement remains native panning instead of page turning.
+      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) && scale <= 1;
+      if (!horizontal && Math.abs(e.deltaY) < 12) return;
+      const direction = horizontal
+        ? rtlSwipePageDelta(-e.deltaX, swipeThreshold)
+        : verticalPageTurn(-e.deltaY, 12, {
+          scrollTop: el.scrollTop, scrollHeight: el.scrollHeight, clientHeight: el.clientHeight,
+        });
       if (direction) {
         if (e.cancelable) e.preventDefault();
         lastWheelTurn.current = now;
