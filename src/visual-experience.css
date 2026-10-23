@@ -423,7 +423,7 @@
   min-width: 100vw;
   width: max-content;
   padding-inline: clamp(3rem, 9vw, 7rem);
-  font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif;
+  font-family: "IBM Plex Sans Arabic", sans-serif;
   font-size: clamp(1.05rem, 2.4vw, 1.65rem);
   font-weight: 600;
   font-feature-settings: "kern" 1, "calt" 1, "liga" 1;

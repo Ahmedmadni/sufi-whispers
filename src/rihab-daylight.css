@@ -24,7 +24,7 @@
   font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
   line-height: 1.75;
 }
-.light :where(.font-display,h1,h2,h3,h4) { font-family: "Noto Kufi Arabic", "IBM Plex Sans Arabic", sans-serif; line-height: 1.55; }
+.light :where(.font-display,h1,h2,h3,h4) { font-family: "IBM Plex Sans Arabic", sans-serif; line-height: 1.55; }
 .light :where(p:not(.mushaf-text):not(.verse-line):not(.printed-immersive__verse),li,blockquote) { line-height: 1.75; }
 .light :where(.glass,.glass-gold,.reader-toolbar,.reader-book-header,.book-quick-index) {
   background: #fff;
@@ -254,4 +254,19 @@
     min-width: 40px;
     min-height: 40px;
   }
+}
+
+/* Last-loaded light-theme refinements: respect the permanent left sidebar. */
+.light .bottom-nav.left-rail-nav {
+  border-top: 0; border-right: 1px solid #9b8256;
+  box-shadow: 4px 0 18px rgb(14 34 24 / .16);
+}
+:where(html, body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, .font-body, .font-display) {
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+}
+:where(.font-display, h1, h2, h3, h4, h5, h6) { font-weight: 600; }
+:where(body, p, button, input, select, textarea) { font-weight: 400; }
+/* The KFGQPC Mushaf has its own source-authentic glyphs; never change it. */
+:where(.font-uthmani, .mushaf-text, .printed-immersive__verse) {
+  font-family: "UthmanicHafs", serif;
 }
