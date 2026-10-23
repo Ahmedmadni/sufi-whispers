@@ -19,8 +19,6 @@ import { requestedWirdPage } from "@/lib/wird-reminders";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import {
-  ChevronRight,
-  ChevronLeft,
   Maximize2,
   Minimize2,
   ZoomIn,
@@ -221,9 +219,19 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       const dy = t.clientY - startY;
       if (Math.hypot(dx,dy) > 12) suppressSurfaceTap();
       if (!startedAt) return;
+      if (printedIndexOpen) {
+        // The seven original printed index sheets also turn by touch instead of arrows.
+        const horizontal = Math.abs(dx) > Math.abs(dy) && printedIndexZoom <= 1;
+        const delta = horizontal
+          ? rtlSwipePageDelta(dx, swipeThreshold)
+          : verticalPageTurn(dy, swipeThreshold, startedAt);
+        if (delta) setPrintedIndexSheet(current =>
+          Math.min(NAFAHAT_INDEX_LAST, Math.max(NAFAHAT_INDEX_FIRST, current + delta)));
+        return;
+      }
       const turn = readerGesturePageDelta({
-        page, maxPage: numPages, zoom: printedIndexOpen ? printedIndexZoom : scale, scroll: startedAt,
-      }, {dx, dy, threshold: swipeThreshold, indexOpen: printedIndexOpen});
+        page, maxPage: numPages, zoom: scale, scroll: startedAt,
+      }, {dx, dy, threshold: swipeThreshold});
       if (turn && mode==="paged") goTo(page + turn);
     };
     el.addEventListener("touchstart", onStart, { passive: true });
@@ -237,12 +245,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         else setScale(value => zoomFromWheel(value, e.deltaY));
         return;
       }
-      if (printedIndexOpen || mode==="continuous") return;
+      if (mode==="continuous") return;
       const now = Date.now();
       if (now - lastWheelTurn.current < 500) return;
-      // Trackpads support horizontal *and* vertical scrolling; at zoom >1
-      // horizontal movement remains native panning instead of page turning.
-      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) && scale <= 1;
+      const activeZoom = printedIndexOpen ? printedIndexZoom : scale;
+      const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) && activeZoom <= 1;
       if (!horizontal && Math.abs(e.deltaY) < 12) return;
       const direction = horizontal
         ? rtlSwipePageDelta(-e.deltaX, swipeThreshold)
@@ -252,7 +259,12 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       if (direction) {
         if (e.cancelable) e.preventDefault();
         lastWheelTurn.current = now;
-        goTo(page + direction);
+        if (printedIndexOpen) {
+          setPrintedIndexSheet(current =>
+            Math.min(NAFAHAT_INDEX_LAST, Math.max(NAFAHAT_INDEX_FIRST, current + direction)));
+        } else {
+          goTo(page + direction);
+        }
       }
     };
     el.addEventListener("touchcancel", onCancel);
@@ -315,17 +327,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
               onJump={goTo} />
           )}
-          {printedIndexOpen && bookId === "nafahat" && (
-            <>
-              <button type="button" className="reader-icon-button" disabled={printedIndexSheet <= NAFAHAT_INDEX_FIRST}
-                onClick={() => setPrintedIndexSheet(n => Math.max(NAFAHAT_INDEX_FIRST,n-1))}
-                aria-label="صفحة الفهرس السابقة" title="السابق"><ChevronRight size={19}/></button>
-              <span className="reader-topbar__page tabular-nums" dir="ltr">{printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}/7</span>
-              <button type="button" className="reader-icon-button" disabled={printedIndexSheet >= NAFAHAT_INDEX_LAST}
-                onClick={() => setPrintedIndexSheet(n => Math.min(NAFAHAT_INDEX_LAST,n+1))}
-                aria-label="صفحة الفهرس التالية" title="التالي"><ChevronLeft size={19}/></button>
-            </>
-          )}
+          {printedIndexOpen && <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label="صفحة الفهرس المطبوع">
+            {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}/7
+          </span>}
 
         <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label={`صفحة ${page} من ${numPages}`}>{page}/{numPages || "…"}</span>
 
