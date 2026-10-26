@@ -51,12 +51,15 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     expect(toc).toContain("currentReadingSection");
     expect(toc).toContain("item.endPage > item.page");
   });
-  test("keeps source-grounded poem index while page arrows are removed from readers", () => {
+  test("keeps the source-grounded poem index and puts page navigation in the left reader rail", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
-    expect(offline).not.toContain("BookReaderNavigation");
+    expect(offline).toContain("BookReaderNavigation");
+    expect(offline).toContain("book-reader-page-rail");
     expect(offline).toContain("BookQuickIndex");
     expect(offline).toContain("headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(");
     const pdf = read("src/components/PdfBookViewer.tsx");
+    expect(pdf).toContain("BookReaderNavigation");
+    expect(pdf).toContain("book-reader-page-rail");
     expect(pdf).toContain("headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(");
   });
   test("scanned-book TOC appears on web and Android, not in Jami al-Nafahat reader", () => {
