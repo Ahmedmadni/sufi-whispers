@@ -3,17 +3,25 @@ import { readFileSync } from "node:fs";
 const read = (name: string) => readFileSync(name, "utf8");
 
 describe("Seven requested interface revisions", () => {
-  test("left vertical rail remains available on phones and desktop without bottom padding", () => {
+  test("site navigation stays at the bottom and only book-page navigation moves to the reader's left", () => {
     const nav=read("src/components/BottomNav.tsx");
     const css=read("src/styles.css");
     const mobile=read("mobile/mobile.css");
-    expect(nav).toContain('className="bottom-nav left-rail-nav"');
-    expect(nav).toContain('className="left-rail-nav__links flex flex-col');
-    expect(nav).not.toContain("lg:hidden");
-    expect(css).toContain(".bottom-nav.left-rail-nav");
-    expect(css).toContain("left: 0; right: auto;");
-    expect(css).toContain("padding-left: var(--rihab-rail-width)");
-    expect(mobile).toContain("padding-left: var(--rihab-rail-width, 76px)");
+    const readerCss=read("src/printed-pdf-reader.css");
+    expect(nav).toContain('className="bottom-nav lg:hidden"');
+    expect(nav).toContain('aria-label="التنقّل السريع"');
+    expect(nav).not.toContain("left-rail-nav");
+    expect(css).not.toContain(".bottom-nav.left-rail-nav");
+    expect(css).not.toContain("body { padding-left: var(--rihab-rail-width)");
+    expect(mobile).not.toContain("padding-left: var(--rihab-rail-width");
+    expect(mobile).toContain("padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px))");
+    expect(readerCss).toContain(".book-reader-page-rail");
+    expect(readerCss).toContain(".book-reader-workspace");
+    for (const path of ["src/components/OfflineBookPages.tsx", "src/components/PdfBookViewer.tsx"]) {
+      const source=read(path);
+      expect(source).toContain("BookReaderNavigation");
+      expect(source).toContain("book-reader-page-rail");
+    }
   });
   test("all interface typography uses IBM Plex Sans Arabic with authentic Quran exception", () => {
     const root=read("src/routes/__root.tsx");
@@ -26,10 +34,10 @@ describe("Seven requested interface revisions", () => {
     expect(androidSplash).toContain('font-family: "IBM Plex Sans Arabic"');
     expect(styles).toContain('font-family: "UthmanicHafs"');
   });
-  test("no book paging buttons, sensitivity sliders or continuous/paged mode toggles", () => {
+  test("book paging rail coexists with gestures without sensitivity sliders or mode toggles", () => {
     for (const path of ["src/components/OfflineBookPages.tsx", "src/components/PdfBookViewer.tsx"]) {
       const source=read(path);
-      expect(source).not.toContain("BookReaderNavigation");
+      expect(source).toContain("BookReaderNavigation");
       expect(source).not.toContain('reader.swipeThreshold');
       expect(source).not.toContain("changeReaderMode(");
       expect(source).not.toContain("setReaderMode(");
