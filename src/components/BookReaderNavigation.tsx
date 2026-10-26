@@ -1,9 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { BookOpen, ChevronLeft, ChevronRight, House, SlidersHorizontal, SkipBack, SkipForward } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronUp, SlidersHorizontal, SkipBack, SkipForward } from "lucide-react";
 import { currentReadingSection, readingSections, summarizedBookIndex, type OriginalBookHeading } from "@/lib/book-index";
 
 type Props = { bookId: string; page: number; maxPage: number; immersive?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
-/** All book navigation lives at the TOP, icon-only, with accessible labels. */
+
+/** Page-specific navigation rail for the book reader, independent of site navigation. */
 export function BookReaderNavigation({ bookId, page, maxPage, immersive = false, headings = [], onJump }: Props) {
   const limits = maxPage || 1;
   const poemSections = bookId === "nafahat-khaliliyya"
@@ -12,23 +12,27 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
   const currentPoem = currentReadingSection(poemSections, page);
   const previousPoem = [...poemSections].reverse().find(item => item.page < (currentPoem?.page ?? page));
   const nextPoem = poemSections.find(item => item.page > page);
+
   return (
-    <nav className="book-reader-nav reader-topbar__nav flex items-center gap-1" dir="ltr" aria-label="التحكم في صفحات الكتاب">
-      <button type="button" className="reader-icon-button" disabled={!maxPage || page >= maxPage}
+    <nav className="book-reader-nav reader-page-rail__nav" dir="ltr" aria-label="التحكم في صفحات الكتاب">
+      <button type="button" className="reader-page-rail__button" disabled={!maxPage || page >= maxPage}
         onClick={() => onJump(page + 1)} aria-label="الصفحة التالية" title="الصفحة التالية">
-        <ChevronLeft size={19} aria-hidden="true" />
+        <ChevronUp size={20} aria-hidden="true" />
       </button>
-      <span className="reader-topbar__page tabular-nums" dir="ltr" aria-live="polite" aria-label={`صفحة ${page} من ${maxPage}`}>{page}/{maxPage || "…"}</span>
-      <button type="button" className="reader-icon-button" disabled={page <= 1}
+      <span className="reader-page-rail__counter tabular-nums" dir="ltr" aria-live="polite" aria-label={`صفحة ${page} من ${maxPage}`}>
+        <span>{page}</span>
+        <small>/{maxPage || "…"}</small>
+      </span>
+      <button type="button" className="reader-page-rail__button" disabled={page <= 1}
         onClick={() => onJump(page - 1)} aria-label="الصفحة السابقة" title="الصفحة السابقة">
-        <ChevronRight size={19} aria-hidden="true" />
+        <ChevronDown size={20} aria-hidden="true" />
       </button>
       {!immersive && (
-        <details className="reader-nav-popover">
-          <summary className="reader-icon-button cursor-pointer" aria-label="الانتقال السريع بين الصفحات" title="الانتقال السريع">
+        <details className="reader-nav-popover reader-page-rail__popover">
+          <summary className="reader-page-rail__button cursor-pointer" aria-label="الانتقال السريع بين الصفحات" title="الانتقال السريع">
             <SlidersHorizontal size={19} aria-hidden="true" />
           </summary>
-          <div className="reader-nav-popover__body" dir="rtl">
+          <div className="reader-nav-popover__body reader-page-rail__popover-body" dir="rtl">
             <input className="reader-page-scrubber" type="range" dir="ltr" min={1} max={limits} step={1}
               value={Math.min(page, limits)} disabled={maxPage < 2}
               aria-label="شريط الانتقال السريع بين صفحات الكتاب"
@@ -56,9 +60,6 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
           </div>
         </details>
       )}
-      <Link to="/" className="reader-icon-button" aria-label="العودة إلى الرئيسية" title="الرئيسية">
-        <House size={19} aria-hidden="true" />
-      </Link>
     </nav>
   );
 }

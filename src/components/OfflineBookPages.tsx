@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
@@ -228,6 +229,13 @@ export default function OfflineBookPages({ bookId }: Props) {
       onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
       label="قارئ الكتاب دون إنترنت" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
+      <div className="book-reader-workspace" dir="ltr">
+        <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
+          <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
+            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
+            onJump={goTo} />
+        </aside>
+        <div className="book-reader-main" dir="rtl">
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
@@ -238,7 +246,6 @@ export default function OfflineBookPages({ bookId }: Props) {
             disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
           <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
             disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
-          <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label={`صفحة ${page} من ${maxPage}`}>{page}/{maxPage || "…"}</span>
           <button type="button" onClick={() => setImmersive(value => !value)}
             className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
             title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
@@ -291,6 +298,8 @@ export default function OfflineBookPages({ bookId }: Props) {
       )}
       {error && image && <button type="button" className="mt-2 text-xs text-gold-soft"
         onClick={() => { setError(""); setImageRetry(n => n + 1); }}>أعد عرض الصفحة</button>}
+        </div>
+      </div>
     </BookReaderLayout>
   );
 }

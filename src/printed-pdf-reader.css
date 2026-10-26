@@ -801,3 +801,182 @@
 .book-reader--chrome-hidden > .wird-audio-player {
   display: none !important;
 }
+
+
+/* Reader-specific page navigation rail. The global app navigation remains at the bottom. */
+.book-reader-workspace {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: start;
+  gap: .55rem;
+  width: 100%;
+  min-width: 0;
+  direction: ltr;
+}
+.book-reader-workspace--index {
+  grid-template-columns: minmax(0, 1fr);
+}
+.book-reader-page-rail {
+  grid-column: 1;
+  display: flex;
+  justify-content: center;
+  align-self: stretch;
+  position: sticky;
+  top: .5rem;
+  z-index: 70;
+  min-width: 0;
+}
+.book-reader-main {
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  direction: rtl;
+  width: 100%;
+  min-width: 0;
+}
+.book-reader-workspace--index .book-reader-main {
+  grid-column: 1;
+}
+.book-reader-page-rail__nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  width: 100%;
+  height: fit-content;
+  padding: .4rem .2rem;
+  border: 1px solid #cddbcf;
+  border-top: 2px solid #b89c60;
+  border-radius: 13px;
+  background: #fffdf9;
+  box-shadow: 0 3px 15px rgb(25 57 46 / .08);
+}
+.book-reader-page-rail__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 42px;
+  min-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid #c5d8c6;
+  border-radius: 10px;
+  background: #eaf1e8;
+  color: #204937;
+  list-style: none;
+  text-decoration: none;
+}
+.book-reader-page-rail__button:hover:not(:disabled),
+.book-reader-page-rail__button:focus-visible {
+  background: #d6e5d5;
+  color: #142f26;
+  outline: 2px solid #9d8654;
+  outline-offset: 1px;
+}
+.book-reader-page-rail__button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.book-reader-page-rail__counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 2px;
+  color: #244b38;
+  font-size: .7rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.book-reader-page-rail__counter > span {
+  font-weight: 750;
+}
+.book-reader-page-rail__counter > small {
+  font-size: .62rem;
+}
+.book-reader-page-rail__popover {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.book-reader-page-rail__popover-body {
+  top: 0;
+  left: calc(100% + 8px);
+  right: auto;
+  inset-inline-start: auto;
+  width: min(72vw, 260px);
+  min-width: 185px;
+  max-width: calc(100vw - 70px);
+  z-index: 10050;
+}
+.book-reader-page-rail__popover-body .reader-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: .2rem;
+  border: 1px solid #c5d8c6;
+  border-radius: 8px;
+  background: #eaf1e8;
+  color: #204937;
+}
+.book-reader-page-rail__popover-body .reader-icon-button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+.book-reader-page-rail__popover-body .reader-page-scrubber {
+  display: block;
+  width: 100%;
+  accent-color: #b89c60;
+}
+.book-reader--immersive .book-reader-workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.book-reader--immersive .book-reader-main {
+  min-height: 0;
+  overflow: hidden;
+}
+.book-reader--chrome-hidden .reader-topbar {
+  display: none !important;
+}
+.book-reader--chrome-hidden .book-reader-page-rail {
+  display: none !important;
+}
+.book-reader--chrome-hidden .book-reader-workspace {
+  grid-template-columns: minmax(0, 1fr);
+}
+.book-reader--chrome-hidden .book-reader-main {
+  grid-column: 1;
+}
+@media (max-width: 620px) {
+  .book-reader-workspace {
+    grid-template-columns: 46px minmax(0, 1fr);
+    gap: .3rem;
+  }
+  .book-reader-page-rail__nav {
+    gap: .25rem;
+    padding: .3rem .1rem;
+    border-radius: 10px;
+  }
+  .book-reader-page-rail__button {
+    width: 36px;
+    min-width: 36px;
+    height: 38px;
+    min-height: 38px;
+    border-radius: 9px;
+  }
+  .book-reader-page-rail__counter {
+    font-size: .6rem;
+  }
+  .book-reader-page-rail__counter > small {
+    font-size: .55rem;
+  }
+}

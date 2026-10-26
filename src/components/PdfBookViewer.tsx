@@ -4,6 +4,7 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
@@ -311,6 +312,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
       {/* Single reader bar: title, index, zoom, paging and exit only. */}
+      <div className={`book-reader-workspace${printedIndexOpen ? " book-reader-workspace--index" : ""}`} dir="ltr">
+        {!printedIndexOpen && (
+          <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
+            <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} immersive={immersive}
+              headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
+              onJump={goTo} />
+          </aside>
+        )}
+        <div className="book-reader-main" dir="rtl">
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
         <div className="reader-topbar__actions" dir="ltr">
@@ -331,7 +341,6 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}/7
           </span>}
 
-        <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label={`صفحة ${page} من ${numPages}`}>{page}/{numPages || "…"}</span>
 
         <div className="flex items-center gap-1">
           <button
@@ -521,6 +530,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             ))}
           </div>
         </Document>}
+      </div>
+        </div>
       </div>
 
     </BookReaderLayout>
