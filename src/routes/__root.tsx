@@ -19,6 +19,8 @@ import daylightCss from "../rihab-daylight.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { SalawatReminder } from "@/components/Salawat";
 import { BottomNav } from "@/components/BottomNav";
+import { useEffect } from "react";
+import { applySavedFontScale } from "@/components/FontSizeControl";
 
 function NotFoundComponent() {
   return (
@@ -129,6 +131,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { applySavedFontScale(); }, []);
   const pathname = useLocation({ select: (location) => location.pathname });
   // The native SPA has no document transitions unless we supply them.
   // Keep the immersive Mushaf outside animated ancestors, so fixed viewport
