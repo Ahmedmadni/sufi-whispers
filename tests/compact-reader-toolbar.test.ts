@@ -21,6 +21,7 @@ describe("Compact fullscreen navigation and editable wird settings",()=>{
    for(const source of [pdf,offline]){
      expect(source).toContain("readerGesturePageDelta");
      expect(source).toContain("BookReaderNavigation");
+      expect(source).toContain("ContinuousBookStack");
       expect(source).toContain("book-reader-page-rail");
      expect(source).not.toContain("reader.swipeThreshold");
      expect(source).not.toContain("setReaderMode");
