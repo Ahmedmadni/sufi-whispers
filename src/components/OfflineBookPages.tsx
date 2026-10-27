@@ -278,7 +278,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           tabIndex={0}
           role="region"
           aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
-          style={{ maxHeight: immersive ? "none" : "min(77dvh, 970px)", minHeight: immersive ? 0 : "min(55vh, 650px)", touchAction: "pan-x pan-y" }}
+          style={{ maxHeight: immersive ? "none" : "min(84dvh, 1200px)", minHeight: immersive ? 0 : "min(70vh, 900px)", touchAction: "pan-x pan-y" }}
 
         >
           {mode==="continuous" && entry ? (
