@@ -23,6 +23,39 @@ describe("Seven requested interface revisions", () => {
       expect(source).toContain("book-reader-page-rail");
     }
   });
+  test("font-size controls live in Settings and the saved scale is applied at startup", () => {
+    const header=read("src/components/SiteHeader.tsx");
+    const settings=read("src/routes/settings.tsx");
+    const font=read("src/components/FontSizeControl.tsx");
+    const root=read("src/routes/__root.tsx");
+    expect(header).not.toContain("FontSizeControl");
+    expect(settings).toContain("<FontSizeControl />");
+    expect(font).toContain('aria-label="تصغير الخط"');
+    expect(font).toContain('aria-label="تكبير الخط"');
+    expect(root).toContain("applySavedFontScale()");
+  });
+  test("continuous pages fit the full available width and the page rail works in every reader state", () => {
+    const pdf=read("src/components/PdfBookViewer.tsx");
+    const offline=read("src/components/OfflineBookPages.tsx");
+    const navigation=read("src/components/BookReaderNavigation.tsx");
+    const layout=read("src/components/BookReaderLayout.tsx");
+    const route=read("src/routes/books.$bookId.tsx");
+    const readerCss=read("src/printed-pdf-reader.css");
+    expect(layout).toContain("max-w-none flex-col");
+    expect(route).toContain("w-full max-w-none");
+    expect(pdf).not.toContain("Math.min(900, Math.max(200, w))");
+    expect(pdf).toContain("indexMode={printedIndexOpen}");
+    expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
+    expect(navigation).toContain("indexMode = false");
+    expect(navigation).toContain("!indexMode && bookId === \"nafahat-khaliliyya\"");
+    for (const source of [pdf,offline]) {
+      expect(source).toContain("BookReaderNavigation");
+      expect(source).toContain("ContinuousBookStack");
+      expect(source).toContain("persistReaderMode(bookId, mode)");
+    }
+    expect(readerCss).not.toContain(".book-reader--chrome-hidden .book-reader-page-rail {\n  display: none");
+    expect(readerCss).toContain(".book-reader--immersive .book-reader-page-rail__popover");
+  });
   test("all interface typography uses IBM Plex Sans Arabic with authentic Quran exception", () => {
     const root=read("src/routes/__root.tsx");
     const styles=read("src/styles.css");
