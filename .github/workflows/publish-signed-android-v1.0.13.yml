@@ -1,0 +1,107 @@
+name: Publish Rihab Android 1.0.13 Signed Files
+
+# Only publish artifacts from a successful, fully audited signed release build.
+# A GitHub prerelease is NOT a Google Play store deployment.
+on:
+  workflow_run:
+    workflows: ["Android Signed Release Candidate"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: rihab-android-v1-0-13-prerelease
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Ahmedmadni/sufi-whispers' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: ${{ github.event.workflow_run.id }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      RELEASE_TAG: v1.0.13-android-rc1
+    steps:
+      - name: Verify successful signed source and approved app identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          details="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN")"
+          test "$(jq -r '.name' <<<"$details")" = "Android Signed Release Candidate"
+          test "$(jq -r '.conclusion' <<<"$details")" = "success"
+          test "$(jq -r '.status' <<<"$details")" = "completed"
+          test "$(jq -r '.head_sha' <<<"$details")" = "$SOURCE_SHA"
+          test "$(jq -r '.head_branch' <<<"$details")" = "main"
+          test "$(jq -r '.head_repository.full_name' <<<"$details")" = "$GITHUB_REPOSITORY"
+          config="$(gh api "repos/$GITHUB_REPOSITORY/contents/config/android-release.json?ref=$SOURCE_SHA" --jq '.content' | base64 -d)"
+          test "$(jq -r '.applicationId' <<<"$config")" = "com.rihabalkhaliliyya.app"
+          test "$(jq -r '.versionName' <<<"$config")" = "1.0.13"
+          test "$(jq -r '.versionCode' <<<"$config")" = "14"
+          jobs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN/jobs?per_page=30")"
+          jq -e '.jobs | any(.name == "signed-release" and .conclusion == "success" and
+            (.steps | any(.name == "Verify release signature, identity and bundled content" and .conclusion == "success")) and
+            (.steps | any(.name == "Enforce release APK security flags and minimal permissions" and .conclusion == "success")) and
+            (.steps | any(.name == "Verify independently archived Quran source and load pinned digest" and .conclusion == "success")))' <<<"$jobs" >/dev/null
+          echo "PASS: audited Android 1.0.13 signed build provenance and Quran/security gates."
+      - name: Check out the exact successful signed source to use its corpus verifier
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Download signed outputs without rebuilding or unlocking any signing key
+        uses: actions/download-artifact@v4
+        with:
+          name: rihab-android-signed-release-candidate
+          repository: Ahmedmadni/sufi-whispers
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: signed-artifact
+      - name: Verify file containers and calculate public SHA-256 checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$(find signed-artifact -type f -name app-release.apk -print -quit)"
+          aab="$(find signed-artifact -type f -name app-release.aab -print -quit)"
+          test -n "$apk" && test -n "$aab"
+          test "$(find signed-artifact -type f -name app-release.apk | wc -l)" -eq 1
+          test "$(find signed-artifact -type f -name app-release.aab | wc -l)" -eq 1
+          test "$(stat -c%s "$apk")" -gt 100000000
+          test "$(stat -c%s "$aab")" -gt 100000000
+          unzip -tq "$apk" >/dev/null
+          unzip -tq "$aab" >/dev/null
+          python scripts/verify-android-release.py "$apk" "$aab"
+          mkdir -p signed-public
+          cp "$apk" signed-public/Rihab-Al-Khaliliyya-1.0.13.apk
+          cp "$aab" signed-public/Rihab-Al-Khaliliyya-1.0.13.aab
+          (cd signed-public && sha256sum Rihab-Al-Khaliliyya-1.0.13.apk Rihab-Al-Khaliliyya-1.0.13.aab > SHA256SUMS.txt)
+      - name: Publish separate APK and AAB links on GitHub prerelease only
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<'NOTES'
+          رحاب الخليلية Android 1.0.13 — تصحيح شامل لقارئ الكتب والتنقل.
+          - يظل شريط التنقل الرئيسي أسفل التطبيق، وشريط صفحات الكتب على يسار القارئ في جميع الكتب وحالات العرض، بما فيها ملء الشاشة والفهرس المطبوع.
+          - القراءة المتواصلة افتراضية لجميع الكتب؛ الصفحات ملائمة لعرض الشاشة وتحافظ على أبعاد المصدر، ويُعرض فهرس النفحات المطبوع في سبع صفحات متتابعة.
+          - أزرار تكبير وتصغير خط الواجهة موجودة في الإعدادات، بينما تكبير الصفحة والفهرس وملء الشاشة في هيدر القارئ.
+          - يحافظ على المصحف والخطوط الأصلية والكتب والتسجيلات المضمنة للعمل دون إنترنت، وعلى التذكيرات المحلية والنسخ الاحتياطي.
+          - اجتياز CI لا يغني عن اختبار اللمس والتمرير والصوت والتذكيرات والذاكرة على هاتف Android فعلي قبل الاعتماد النهائي.
+          NOTES
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            # A published immutable release must not silently acquire different binaries.
+            echo "Release tag already exists; leaving original assets unchanged."
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" signed-public/* --repo "$GITHUB_REPOSITORY" \
+            --target "$SOURCE_SHA" \
+            --title "رحاب الخليلية — Android 1.0.13 (Signed RC)" \
+            --notes-file release-notes.md --prerelease
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '{url: .url, assets: [.assets[] | {name: .name, url: .url}]}'
