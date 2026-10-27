@@ -3,11 +3,13 @@
  */
 export type ReaderMode = "paged" | "continuous";
 export const readerModeKey = (bookId: string) => `reader.mode.${bookId}`;
+/** Legacy "paged" values are migrated to continuous mode; the reader no longer defaults to isolated pages. */
 export function storedReaderMode(bookId: string, storage?: Pick<Storage,"getItem">): ReaderMode {
   try {
     const provider = storage ?? (typeof localStorage !== "undefined" ? localStorage : undefined);
-    return provider?.getItem(readerModeKey(bookId)) === "continuous" ? "continuous" : "paged";
-  } catch { return "paged"; }
+    if (provider?.getItem(readerModeKey(bookId)) === "continuous") return "continuous";
+  } catch { /* default to continuous when storage is blocked */ }
+  return "continuous";
 }
 export function persistReaderMode(bookId: string, mode: ReaderMode, storage?: Pick<Storage,"setItem">): void {
   if (mode !== "paged" && mode !== "continuous") return;
