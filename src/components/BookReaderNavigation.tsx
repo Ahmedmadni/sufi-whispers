@@ -40,7 +40,7 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.stopPropagation();
     event.preventDefault();
-    onJump(page + (event.key === "ArrowUp" ? 1 : -1));
+    onJump(Math.min(limits, Math.max(1, page + (event.key === "ArrowUp" ? 1 : -1))));
   };
 
   const progress = maxPage > 1 ? (page - 1) / (maxPage - 1) : 0;
