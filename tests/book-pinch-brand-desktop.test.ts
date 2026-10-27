@@ -35,13 +35,14 @@ describe("Reliable 2 finger zoom in both book readers",()=>{
 });
 describe("Brand readability and desktop",()=>{
   test("high contrast icon styles and disabled/hover/focus",()=>{
-    const css=read("src/rihab-daylight.css");
+    const brandCss=read("src/rihab-daylight.css");
+    const controlsCss=read("src/ios-refinements.css");
     const tsx=read("src/components/FontSizeControl.tsx");
-    expect(tsx).toContain("header-font-controls__button");
-    expect(css).toContain("color: #fff1cd;");
-    expect(css).toContain("border: 1.5px solid #c7a36e;");
-    expect(css).toContain(".header-font-controls__button:disabled");
-    expect(css).toContain(".header-font-controls__button:focus-visible");
+    expect(tsx).toContain("font-size-controls__button");
+    expect(brandCss).toContain("color: #fff1cd;");
+    expect(brandCss).toContain("border: 1.5px solid #c7a36e;");
+    expect(controlsCss).toContain(".font-size-controls__button:disabled");
+    expect(controlsCss).toContain(".font-size-controls__button:focus-visible");
   });
   test("Windows offline security boundaries and packaging",()=>{
     const main=read("desktop/main.cjs"),server=read("desktop/server.cjs"),pipeline=read(".github/workflows/windows-desktop.yml");

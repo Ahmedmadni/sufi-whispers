@@ -6,7 +6,7 @@ import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/compo
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
+import { createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import {
@@ -85,10 +85,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [scale, setScale] = useState(1);
   // Continuous reading: book pages flow into each other in one scrollable stack.
   const [mode] = useState<ReaderMode>("continuous");
+  useEffect(() => { persistReaderMode(bookId, mode); }, [bookId, mode]);
   const [pdfRatio,setPdfRatio] = useState(1.414);
   const continuousRef = useRef<ContinuousBookHandle>(null);
   const [pageWidth, setPageWidth] = useState(360);
   const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
+  const printedIndexWidth = Math.max(1, Math.round(pageWidth * printedIndexZoom));
+  const printedIndexLayout = useMemo(
+    () => createContinuousLayout(NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1, printedIndexWidth, () => 841.68 / 595.32, 12),
+    [printedIndexWidth],
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean; anchor: {contentX:number;contentY:number} } | null>(null);
@@ -142,8 +148,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
-        const w = containerRef.current.clientWidth - 8;
-        setPageWidth(Math.min(900, Math.max(200, w)));
+        const w = containerRef.current.clientWidth - 16;
+        setPageWidth(Math.max(1, w));
       }
     };
     update();
@@ -312,14 +318,23 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
       {/* Single reader bar: title, index, zoom, paging and exit only. */}
-      <div className={`book-reader-workspace${printedIndexOpen ? " book-reader-workspace--index" : ""}`} dir="ltr">
-        {!printedIndexOpen && (
-          <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
-            <BookReaderNavigation bookId={bookId} page={page} maxPage={numPages} immersive={immersive}
-              headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
-              onJump={goTo} />
-          </aside>
-        )}
+      <div className="book-reader-workspace" dir="ltr">
+        <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
+          <BookReaderNavigation
+            bookId={bookId}
+            page={printedIndexOpen ? printedIndexSheet - NAFAHAT_INDEX_FIRST + 1 : page}
+            maxPage={printedIndexOpen ? NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1 : numPages}
+            immersive={immersive}
+            indexMode={printedIndexOpen}
+            headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
+            onJump={printedIndexOpen
+              ? target => {
+                  setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + target - 1);
+                  continuousRef.current?.jumpToPage(target);
+                }
+              : goTo}
+          />
+        </aside>
         <div className="book-reader-main" dir="rtl">
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
@@ -337,32 +352,35 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
               onJump={goTo} />
           )}
-          {printedIndexOpen && <span className="reader-topbar__page tabular-nums" dir="ltr" aria-label="صفحة الفهرس المطبوع">
-            {printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}/7
-          </span>}
-
-
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v - .25)) : setScale(v => boundedBookZoom(v - .25))}
-            className="p-1.5 rounded-md glass text-gold-soft"
-            aria-label="تصغير"
+            className="reader-icon-button"
+            disabled={(printedIndexOpen ? printedIndexZoom : scale) <= 1}
+            aria-label="تصغير الصفحة"
+            title="تصغير الصفحة"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut size={19} aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v + .25)) : setScale(v => boundedBookZoom(v + .25))}
-            className="p-1.5 rounded-md glass text-gold-soft"
-            aria-label="تكبير"
+            className="reader-icon-button"
+            disabled={(printedIndexOpen ? printedIndexZoom : scale) >= 4}
+            aria-label="تكبير الصفحة"
+            title="تكبير الصفحة"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn size={19} aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={fullscreen}
-            className="p-1.5 rounded-md glass text-gold-soft"
+            className="reader-icon-button"
             aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
           >
-            {immersive ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            {immersive ? <Minimize2 size={19} aria-hidden="true" /> : <Maximize2 size={19} aria-hidden="true" />}
           </button>
         </div>
         </div>
@@ -472,13 +490,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           }
         >
           {bookId === "nafahat" && printedIndexOpen ? (
-            <NafahatPrintedIndex
-              sheet={printedIndexSheet}
-              width={Math.round(Math.max(240, Math.min(900, pageWidth)) * printedIndexZoom)}
-              onJump={(target) => {
-                goTo(target);
-                setPrintedIndexOpen(false);
-              }}
+            <ContinuousBookStack
+              ref={continuousRef}
+              layout={printedIndexLayout}
+              width={printedIndexWidth}
+              initialPage={printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}
+              overscan={printedIndexZoom < 1.75 ? 1 : 0}
+              viewportRef={viewerRef}
+              onActivePage={indexPage => setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + indexPage - 1)}
+              renderPage={indexPage => (
+                <NafahatPrintedIndex
+                  sheet={NAFAHAT_INDEX_FIRST + indexPage - 1}
+                  width={printedIndexWidth}
+                  onJump={target => {
+                    goTo(target);
+                    setPrintedIndexOpen(false);
+                  }}
+                />
+              )}
             />
           ) : mode==="continuous" && numPages>0 ? (
             <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={pageWidth*scale}

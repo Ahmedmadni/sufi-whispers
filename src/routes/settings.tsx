@@ -4,6 +4,7 @@ import { ArrowRight, BellRing, Copy, Download, FileUp, HardDriveDownload, Shield
 import { useEffect } from "react";
 import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWirdSchedule, WIRD_REMINDER_KEY, WIRD_TIMES_KEY, readWirdTimes, updateWirdTimes, testWirdNotification, type WirdTimes } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
+import { FontSizeControl } from "@/components/FontSizeControl";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
   exportPersonalBackup, parsePersonalBackup, restorePersonalBackup,
@@ -206,6 +207,14 @@ function SettingsPage() {
             جميع البيانات تظل على جهازك، ولا تُرسل إلى أي خادم تلقائيًا.
           </p>
         </div>
+
+        <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="font-size-heading">
+          <h2 id="font-size-heading" className="font-display text-lg text-foreground">حجم الخط وعناصر الواجهة</h2>
+          <p className="text-sm text-muted-foreground leading-7">
+            اضبط حجم النصوص والعناصر في واجهة التطبيق. يتم حفظ اختيارك على هذا الجهاز وتطبيقه تلقائيًا عند فتح التطبيق.
+          </p>
+          <FontSizeControl />
+        </section>
 
         <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="wird-reminders-heading">
           <div className="flex items-center gap-2">

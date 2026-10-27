@@ -6,30 +6,40 @@ const STORAGE_KEY = "rihab-font-scale";
 const SCALES = [100, 115, 130, 145];
 
 function applyScale(value: number) {
-  document.documentElement.style.setProperty("--reader-scale", String(value / 100));
+  if (typeof document !== "undefined") {
+    document.documentElement.style.setProperty("--reader-scale", String(value / 100));
+  }
+}
+
+/** Apply the saved preference at startup, while the actual controls live in Settings. */
+export function applySavedFontScale(): number {
+  let initial = 100;
+  try {
+    const saved = Number(localStorage.getItem(STORAGE_KEY));
+    if (SCALES.includes(saved)) initial = saved;
+  } catch { /* keep the default when storage is unavailable */ }
+  applyScale(initial);
+  return initial;
 }
 
 export function FontSizeControl() {
   const [scale, setScale] = useState(100);
 
   useEffect(() => {
-    const saved = Number(localStorage.getItem(STORAGE_KEY));
-    const initial = SCALES.includes(saved) ? saved : 100;
-    setScale(initial);
-    applyScale(initial);
+    setScale(applySavedFontScale());
   }, []);
 
   const update = (next: number) => {
     setScale(next);
     applyScale(next);
-    localStorage.setItem(STORAGE_KEY, String(next));
+    try { localStorage.setItem(STORAGE_KEY, String(next)); } catch { /* apply for this session */ }
   };
 
   const index = SCALES.indexOf(scale);
 
   return (
-    <div className="header-font-controls flex items-center gap-1" role="group" aria-label="ضبط حجم الخط">
-      <Type className="header-font-controls__type hidden sm:block h-4 w-4" aria-hidden="true" />
+    <div className="font-size-controls flex items-center gap-1" role="group" aria-label="ضبط حجم الخط">
+      <Type className="font-size-controls__type h-4 w-4" aria-hidden="true" />
       <Button
         type="button"
         variant="ghost"
@@ -38,11 +48,11 @@ export function FontSizeControl() {
         disabled={index <= 0}
         aria-label="تصغير الخط"
         title="تصغير الخط"
-        className="header-font-controls__button h-11 w-11 sm:h-10 sm:w-10"
+        className="font-size-controls__button h-11 w-11 sm:h-10 sm:w-10"
       >
         <Minus className="h-5 w-5" strokeWidth={2.8} />
       </Button>
-      <span className="header-font-controls__value hidden min-w-10 text-center text-xs font-body sm:inline" aria-live="polite">
+      <span className="font-size-controls__value min-w-12 text-center text-sm font-body" aria-live="polite">
         {scale}٪
       </span>
       <Button
@@ -53,7 +63,7 @@ export function FontSizeControl() {
         disabled={index >= SCALES.length - 1}
         aria-label="تكبير الخط"
         title="تكبير الخط"
-        className="header-font-controls__button h-11 w-11 sm:h-10 sm:w-10"
+        className="font-size-controls__button h-11 w-11 sm:h-10 sm:w-10"
       >
         <Plus className="h-5 w-5" strokeWidth={2.8} />
       </Button>
@@ -65,7 +75,7 @@ export function FontSizeControl() {
           onClick={() => update(100)}
           aria-label="إعادة حجم الخط الطبيعي"
           title="الحجم الطبيعي"
-          className="header-font-controls__button h-11 w-11 sm:h-10 sm:w-10"
+          className="font-size-controls__button h-11 w-11 sm:h-10 sm:w-10"
         >
           <RotateCcw />
         </Button>

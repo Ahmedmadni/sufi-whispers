@@ -21,6 +21,7 @@ describe("Compact fullscreen navigation and editable wird settings",()=>{
    for(const source of [pdf,offline]){
      expect(source).toContain("readerGesturePageDelta");
      expect(source).toContain("BookReaderNavigation");
+     expect(source).toContain("ContinuousBookStack");
       expect(source).toContain("book-reader-page-rail");
      expect(source).not.toContain("reader.swipeThreshold");
      expect(source).not.toContain("setReaderMode");
@@ -28,6 +29,16 @@ describe("Compact fullscreen navigation and editable wird settings",()=>{
    const nav=read("src/components/BottomNav.tsx");
    expect(nav).toContain('className="bottom-nav lg:hidden"');
     expect(nav).toContain('aria-label="التنقّل السريع"');
+ });
+ test("page zoom and fullscreen controls stay in the reader header, separate from font-size settings",()=>{
+   const pdf=read("src/components/PdfBookViewer.tsx");
+   const offline=read("src/components/OfflineBookPages.tsx");
+   expect(pdf).toContain('aria-label="تصغير الصفحة"');
+   expect(pdf).toContain('aria-label="تكبير الصفحة"');
+   expect(pdf).toContain('className="reader-icon-button"');
+   expect(offline).toContain('aria-label="تصغير الصفحة"');
+   expect(offline).toContain('aria-label="تكبير الصفحة"');
+   expect(read("src/routes/settings.tsx")).toContain("<FontSizeControl />");
  });
  test("settings allows independent time input and an explicit save",()=>{
    const s=read("src/routes/settings.tsx");

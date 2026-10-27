@@ -2,14 +2,14 @@ import { useCallback, useRef } from "react";
 import { BookOpen, ChevronDown, ChevronUp, SlidersHorizontal, SkipBack, SkipForward } from "lucide-react";
 import { currentReadingSection, readingSections, summarizedBookIndex, type OriginalBookHeading } from "@/lib/book-index";
 
-type Props = { bookId: string; page: number; maxPage: number; immersive?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
+type Props = { bookId: string; page: number; maxPage: number; immersive?: boolean; indexMode?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
 
 /** Slim scrollbar-style page rail for the book reader: a thin draggable track
  * with a small thumb, tiny chevrons and a compact counter — minimal screen use. */
-export function BookReaderNavigation({ bookId, page, maxPage, immersive = false, headings = [], onJump }: Props) {
+export function BookReaderNavigation({ bookId, page, maxPage, immersive = false, indexMode = false, headings = [], onJump }: Props) {
   const limits = maxPage || 1;
   const trackRef = useRef<HTMLDivElement>(null);
-  const poemSections = bookId === "nafahat-khaliliyya"
+  const poemSections = !indexMode && bookId === "nafahat-khaliliyya"
     ? readingSections(maxPage, summarizedBookIndex(maxPage, headings)).filter(item => item.kind === "poem")
     : [];
   const currentPoem = currentReadingSection(poemSections, page);
@@ -40,7 +40,7 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
     if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
     event.stopPropagation();
     event.preventDefault();
-    onJump(page + (event.key === "ArrowUp" ? 1 : -1));
+    onJump(Math.min(limits, Math.max(1, page + (event.key === "ArrowUp" ? 1 : -1))));
   };
 
   const progress = maxPage > 1 ? (page - 1) / (maxPage - 1) : 0;

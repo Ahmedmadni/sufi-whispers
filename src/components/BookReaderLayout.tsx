@@ -105,7 +105,7 @@ export function BookReaderLayout({ immersive, toolbarVisible = true, onRevealToo
 }) {
   const content = (
     <section dir="rtl" aria-label={label}
-      className={`book-reader-layout mx-auto flex w-full min-w-0 max-w-5xl flex-col ${immersive ? "book-reader--immersive" : ""} ${toolbarVisible ? "" : "book-reader--chrome-hidden"}`}>
+      className={`book-reader-layout mx-auto flex w-full min-w-0 max-w-none flex-col ${immersive ? "book-reader--immersive" : ""} ${toolbarVisible ? "" : "book-reader--chrome-hidden"}`}>
       {!toolbarVisible && immersive && (
         <div className="reader-chrome-rescue" dir="ltr">
           <button type="button" aria-label="إظهار شريط أدوات الكتاب" title="إظهار الأدوات"
