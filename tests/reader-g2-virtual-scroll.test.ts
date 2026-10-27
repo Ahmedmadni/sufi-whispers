@@ -51,14 +51,14 @@ describe("G2 bounded continuous book geometry",()=>{
     const x=createContinuousLayout(2,NaN,()=>NaN,-4);
     expect(x.heights).toEqual([509,509]);
   });
-  test("reading mode is opt-in and can be backed up without overriding older state",()=>{
+  test("continuous reading is the default and legacy paged preferences migrate safely",()=>{
     const values=new Map<string,string>();
     const storage={getItem:(key:string)=>values.get(key)??null,setItem:(key:string,v:string)=>{values.set(key,v)}};
-    expect(storedReaderMode("ward",storage)).toBe("paged");
+    expect(storedReaderMode("ward",storage)).toBe("continuous");
     persistReaderMode("ward","continuous",storage);
     expect(storedReaderMode("ward",storage)).toBe("continuous");
-    values.set("reader.mode.ward","random");
-    expect(storedReaderMode("ward",storage)).toBe("paged");
+    values.set("reader.mode.ward","paged");
+    expect(storedReaderMode("ward",storage)).toBe("continuous");
   });
   test("the component never mounts every source image or PDF canvas",()=>{
     const s=readFileSync("src/components/ContinuousBookStack.tsx","utf8");
