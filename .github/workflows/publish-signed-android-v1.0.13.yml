@@ -20,6 +20,7 @@ jobs:
     if: >-
       github.repository == 'Ahmedmadni/sufi-whispers' &&
       github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_sha == github.sha &&
       github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers'
     runs-on: ubuntu-latest
