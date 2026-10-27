@@ -24,7 +24,10 @@ describe("continuous book reader geometry", () => {
     expect(pageAtContinuousOffset(layout, 0)).toBe(1);
     expect(pageAtContinuousOffset(layout, 209)).toBe(1);
     expect(pageAtContinuousOffset(layout, 210)).toBe(2);
-    expect(pageAtContinuousOffset(layout, 420)).toBe(3);
+    expect(pageAtContinuousOffset(layout, 420)).toBe(2);
+    expect(pageAtContinuousOffset(layout, 420 - 1)).toBe(2);
+    expect(pageAtContinuousOffset(layout, 420 + 1)).toBe(2);
+    expect(pageAtContinuousOffset(layout, 620)).toBe(3);
     expect(pageAtContinuousOffset(layout, Number.NaN)).toBe(1);
   });
 
