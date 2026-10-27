@@ -148,7 +148,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   useEffect(() => {
     const update = () => {
       if (containerRef.current) {
-        const w = containerRef.current.clientWidth - 8;
+        const w = containerRef.current.clientWidth - 16;
         setPageWidth(Math.max(200, w));
       }
     };
