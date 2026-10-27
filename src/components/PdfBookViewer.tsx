@@ -313,7 +313,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
       {/* Single reader bar: title, index, zoom, paging and exit only. */}
-      <div className={`book-reader-workspace${printedIndexOpen ? " book-reader-workspace--index" : ""}`} dir="ltr">
+      <div className="book-reader-workspace" dir="ltr">
         <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
           <BookReaderNavigation
             bookId={bookId}
