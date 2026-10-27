@@ -671,8 +671,8 @@
 .book-pdf-stage {
   justify-content: flex-start;
   align-items: flex-start;
-  max-height: min(78dvh, 1020px);
-  min-height: 0;
+  max-height: min(84dvh, 1200px);
+  min-height: min(70dvh, 900px);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
 }
@@ -813,9 +813,6 @@
   min-width: 0;
   direction: ltr;
 }
-.book-reader-workspace--index {
-  grid-template-columns: minmax(0, 1fr);
-}
 .book-reader-page-rail {
   grid-column: 1;
   display: flex;
@@ -834,9 +831,6 @@
   direction: rtl;
   width: 100%;
   min-width: 0;
-}
-.book-reader-workspace--index .book-reader-main {
-  grid-column: 1;
 }
 .book-reader-page-rail__nav {
   display: flex;
@@ -947,14 +941,8 @@
 .book-reader--chrome-hidden .reader-topbar {
   display: none !important;
 }
-.book-reader--chrome-hidden .book-reader-page-rail {
+.book-reader--chrome-hidden .book-reader-page-rail__popover {
   display: none !important;
-}
-.book-reader--chrome-hidden .book-reader-workspace {
-  grid-template-columns: minmax(0, 1fr);
-}
-.book-reader--chrome-hidden .book-reader-main {
-  grid-column: 1;
 }
 @media (max-width: 620px) {
   .book-reader-workspace {
@@ -979,4 +967,24 @@
   .book-reader-page-rail__counter > small {
     font-size: .55rem;
   }
+}
+
+
+/* The reader fills the available route width; the left rail belongs only to the book viewer. */
+.book-reader-layout {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+.book-reader-workspace > .book-reader-main {
+  min-width: 0;
+  width: 100%;
+}
+.book-reader-workspace .offline-book-stage,
+.book-reader-workspace .book-pdf-stage {
+  width: 100%;
+  max-width: 100%;
+}
+.book-reader--immersive .book-reader-page-rail__popover {
+  display: none !important;
 }
