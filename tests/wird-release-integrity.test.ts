@@ -13,13 +13,13 @@ describe("Wird audio release version and immutable media identity", () => {
       expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(sha);
     }
   });
-  test("corrected reader release uses Android version code 13 and independent Windows 1.0.12 package", () => {
+  test("corrected reader release uses Android version code 14 and independent Windows 1.0.13 package", () => {
     const android = JSON.parse(readFileSync("config/android-release.json", "utf8"));
     const desktop = JSON.parse(readFileSync("desktop/package.json", "utf8"));
     expect(android.applicationId).toBe("com.rihabalkhaliliyya.app");
-    expect(android.versionName).toBe("1.0.12");
-    expect(android.versionCode).toBe(13);
-    expect(desktop.version).toBe("1.0.12");
+    expect(android.versionName).toBe("1.0.13");
+    expect(android.versionCode).toBe(14);
+    expect(desktop.version).toBe("1.0.13");
   });
   test("release verifiers inspect both tracks inside APK/AAB and desktop files", () => {
     const source = readFileSync("scripts/verify-android-release.py", "utf8");
@@ -34,17 +34,20 @@ describe("Wird audio release version and immutable media identity", () => {
     const archived = readFileSync(".github/workflows/publish-signed-android-v1.0.7.yml", "utf8");
     const previous = readFileSync(".github/workflows/publish-signed-android-v1.0.10.yml", "utf8");
     const retired = readFileSync(".github/workflows/publish-signed-android-v1.0.11.yml", "utf8");
-    const next = readFileSync(".github/workflows/publish-signed-android-v1.0.12.yml", "utf8");
+    const retiredCurrent = readFileSync(".github/workflows/publish-signed-android-v1.0.12.yml", "utf8");
+    const next = readFileSync(".github/workflows/publish-signed-android-v1.0.13.yml", "utf8");
     const windows = readFileSync(".github/workflows/windows-desktop.yml", "utf8");
     expect(archived).toContain("workflow_dispatch");
     expect(previous).toContain("workflow_dispatch");
     expect(previous).toContain("false &&");
     expect(retired).toContain("workflow_dispatch");
     expect(retired).toContain("false &&");
-    expect(next).toContain("v1.0.12-android-rc1");
+    expect(retiredCurrent).toContain("workflow_dispatch");
+    expect(retiredCurrent).toContain("false &&");
+    expect(next).toContain("v1.0.13-android-rc1");
     expect(next).toContain("python scripts/verify-android-release.py");
-    expect(next).toContain(".versionCode' <<<\"$config\")\" = \"13\"");
-    expect(windows).toContain("v1.0.12-windows-rc1");
-    expect(windows).toContain("Rihab-Al-Khaliliyya-Windows-Setup-1.0.12-x64.exe");
+    expect(next).toContain(".versionCode' <<<\"$config\")\" = \"14\"");
+    expect(windows).toContain("v1.0.13-windows-rc1");
+    expect(windows).toContain("Rihab-Al-Khaliliyya-Windows-Setup-1.0.13-x64.exe");
   });
 });
