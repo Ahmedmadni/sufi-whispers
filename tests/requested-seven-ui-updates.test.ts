@@ -44,6 +44,7 @@ describe("Seven requested interface revisions", () => {
     expect(layout).toContain("max-w-none flex-col");
     expect(route).toContain("w-full max-w-none");
     expect(pdf).not.toContain("Math.min(900, Math.max(200, w))");
+    expect(pdf).toContain("containerRef.current.clientWidth - 16");
     expect(pdf).toContain("indexMode={printedIndexOpen}");
     expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
     expect(navigation).toContain("indexMode = false");
