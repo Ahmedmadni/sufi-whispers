@@ -147,14 +147,26 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
 
   useEffect(() => {
     const update = () => {
-      if (containerRef.current) {
-        const w = containerRef.current.clientWidth - 16;
-        setPageWidth(Math.max(1, w));
-      }
+      const viewer = containerRef.current;
+      if (!viewer) return;
+      // The viewer sits inside .book-reader-main, beside the page rail.
+      // Measuring the viewer alone can preserve a width calculated before
+      // the rail/layout settles and make PDF canvases wider than the visible
+      // reading column. Always size against the actual main column.
+      const main = viewer.closest<HTMLElement>(".book-reader-main");
+      const available = main?.clientWidth || viewer.clientWidth;
+      const styles = window.getComputedStyle(viewer);
+      const horizontalPadding =
+        (Number.parseFloat(styles.paddingLeft) || 0) +
+        (Number.parseFloat(styles.paddingRight) || 0);
+      const w = available - horizontalPadding - 2;
+      setPageWidth(Math.max(1, Math.floor(w)));
     };
     update();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    const main = containerRef.current?.closest<HTMLElement>(".book-reader-main");
     if (observer && containerRef.current) observer.observe(containerRef.current);
+    if (observer && main) observer.observe(main);
     window.addEventListener("resize", update);
     return () => {
       observer?.disconnect();
