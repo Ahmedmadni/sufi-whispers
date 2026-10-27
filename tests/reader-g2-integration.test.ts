@@ -4,13 +4,13 @@ import {books} from "../src/data/books";
 import {parsePersonalBackup} from "../src/lib/personal-backup";
 const src=(p:string)=>readFileSync(p,"utf8");
 describe("G2 continuous mode integration in eight books",()=>{
- test("PDF and WebP renderers use natural gesture paging with no user mode toggle",()=>{
+ test("PDF and WebP renderers default every book to continuous full-page reading",()=>{
   const pdf=src("src/components/PdfBookViewer.tsx"),offline=src("src/components/OfflineBookPages.tsx");
   for(const view of [pdf,offline]){
-    expect(view).toContain('useState<ReaderMode>("paged")');
+    expect(view).toContain('const mode: ReaderMode = "continuous";');
     expect(view).toContain('const swipeThreshold = 80');
-    expect(view).not.toContain("storedReaderMode(bookId)");
-    expect(view).not.toContain("persistReaderMode(bookId");
+    expect(view).toContain("persistReaderMode(bookId, mode)");
+    expect(view).not.toContain('useState<ReaderMode>("paged")');
     expect(view).not.toContain("setReaderMode(");
     expect(view).not.toContain("changeReaderMode(");
     expect(view).toContain('mode==="continuous"');
