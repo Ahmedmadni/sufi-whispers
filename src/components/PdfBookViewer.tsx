@@ -90,7 +90,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const continuousRef = useRef<ContinuousBookHandle>(null);
   const [pageWidth, setPageWidth] = useState(360);
   const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
-  const printedIndexWidth = Math.max(200, Math.round(pageWidth * printedIndexZoom));
+  const printedIndexWidth = Math.max(1, Math.round(pageWidth * printedIndexZoom));
   const printedIndexLayout = useMemo(
     () => createContinuousLayout(NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1, printedIndexWidth, () => 841.68 / 595.32, 12),
     [printedIndexWidth],
@@ -149,7 +149,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     const update = () => {
       if (containerRef.current) {
         const w = containerRef.current.clientWidth - 16;
-        setPageWidth(Math.max(200, w));
+        setPageWidth(Math.max(1, w));
       }
     };
     update();
