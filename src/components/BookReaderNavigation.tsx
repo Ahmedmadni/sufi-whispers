@@ -1,12 +1,12 @@
 import { BookOpen, ChevronDown, ChevronUp, SlidersHorizontal, SkipBack, SkipForward } from "lucide-react";
 import { currentReadingSection, readingSections, summarizedBookIndex, type OriginalBookHeading } from "@/lib/book-index";
 
-type Props = { bookId: string; page: number; maxPage: number; immersive?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
+type Props = { bookId: string; page: number; maxPage: number; immersive?: boolean; indexMode?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
 
 /** Page-specific navigation rail for the book reader, independent of site navigation. */
-export function BookReaderNavigation({ bookId, page, maxPage, immersive = false, headings = [], onJump }: Props) {
+export function BookReaderNavigation({ bookId, page, maxPage, immersive = false, indexMode = false, headings = [], onJump }: Props) {
   const limits = maxPage || 1;
-  const poemSections = bookId === "nafahat-khaliliyya"
+  const poemSections = !indexMode && bookId === "nafahat-khaliliyya"
     ? readingSections(maxPage, summarizedBookIndex(maxPage, headings)).filter(item => item.kind === "poem")
     : [];
   const currentPoem = currentReadingSection(poemSections, page);
