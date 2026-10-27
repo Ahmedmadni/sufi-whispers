@@ -108,3 +108,27 @@
   .bottom-nav a { min-height: 55px; }
   .site-header > div { gap: 12px; }
 }
+
+
+/* Font-size controls now live in Settings rather than the global site header. */
+.font-size-controls {
+  color: var(--foreground);
+}
+.font-size-controls__button {
+  border: 1px solid color-mix(in srgb, var(--gold) 30%, transparent);
+  border-radius: .75rem;
+  color: var(--foreground);
+}
+.font-size-controls__button:hover:not(:disabled),
+.font-size-controls__button:focus-visible {
+  background: color-mix(in srgb, var(--gold) 12%, var(--card));
+  outline-offset: 2px;
+}
+.font-size-controls__button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.font-size-controls__value {
+  color: var(--gold-soft);
+  font-variant-numeric: tabular-nums;
+}
