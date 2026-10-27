@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { Facebook, Settings2 } from "lucide-react";
-import { FontSizeControl } from "@/components/FontSizeControl";
 import logo from "@/assets/rihab-logo-clean.png";
 
 const linkClass =
@@ -48,7 +47,6 @@ export function SiteHeader() {
           >
             <Facebook className="h-[19px] w-[19px] text-[#0866FF]" aria-hidden="true" />
           </a>
-          {(import.meta.env.VITE_MOBILE !== "true" || import.meta.env.VITE_DESKTOP === "true") && <FontSizeControl />}
           <Link to="/settings" aria-label="الإعدادات والنسخ الاحتياطي" title="الإعدادات والنسخ الاحتياطي"
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gold/20 text-gold-soft hover:bg-gold/10">
             <Settings2 className="h-[18px] w-[18px]" />
