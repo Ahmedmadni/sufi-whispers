@@ -354,25 +354,33 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           )}
         <div className="flex items-center gap-1">
           <button
+            type="button"
             onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v - .25)) : setScale(v => boundedBookZoom(v - .25))}
-            className="p-1.5 rounded-md glass text-gold-soft"
-            aria-label="تصغير"
+            className="reader-icon-button"
+            disabled={(printedIndexOpen ? printedIndexZoom : scale) <= 1}
+            aria-label="تصغير الصفحة"
+            title="تصغير الصفحة"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut size={19} aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={() => printedIndexOpen ? setPrintedIndexZoom(v => boundedBookZoom(v + .25)) : setScale(v => boundedBookZoom(v + .25))}
-            className="p-1.5 rounded-md glass text-gold-soft"
-            aria-label="تكبير"
+            className="reader-icon-button"
+            disabled={(printedIndexOpen ? printedIndexZoom : scale) >= 4}
+            aria-label="تكبير الصفحة"
+            title="تكبير الصفحة"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn size={19} aria-hidden="true" />
           </button>
           <button
+            type="button"
             onClick={fullscreen}
-            className="p-1.5 rounded-md glass text-gold-soft"
+            className="reader-icon-button"
             aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
           >
-            {immersive ? <Minimize2 className="h-5 w-5" /> : <Maximize2 className="h-5 w-5" />}
+            {immersive ? <Minimize2 size={19} aria-hidden="true" /> : <Maximize2 size={19} aria-hidden="true" />}
           </button>
         </div>
         </div>
