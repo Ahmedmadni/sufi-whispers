@@ -30,6 +30,16 @@ describe("Compact fullscreen navigation and editable wird settings",()=>{
    expect(nav).toContain('className="bottom-nav lg:hidden"');
     expect(nav).toContain('aria-label="التنقّل السريع"');
  });
+ test("page zoom and fullscreen controls stay in the reader header, separate from font-size settings",()=>{
+   const pdf=read("src/components/PdfBookViewer.tsx");
+   const offline=read("src/components/OfflineBookPages.tsx");
+   expect(pdf).toContain('aria-label="تصغير الصفحة"');
+   expect(pdf).toContain('aria-label="تكبير الصفحة"');
+   expect(pdf).toContain('className="reader-icon-button"');
+   expect(offline).toContain('aria-label="تصغير الصفحة"');
+   expect(offline).toContain('aria-label="تكبير الصفحة"');
+   expect(read("src/routes/settings.tsx")).toContain("<FontSizeControl />");
+ });
  test("settings allows independent time input and an explicit save",()=>{
    const s=read("src/routes/settings.tsx");
    expect(s).toContain('type="time"');
