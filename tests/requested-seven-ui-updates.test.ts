@@ -3,7 +3,34 @@ import { readFileSync } from "node:fs";
 const read = (name: string) => readFileSync(name, "utf8");
 
 describe("Seven requested interface revisions", () => {
-  test("site navigation stays at the bottom and only book-page navigation moves to the reader's left", () => {
+    test("font-size controls are available in Settings, not the global header", () => {
+    const header=read("src/components/SiteHeader.tsx");
+    const settings=read("src/routes/settings.tsx");
+    const font=read("src/components/FontSizeControl.tsx");
+    const root=read("src/routes/__root.tsx");
+    expect(header).not.toContain("FontSizeControl");
+    expect(settings).toContain("<FontSizeControl />");
+    expect(font).toContain("aria-label=\"تصغير الخط\"");
+    expect(font).toContain("aria-label=\"تكبير الخط\"");
+    expect(root).toContain("applySavedFontScale()");
+  });
+  test("continuous full-width reading and the page rail apply to both PDF and offline books", () => {
+    const pdf=read("src/components/PdfBookViewer.tsx");
+    const offline=read("src/components/OfflineBookPages.tsx");
+    const layout=read("src/components/BookReaderLayout.tsx");
+    const route=read("src/routes/books.$bookId.tsx");
+    expect(layout).toContain("max-w-none flex-col");
+    expect(route).toContain("w-full max-w-none");
+    for (const source of [pdf,offline]) {
+      expect(source).toContain('const mode: ReaderMode = "continuous";');
+      expect(source).toContain("persistReaderMode(bookId, mode)");
+      expect(source).toContain("BookReaderNavigation");
+      expect(source).toContain("ContinuousBookStack");
+    }
+    expect(pdf).toContain("indexMode={printedIndexOpen}");
+    expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
+  });
+test("site navigation stays at the bottom and only book-page navigation moves to the reader's left", () => {
     const nav=read("src/components/BottomNav.tsx");
     const css=read("src/styles.css");
     const mobile=read("mobile/mobile.css");
