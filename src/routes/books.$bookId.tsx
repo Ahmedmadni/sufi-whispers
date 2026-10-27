@@ -82,7 +82,7 @@ function BookPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
-      <section className="flex-1 w-full max-w-5xl mx-auto px-1.5 sm:px-4 py-2 sm:py-4">
+      <section className="flex-1 w-full max-w-none mx-auto px-0 sm:px-1 py-1 sm:py-2">
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
             {import.meta.env.VITE_MOBILE === "true" && book.id !== "nafahat" ? (
