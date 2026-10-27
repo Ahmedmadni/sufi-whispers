@@ -83,8 +83,8 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const [numPages, setNumPages] = useState<number>(0);
   const [page, setPage] = useState(1);
   const [scale, setScale] = useState(1);
-  // One consistent page mode; both horizontal swipes and vertical edge drags turn pages.
-  const [mode] = useState<ReaderMode>("paged");
+  // Continuous reading: book pages flow into each other in one scrollable stack.
+  const [mode] = useState<ReaderMode>("continuous");
   const [pdfRatio,setPdfRatio] = useState(1.414);
   const continuousRef = useRef<ContinuousBookHandle>(null);
   const [pageWidth, setPageWidth] = useState(360);

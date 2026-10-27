@@ -806,9 +806,9 @@
 /* Reader-specific page navigation rail. The global app navigation remains at the bottom. */
 .book-reader-workspace {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-columns: 30px minmax(0, 1fr);
   align-items: start;
-  gap: .55rem;
+  gap: .35rem;
   width: 100%;
   min-width: 0;
   direction: ltr;
@@ -842,43 +842,63 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .35rem;
+  align-self: stretch;
+  gap: .3rem;
   width: 100%;
-  height: fit-content;
-  padding: .4rem .2rem;
-  border: 1px solid #cddbcf;
-  border-top: 2px solid #b89c60;
-  border-radius: 13px;
-  background: #fffdf9;
-  box-shadow: 0 3px 15px rgb(25 57 46 / .08);
+  padding: .15rem 0;
 }
 .book-reader-page-rail__button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 42px;
-  min-width: 42px;
-  height: 42px;
-  min-height: 42px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  min-height: 24px;
   padding: 0;
-  border: 1px solid #c5d8c6;
-  border-radius: 10px;
-  background: #eaf1e8;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
   color: #204937;
   list-style: none;
   text-decoration: none;
 }
 .book-reader-page-rail__button:hover:not(:disabled),
 .book-reader-page-rail__button:focus-visible {
-  background: #d6e5d5;
+  background: #e3ece2;
   color: #142f26;
   outline: 2px solid #9d8654;
   outline-offset: 1px;
 }
 .book-reader-page-rail__button:disabled {
-  opacity: .5;
+  opacity: .35;
   cursor: not-allowed;
+}
+.book-reader-page-rail__track {
+  position: relative;
+  flex: 1 1 auto;
+  width: 6px;
+  min-height: 90px;
+  border-radius: 999px;
+  background: #d9e2d8;
+  cursor: pointer;
+  touch-action: none;
+}
+.book-reader-page-rail__track:focus-visible {
+  outline: 2px solid #9d8654;
+  outline-offset: 2px;
+}
+.book-reader-page-rail__thumb {
+  position: absolute;
+  left: 50%;
+  width: 14px;
+  height: 26px;
+  border-radius: 999px;
+  background: #b89c60;
+  box-shadow: 0 1px 4px rgb(25 57 46 / .28);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 .book-reader-page-rail__counter {
   display: flex;
@@ -886,18 +906,15 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  gap: 2px;
   color: #244b38;
-  font-size: .7rem;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
+  font-size: .6rem;
+  font-weight: 700;
+  line-height: 1.2;
   text-align: center;
 }
-.book-reader-page-rail__counter > span {
-  font-weight: 750;
-}
 .book-reader-page-rail__counter > small {
-  font-size: .62rem;
+  font-size: .52rem;
+  font-weight: 500;
 }
 .book-reader-page-rail__popover {
   position: relative;
@@ -958,25 +975,22 @@
 }
 @media (max-width: 620px) {
   .book-reader-workspace {
-    grid-template-columns: 46px minmax(0, 1fr);
-    gap: .3rem;
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: .25rem;
   }
   .book-reader-page-rail__nav {
     gap: .25rem;
-    padding: .3rem .1rem;
-    border-radius: 10px;
   }
   .book-reader-page-rail__button {
-    width: 36px;
-    min-width: 36px;
-    height: 38px;
-    min-height: 38px;
-    border-radius: 9px;
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    min-height: 22px;
   }
   .book-reader-page-rail__counter {
-    font-size: .6rem;
+    font-size: .55rem;
   }
   .book-reader-page-rail__counter > small {
-    font-size: .55rem;
+    font-size: .5rem;
   }
 }
