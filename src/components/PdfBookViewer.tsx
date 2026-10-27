@@ -144,7 +144,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     const update = () => {
       if (containerRef.current) {
         const w = containerRef.current.clientWidth - 8;
-        setPageWidth(Math.min(900, Math.max(200, w)));
+        setPageWidth(Math.max(200, w));
       }
     };
     update();
@@ -476,7 +476,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           {bookId === "nafahat" && printedIndexOpen ? (
             <NafahatPrintedIndex
               sheet={printedIndexSheet}
-              width={Math.round(Math.max(240, Math.min(900, pageWidth)) * printedIndexZoom)}
+              width={Math.round(Math.max(240, pageWidth) * printedIndexZoom)}
               onJump={(target) => {
                 goTo(target);
                 setPrintedIndexOpen(false);
