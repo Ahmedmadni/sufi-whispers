@@ -251,9 +251,9 @@ export default function OfflineBookPages({ bookId }: Props) {
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
-          <button type="button" className="reader-icon-button" aria-label="تصغير الكتاب" title="تصغير"
+          <button type="button" className="reader-icon-button" aria-label="تصغير الصفحة" title="تصغير الصفحة"
             disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
-          <button type="button" className="reader-icon-button" aria-label="تكبير الكتاب" title="تكبير"
+          <button type="button" className="reader-icon-button" aria-label="تكبير الصفحة" title="تكبير الصفحة"
             disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
           <button type="button" onClick={() => setImmersive(value => !value)}
             className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
