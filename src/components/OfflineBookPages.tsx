@@ -32,7 +32,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
   // All offline books open in a continuous stack, sized to the available reader width.
-  const mode: ReaderMode = "continuous";
+  const [mode] = useState<ReaderMode>("continuous");
   useEffect(() => { persistReaderMode(bookId, mode); }, [bookId, mode]);
   const [viewportWidth, setViewportWidth] = useState(360);
   const continuousRef = useRef<ContinuousBookHandle>(null);
