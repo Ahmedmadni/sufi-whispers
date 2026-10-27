@@ -45,6 +45,7 @@ describe("Wird audio release version and immutable media identity", () => {
     expect(retiredCurrent).toContain("workflow_dispatch");
     expect(retiredCurrent).toContain("false &&");
     expect(next).toContain("v1.0.13-android-rc1");
+    expect(next).toContain("github.event.workflow_run.head_sha == github.sha");
     expect(next).toContain("python scripts/verify-android-release.py");
     expect(next).toContain(".versionCode' <<<\"$config\")\" = \"14\"");
     expect(windows).toContain("v1.0.13-windows-rc1");
