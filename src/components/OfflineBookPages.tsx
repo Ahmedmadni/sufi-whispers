@@ -3,7 +3,7 @@ import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, type ReaderMode } from "@/lib/reader-continuous";
+import { createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
@@ -31,8 +31,9 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
   const [zoom, setZoom] = useState(1);
-  // Swipe left/right or drag at the vertical scroll edge to turn book pages.
-  const [mode] = useState<ReaderMode>("paged");
+  // Every book opens in continuous, full-page-width reading mode.
+  const mode: ReaderMode = "continuous";
+  useEffect(() => { persistReaderMode(bookId, mode); }, [bookId, mode]);
   const [viewportWidth, setViewportWidth] = useState(360);
   const continuousRef = useRef<ContinuousBookHandle>(null);
   // Persist the gesture across every zoom-driven React render.
@@ -87,12 +88,20 @@ export default function OfflineBookPages({ bookId }: Props) {
       if (event.altKey || event.ctrlKey || event.metaKey ||
           (event.target instanceof Element &&
            event.target.closest('input,textarea,select,[contenteditable="true"]'))) return;
-      if (event.key === "ArrowRight" && maxPage > 0) setPage(p => clampPage(p + 1, maxPage));
-      if (event.key === "ArrowLeft" && maxPage > 0) setPage(p => clampPage(p - 1, maxPage));
+      if (event.key === "ArrowRight" && maxPage > 0) {
+        const target = clampPage(page + 1, maxPage);
+        setPage(target);
+        continuousRef.current?.jumpToPage(target);
+      }
+      if (event.key === "ArrowLeft" && maxPage > 0) {
+        const target = clampPage(page - 1, maxPage);
+        setPage(target);
+        continuousRef.current?.jumpToPage(target);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [maxPage]);
+  }, [maxPage, page]);
 
   useEffect(() => {
     if (!maxPage) return;
