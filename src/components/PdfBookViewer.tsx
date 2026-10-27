@@ -90,6 +90,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   const continuousRef = useRef<ContinuousBookHandle>(null);
   const [pageWidth, setPageWidth] = useState(360);
   const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
+  const printedIndexWidth = Math.max(200, Math.round(pageWidth * printedIndexZoom));
+  const printedIndexLayout = useMemo(
+    () => createContinuousLayout(NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1, printedIndexWidth, () => 841.68 / 595.32, 12),
+    [printedIndexWidth],
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const pinchRef = useRef<{ distance: number; zoom: number; printed: boolean; anchor: {contentX:number;contentY:number} } | null>(null);
@@ -323,7 +328,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             indexMode={printedIndexOpen}
             headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
             onJump={printedIndexOpen
-              ? target => setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + target - 1)
+              ? target => {
+                  setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + target - 1);
+                  continuousRef.current?.jumpToPage(target);
+                }
               : goTo}
           />
         </aside>
@@ -474,13 +482,24 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           }
         >
           {bookId === "nafahat" && printedIndexOpen ? (
-            <NafahatPrintedIndex
-              sheet={printedIndexSheet}
-              width={Math.round(Math.max(240, pageWidth) * printedIndexZoom)}
-              onJump={(target) => {
-                goTo(target);
-                setPrintedIndexOpen(false);
-              }}
+            <ContinuousBookStack
+              ref={continuousRef}
+              layout={printedIndexLayout}
+              width={printedIndexWidth}
+              initialPage={printedIndexSheet - NAFAHAT_INDEX_FIRST + 1}
+              overscan={printedIndexZoom < 1.75 ? 1 : 0}
+              viewportRef={viewerRef}
+              onActivePage={indexPage => setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + indexPage - 1)}
+              renderPage={indexPage => (
+                <NafahatPrintedIndex
+                  sheet={NAFAHAT_INDEX_FIRST + indexPage - 1}
+                  width={printedIndexWidth}
+                  onJump={target => {
+                    goTo(target);
+                    setPrintedIndexOpen(false);
+                  }}
+                />
+              )}
             />
           ) : mode==="continuous" && numPages>0 ? (
             <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={pageWidth*scale}
