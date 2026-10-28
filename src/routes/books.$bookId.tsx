@@ -13,6 +13,10 @@ export const Route = createFileRoute("/books/$bookId")({
     return {
       meta: [
         { title },
+        { property: "og:title", content: title },
+        { property: "og:description", content: book?.subtitle ?? book?.description ?? "قراءة الكتاب في رحاب الخليلية" },
+        { property: "og:type", content: "book" },
+        { name: "twitter:card", content: "summary" },
         {
           name: "description",
           content: book?.subtitle ?? "قراءة الكتاب في رحاب الخليلية",
@@ -80,9 +84,9 @@ function BookPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="book-reading-page flex flex-col">
       <SiteHeader />
-      <section className="flex-1 w-full max-w-none mx-auto px-0 sm:px-1 py-1 sm:py-2">
+      <section className="book-reading-content flex-1 w-full min-w-0 max-w-none mx-auto">
         {mounted ? (
           <Suspense fallback={<BookPreview book={book} />}>
             {import.meta.env.VITE_MOBILE === "true" && book.id !== "nafahat" ? (

@@ -49,7 +49,7 @@ describe("G2 bounded continuous book geometry",()=>{
   test("invalid geometry is safely clamped",()=>{
     expect(createContinuousLayout(25000,300,()=>1).pageCount).toBe(0);
     const x=createContinuousLayout(2,NaN,()=>NaN,-4);
-    expect(x.heights).toEqual([509,509]);
+    expect(x.heights).toEqual([510,510]);
   });
   test("continuous reading is the default and legacy paged preferences migrate safely",()=>{
     const values=new Map<string,string>();

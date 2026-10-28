@@ -7,9 +7,36 @@ import {
   preserveContinuousScroll,
   readerModeKey,
   storedReaderMode,
+  availableReaderWidth,
+  sourcePageRatio,
 } from "../src/lib/reader-continuous";
 
 describe("continuous book reader geometry", () => {
+  test("fits the actual column after rail, gap, borders, padding and scrollbar", () => {
+    const mainWidth = 393 - 22 - 2;
+    const clientWidth = mainWidth - 2 - 10;
+    expect(availableReaderWidth(clientWidth, 2, 2)).toBe(353);
+    expect(availableReaderWidth(80, 2, 2)).toBe(76);
+  });
+  test("mixed landscape cover and portrait pages reserve their own complete height", () => {
+    const ratios = [sourcePageRatio(842, 595), sourcePageRatio(595, 842), sourcePageRatio(200, 1000)];
+    const layout = createContinuousLayout(3, 363, page => ratios[page - 1]);
+    expect(layout.heights).toEqual([257, 514, 1815]);
+    expect(layout.starts).toEqual([0, 269, 795, 2610]);
+    for (let i = 0; i < 3; i++) {
+      expect(layout.heights[i]).toBeGreaterThanOrEqual(363 * ratios[i]);
+      if (i < 2) expect(layout.starts[i + 1] - layout.starts[i] - layout.heights[i]).toBe(12);
+    }
+  });
+  test("page 400 stays reachable and anchored after per-page metadata and zoom changes", () => {
+    const before = createContinuousLayout(432, 363, () => 1.415);
+    const offset = before.starts[399] + before.heights[399] * .4;
+    const after = createContinuousLayout(432, 726, page => page === 1 ? .706 : 1.415);
+    const restored = preserveContinuousScroll(before, after, offset);
+    expect(pageAtContinuousOffset(after, restored)).toBe(400);
+    expect(Math.abs((restored - after.starts[399]) / after.heights[399] - .4)).toBeLessThan(.001);
+    expect(continuousWindow(after, after.starts[399], 700).current).toBe(400);
+  });
   test("creates stable page starts and removes the trailing gap", () => {
     const layout = createContinuousLayout(3, 200, () => 1.5, 10);
     expect(layout.pageCount).toBe(3);

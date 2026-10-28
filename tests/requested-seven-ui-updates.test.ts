@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
+import { availableReaderWidth, createContinuousLayout } from "../src/lib/reader-continuous";
 const read = (name: string) => readFileSync(name, "utf8");
 
 describe("Seven requested interface revisions", () => {
@@ -42,10 +43,11 @@ describe("Seven requested interface revisions", () => {
     const route=read("src/routes/books.$bookId.tsx");
     const readerCss=read("src/printed-pdf-reader.css");
     expect(layout).toContain("max-w-none flex-col");
-    expect(route).toContain("w-full max-w-none");
+    expect(route).toContain("book-reading-content");
     expect(pdf).not.toContain("Math.min(900, Math.max(200, w))");
-    expect(pdf).toContain("containerRef.current.clientWidth - 16");
-    expect(pdf).toContain("setPageWidth(Math.max(1, w))");
+    const measuredWidth = availableReaderWidth(393 - 22 - 2 - 2, 2, 2);
+    expect(measuredWidth).toBe(363);
+    expect(createContinuousLayout(2, measuredWidth, () => 1.5).heights).toEqual([545, 545]);
     expect(pdf).toContain("indexMode={printedIndexOpen}");
     expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
     expect(navigation).toContain("indexMode = false");
