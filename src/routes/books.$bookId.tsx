@@ -32,7 +32,7 @@ export const Route = createFileRoute("/books/$bookId")({
   },
   component: BookPage,
   notFoundComponent: () => (
-    <div className="book-reading-page flex flex-col">
+    <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <div className="flex-1 flex flex-col items-center justify-center gap-3 p-6">
         <p className="font-display text-gold-soft">لم يُعثر على الكتاب</p>
@@ -84,7 +84,7 @@ function BookPage() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="book-reading-page flex flex-col">
       <SiteHeader />
       <section className="book-reading-content flex-1 w-full min-w-0 max-w-none mx-auto">
         {mounted ? (

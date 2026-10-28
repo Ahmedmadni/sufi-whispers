@@ -45,6 +45,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const swipeThreshold = 80; // Fixed medium threshold, ignore old custom setting.
   const scroll = useRef<HTMLDivElement>(null);
   const lastWheelTurn = useRef(0);
+  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
   useEffect(() => {
     const el=scroll.current;
     if(!el)return;
@@ -66,7 +67,6 @@ export default function OfflineBookPages({ bookId }: Props) {
       return item?.width&&item?.height?item.height/item.width:1.414;
     },12
   ),[entry,renderedWidth]);
-  const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -283,6 +283,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           tabIndex={0}
           role="region"
           aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
+          style={{ touchAction: "pan-x pan-y" }}
 
         >
           {mode==="continuous" && entry ? (
