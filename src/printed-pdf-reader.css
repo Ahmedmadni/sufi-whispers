@@ -996,8 +996,12 @@
   min-width: 0;
 }
 .book-reader-workspace > .book-reader-main {
-  width: 100%;
+  /* A grid item must use its grid track, not the workspace's full width.
+     width:100% here makes the main column overflow beside the 48px rail,
+     which in turn clips the PDF canvases on narrow screens. */
+  width: auto;
   min-width: 0;
+  max-width: 100%;
 }
 .book-reader-workspace .offline-book-stage,
 .book-reader-workspace .book-pdf-stage {
