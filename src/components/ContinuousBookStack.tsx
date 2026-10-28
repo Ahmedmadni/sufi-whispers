@@ -1,4 +1,4 @@
-import {useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefObject} from "react";
+import {useLayoutEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref, type RefObject} from "react";
 import {continuousWindow, preserveContinuousScroll, type ContinuousLayout} from "@/lib/reader-continuous";
 
 export type ContinuousBookHandle = { jumpToPage: (page: number) => void };
@@ -38,7 +38,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
     },
   }),[layout,viewportRef]);
 
-  useEffect(()=>{
+  useLayoutEffect(()=>{
     const el=viewportRef.current;
     if(!el)return;
     // Position exactly at the saved page only when entering continuous mode;
@@ -48,7 +48,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
       const clamped=Math.min(layout.pageCount,Math.max(1,Math.round(initialPageRef.current)));
       el.scrollTop=layout.starts[clamped-1];
     } else if(previousLayout.current!==layout && didInitialJump.current) {
-      el.scrollTop=preserveContinuousScroll(previousLayout.current,layout,el.scrollTop);
+      el.scrollTop=preserveContinuousScroll(previousLayout.current,layout,snapshot.top);
     }
     previousLayout.current=layout;
     const update=()=>{
@@ -80,7 +80,7 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
   for(let p=view.first;p<=view.last;p++)pages.push(p);
   return (
     <div className="continuous-book-stack relative flex-shrink-0" dir="ltr"
-      style={{width:Math.round(width),height:layout.totalHeight}}
+      style={{width:Math.floor(width),height:layout.totalHeight}}
       role="list" aria-label="صفحات الكتاب بالقراءة المتواصلة">
       {pages.map(page=>(
         <div key={page} role="listitem" aria-label={`صفحة ${page} من ${layout.pageCount}`}

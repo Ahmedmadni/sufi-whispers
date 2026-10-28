@@ -25,6 +25,15 @@ export type ContinuousLayout = {
   totalHeight: number;
   pageCount: number;
 };
+/** clientWidth includes padding, but excludes the native scrollbar and border. */
+export function availableReaderWidth(clientWidth: number, paddingLeft = 0, paddingRight = 0): number {
+  return Math.max(1, Math.floor(clientWidth - paddingLeft - paddingRight));
+}
+
+export function sourcePageRatio(width: number, height: number, fallback = 1.415): number {
+  return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+    ? height / width : fallback;
+}
 export function createContinuousLayout(
   count: number, width: number, ratioAt: (page: number) => number,
   gap = 12,
@@ -32,13 +41,15 @@ export function createContinuousLayout(
   if (!Number.isSafeInteger(count) || count < 1 || count > 10000) {
     return {starts:[0],heights:[],totalHeight:0,pageCount:0};
   }
-  const safeWidth = Number.isFinite(width) ? Math.min(5000, Math.max(100, width)) : 360;
+  const safeWidth = Number.isFinite(width) ? Math.max(1, Math.floor(width)) : 360;
   const safeGap = Number.isFinite(gap) ? Math.min(48, Math.max(0, gap)) : 12;
   const starts = [0], heights: number[] = [];
   for (let page=1;page<=count;page++) {
     const ratio = ratioAt(page);
-    const safeRatio = Number.isFinite(ratio) && ratio>=0.45 && ratio<=4 ? ratio : 1.415;
-    const height = Math.max(100,Math.round(safeWidth * safeRatio));
+    const safeRatio = Number.isFinite(ratio) && ratio > 0 ? ratio : 1.415;
+    // PDF.js floors canvas CSS heights. Reserve the ceiling, never less than
+    // the rendered artwork, including landscape covers and unusual page sizes.
+    const height = Math.ceil(safeWidth * safeRatio);
     heights.push(height);
     starts.push(starts[page-1] + height + (page===count?0:safeGap));
   }

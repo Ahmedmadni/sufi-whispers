@@ -6,7 +6,7 @@ import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/compo
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
+import { availableReaderWidth, sourcePageRatio, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import {
@@ -86,10 +86,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   // Continuous reading: book pages flow into each other in one scrollable stack.
   const [mode] = useState<ReaderMode>("continuous");
   useEffect(() => { persistReaderMode(bookId, mode); }, [bookId, mode]);
-  const [pdfRatio,setPdfRatio] = useState(1.414);
+  const [pageRatios, setPageRatios] = useState<Record<number, number>>({});
+  const recordPageRatio = useCallback((target: number, width: number, height: number) => {
+    const ratio = sourcePageRatio(width, height);
+    setPageRatios(previous => previous[target] === ratio ? previous : {...previous, [target]: ratio});
+  }, []);
   const continuousRef = useRef<ContinuousBookHandle>(null);
   const [pageWidth, setPageWidth] = useState(360);
-  const continuousLayout=useMemo(()=>createContinuousLayout(numPages,pageWidth*scale,()=>pdfRatio,12),[numPages,pageWidth,scale,pdfRatio]);
+  const renderedWidth = Math.max(1, Math.floor(pageWidth * scale));
+  const continuousLayout=useMemo(()=>createContinuousLayout(numPages,renderedWidth,target=>pageRatios[target] ?? 1.415,12),[numPages,renderedWidth,pageRatios]);
   const printedIndexWidth = Math.max(1, Math.round(pageWidth * printedIndexZoom));
   const printedIndexLayout = useMemo(
     () => createContinuousLayout(NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1, printedIndexWidth, () => 841.68 / 595.32, 12),
@@ -117,6 +122,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       // Fall back to the first page when storage is blocked.
     }
     setNumPages(0);
+    setPageRatios({});
     const direct = typeof window === "undefined" ? null : requestedWirdPage(bookId, window.location);
     setPage(direct ?? saved);
     setRestoredBookId(bookId);
@@ -149,18 +155,10 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     const update = () => {
       const viewer = containerRef.current;
       if (!viewer) return;
-      // The viewer sits inside .book-reader-main, beside the page rail.
-      // Measuring the viewer alone can preserve a width calculated before
-      // the rail/layout settles and make PDF canvases wider than the visible
-      // reading column. Always size against the actual main column.
-      const main = viewer.closest<HTMLElement>(".book-reader-main");
-      const available = main?.clientWidth || viewer.clientWidth;
       const styles = window.getComputedStyle(viewer);
-      const horizontalPadding =
-        (Number.parseFloat(styles.paddingLeft) || 0) +
-        (Number.parseFloat(styles.paddingRight) || 0);
-      const w = available - horizontalPadding - 2;
-      setPageWidth(Math.max(1, Math.floor(w)));
+      setPageWidth(availableReaderWidth(viewer.clientWidth,
+        Number.parseFloat(styles.paddingLeft) || 0,
+        Number.parseFloat(styles.paddingRight) || 0));
     };
     update();
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
@@ -172,7 +170,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       observer?.disconnect();
       window.removeEventListener("resize", update);
     };
-  }, [immersive]);
+  }, [immersive, toolbarVisible]);
 
   const goTo = useCallback(
     (p: number) => {
@@ -419,7 +417,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
           </div>
         ) : <Document
           key={`${bookId}-${retry}`}
-          file={readerSource!}
+          file={readerSource ?? PDF_URL}
           onLoadSuccess={(document) => {
             const n = document.numPages;
             setReaderError("");
@@ -427,7 +425,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             setPage((current) => clampPage(current, n));
             void document.getPage(1).then(first=>{
               const vp=first.getViewport({scale:1});
-              if(vp.width>0 && vp.height>0)setPdfRatio(vp.height/vp.width);
+              recordPageRatio(1, vp.width, vp.height);
             }).catch(()=>{ /* preserve a safe aspect ratio fallback */ });
             setOutline([]);
             // Read actual PDF bookmark destinations. Do not manufacture poem
@@ -503,6 +501,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
         >
           {bookId === "nafahat" && printedIndexOpen ? (
             <ContinuousBookStack
+              key="printed-index"
               ref={continuousRef}
               layout={printedIndexLayout}
               width={printedIndexWidth}
@@ -522,13 +521,17 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               )}
             />
           ) : mode==="continuous" && numPages>0 ? (
-            <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={pageWidth*scale}
+            <ContinuousBookStack key="book-pages" ref={continuousRef} layout={continuousLayout} width={renderedWidth}
               initialPage={page} overscan={scale < 1.75 ? 1 : 0} viewportRef={viewerRef} onActivePage={setPage}
               renderPage={(target)=>(
-                <Page key={target} pageNumber={target} width={pageWidth*scale}
+                <Page key={target} pageNumber={target} width={renderedWidth}
+                  onLoadSuccess={source => {
+                    const viewport = source.getViewport({scale: 1});
+                    recordPageRatio(target, viewport.width, viewport.height);
+                  }}
                   renderTextLayer={false} renderAnnotationLayer={false}
-                  loading={<Skeleton style={{width:pageWidth*scale,height:continuousLayout.heights[target-1]||pageWidth*scale*1.414}} className="rounded-lg"/>}
-                  className="reader-paper rounded-lg overflow-hidden" />
+                  loading={<Skeleton style={{width:renderedWidth,height:continuousLayout.heights[target-1]}} />}
+                  className="reader-paper" />
               )} />
           ) : (
             <Page

@@ -3,7 +3,7 @@ import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
-import { createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
+import { availableReaderWidth, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
@@ -48,19 +48,24 @@ export default function OfflineBookPages({ bookId }: Props) {
   useEffect(() => {
     const el=scroll.current;
     if(!el)return;
-    const refresh=()=>setViewportWidth(el.clientWidth||360);
+    const refresh=()=>{
+      const styles=window.getComputedStyle(el);
+      setViewportWidth(availableReaderWidth(el.clientWidth,
+        Number.parseFloat(styles.paddingLeft)||0,Number.parseFloat(styles.paddingRight)||0));
+    };
     refresh();
     const observer=typeof ResizeObserver!=="undefined"?new ResizeObserver(refresh):null;
     observer?.observe(el);
     return ()=>observer?.disconnect();
-  },[entry,immersive,mode]);
+  },[entry,immersive,mode,toolbarVisible]);
+  const renderedWidth = Math.max(1, Math.floor(viewportWidth * zoom));
   const continuousLayout=useMemo(()=>createContinuousLayout(
-    entry?.pageCount??0,viewportWidth*zoom,
+    entry?.pageCount??0,renderedWidth,
     target=>{
       const item=entry?.pages[target-1];
       return item?.width&&item?.height?item.height/item.width:1.414;
     },12
-  ),[entry,viewportWidth,zoom]);
+  ),[entry,renderedWidth]);
   const { toolbarVisible, setToolbarVisible, onSurfaceClick, onSurfaceKeyDown, suppressSurfaceTap } = useBookReaderChrome(immersive, scroll, zoom, setZoom);
 
   useEffect(() => {
@@ -272,17 +277,16 @@ export default function OfflineBookPages({ bookId }: Props) {
         <p role="status" className="glass rounded-xl p-8 text-center text-sm">جارٍ تجهيز صفحات الكتاب المحفوظة…</p>
       ) : (
         <div ref={scroll}
-          className="offline-book-stage mx-auto overflow-auto rounded-xl bg-[#ede5d5] text-center"
+          className="offline-book-stage mx-auto overflow-auto text-center"
           onClick={onSurfaceClick}
           onKeyDown={onSurfaceKeyDown}
           tabIndex={0}
           role="region"
           aria-label="محتوى صفحة الكتاب — Enter أو المسافة لإظهار أدوات القراءة أو إخفائها"
-          style={{ maxHeight: immersive ? "none" : "min(84dvh, 1200px)", minHeight: immersive ? 0 : "min(70vh, 900px)", touchAction: "pan-x pan-y" }}
 
         >
           {mode==="continuous" && entry ? (
-            <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={viewportWidth*zoom}
+            <ContinuousBookStack ref={continuousRef} layout={continuousLayout} width={renderedWidth}
               initialPage={page} overscan={zoom < 2.5 ? 1 : 0} viewportRef={scroll} onActivePage={setPage}
               renderPage={(target)=>{
                 const item=entry.pages[target-1];
@@ -292,7 +296,7 @@ export default function OfflineBookPages({ bookId }: Props) {
                   src={`/offline-books/${encodeURIComponent(bookId)}/${item.name}`}
                   alt={`صفحة ${target} من الكتاب`} width={item.width} height={item.height}
                   className="mx-auto block h-auto max-w-none select-none"
-                  style={{width:viewportWidth*zoom}}
+                  style={{width:renderedWidth}}
                   onError={()=>setError(`تعذّر تحميل صفحة ${target} من الكتاب.`)} />;
               }} />
           ) : (
