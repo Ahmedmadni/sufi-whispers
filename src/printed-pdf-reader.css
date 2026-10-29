@@ -1043,7 +1043,6 @@ body:has(.book-reading-page) { margin: 0; }
   display: inline-flex; align-items: center; justify-content: center;
   width: 44px; height: 44px; padding: 0; border-radius: 50%;
   border: 1px solid var(--border); background: var(--card); color: var(--foreground);
-  box-shadow: var(--shadow-md);
 }
 .reader-floating-index .reader-index-popover {
   top: auto; bottom: calc(100% + 8px); right: 0; left: auto;
