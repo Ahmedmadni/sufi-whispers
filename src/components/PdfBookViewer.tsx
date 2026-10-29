@@ -359,22 +359,18 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
               onJump={goTo} />
           )}
-        </div>
-      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
-        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
-        <div className="reader-topbar__actions" dir="ltr">
-        <div className="flex items-center gap-1">
-          <button
+          <Button variant="outline" size="icon"
             type="button"
             onClick={fullscreen}
-            className="reader-icon-button"
+            className="reader-floating-index__button"
             aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
             title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
           >
             {immersive ? <Minimize2 size={19} aria-hidden="true" /> : <Maximize2 size={19} aria-hidden="true" />}
-          </button>
+          </Button>
         </div>
-        </div>
+      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
+        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
       </div>
 
       {/* Viewer */}

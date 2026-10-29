@@ -4,4 +4,4 @@
 - Keep the home opening on existing local mosque, shaykh, and transparent logo assets; this preserves the association's authentic identity and avoids external image dependencies.
 - Scope dark hero color tokens to the photographic opening scene so its text remains readable in both site appearance modes.
 - Book readers share ContinuousBookStack and reader-continuous geometry; measure the scrolling column's content width and record each PDF page's own viewport ratio, because covers and interior pages can have different dimensions.
-- PDF and offline-image readers share a hydration-safe page zoom preference from Settings, and index controls are positioned over the reading surface so they do not reserve layout space.
+- PDF and offline-image readers share a hydration-safe page zoom preference from Settings, and index/fullscreen controls are positioned together over the reading surface so they do not reserve layout space.
