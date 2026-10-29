@@ -1,5 +1,6 @@
 import { useId, useMemo, useState } from "react";
 import { List, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { currentReadingSection, readingSections, summarizedBookIndex, type OriginalBookHeading, type BookReadingSection } from "@/lib/book-index";
 
 type Props = { maxPage: number; page: number; compact?: boolean; headings?: OriginalBookHeading[]; onJump: (page: number) => void };
@@ -42,11 +43,11 @@ export function BookQuickIndex({ maxPage, page, compact = false, headings = [], 
   return (
     <div className={compact ? "book-quick-index book-quick-index--compact relative" : "book-quick-index relative mb-2 rounded-xl border border-gold/20 bg-card/60 p-2"} dir="rtl">
       <div className={compact ? "flex items-center" : "flex items-center justify-between"}>
-        <button type="button" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls={id}
+        <Button variant="outline" size="icon" type="button" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls={id}
           aria-label={open ? "إغلاق الفهرس" : "فتح فهرس الكتاب"} title="الفهرس"
           className={compact ? "reader-icon-button" : "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-gold-soft"}>
           {open ? <X size={20} aria-hidden="true" /> : <List size={20} aria-hidden="true" />}
-        </button>
+        </Button>
         {!compact && <span className="text-xs text-muted-foreground">
           {hasPoems ? `${poems.length} قصيدة · حسب صفحات النسخة الأصلية` : entries.length ? `${entries.length} عنوانًا مرتبطًا بالصفحات` : "لا توجد عناوين مفهرسة في ملف الكتاب"}
         </span>}

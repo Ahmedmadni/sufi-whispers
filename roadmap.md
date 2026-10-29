@@ -1,4 +1,5 @@
 # Book reader repair
+- [ ] Move page zoom buttons to Settings only and float the index button in both readers; verify settings-to-book flow.
 - [ ] Correct measured reading width and per-page PDF geometry.
 - [ ] Keep navigation slim and pages independent in normal and immersive modes.
 - [ ] Preserve bookmarks, zoom, index and offline reading.
