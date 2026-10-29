@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
@@ -255,16 +256,14 @@ export default function OfflineBookPages({ bookId }: Props) {
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
+          <Button variant="outline" size="icon" type="button" onClick={() => setImmersive(value => !value)}
+            className="reader-floating-index__button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
+            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
+            {immersive ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}
+          </Button>
         </div>
       <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
         <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
-        <div className="reader-topbar__actions" dir="ltr">
-          <button type="button" onClick={() => setImmersive(value => !value)}
-            className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
-            title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
-            {immersive ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}
-          </button>
-        </div>
       </div>
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">

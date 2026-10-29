@@ -1034,6 +1034,9 @@ body:has(.book-reading-page) { margin: 0; }
 .book-reader-main { position: relative; }
 .reader-floating-index {
   position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   bottom: max(12px, env(safe-area-inset-bottom));
   right: max(12px, env(safe-area-inset-right));
   z-index: 90;
@@ -1049,6 +1052,10 @@ body:has(.book-reading-page) { margin: 0; }
   inset-inline-start: 0; width: min(440px, calc(100vw - 54px));
   max-height: min(60dvh, 600px);
   border-color: var(--border); background: var(--card); color: var(--foreground);
+}
+.book-reader-workspace .reader-topbar:has(> .reader-topbar__title:only-child) {
+  min-height: 32px;
+  grid-template-columns: minmax(0, 1fr);
 }
 .book-reader-page-rail { position: relative; top: auto; z-index: 1; }
 .reader-page-rail__nav {
