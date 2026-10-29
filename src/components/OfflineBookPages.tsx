@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ZoomIn, ZoomOut, Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2 } from "lucide-react";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
@@ -9,7 +9,8 @@ import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-inde
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
 import { readerGesturePageDelta, captureReaderPinchAnchor, scrollToReaderPinchAnchor } from "@/lib/reader-interaction";
-import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel, boundedBookZoom } from "@/lib/book-pinch";
+import { twoFingerDistance, twoFingerCenter, zoomFromPinch, zoomFromWheel } from "@/lib/book-pinch";
+import { useBookZoomPreference } from "@/lib/book-zoom-preference";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { requestedWirdPage } from "@/lib/wird-reminders";
 
@@ -30,7 +31,7 @@ export default function OfflineBookPages({ bookId }: Props) {
   const [error, setError] = useState("");
   const [retry, setRetry] = useState(0);
   const [imageRetry, setImageRetry] = useState(0);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useBookZoomPreference();
   // All offline books open in a continuous stack, sized to the available reader width.
   const [mode] = useState<ReaderMode>("continuous");
   useEffect(() => { persistReaderMode(bookId, mode); }, [bookId, mode]);
@@ -250,16 +251,14 @@ export default function OfflineBookPages({ bookId }: Props) {
             onJump={goTo} />
         </aside>
         <div className="book-reader-main" dir="rtl">
-      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
-        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
-        <div className="reader-topbar__actions" dir="ltr">
+        <div className="reader-floating-index">
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
-          <button type="button" className="reader-icon-button" aria-label="تصغير الصفحة" title="تصغير الصفحة"
-            disabled={zoom <= 1} onClick={() => setZoom(value => boundedBookZoom(value - .25))}><ZoomOut size={19}/></button>
-          <button type="button" className="reader-icon-button" aria-label="تكبير الصفحة" title="تكبير الصفحة"
-            disabled={zoom >= 4} onClick={() => setZoom(value => boundedBookZoom(value + .25))}><ZoomIn size={19}/></button>
+        </div>
+      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
+        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
+        <div className="reader-topbar__actions" dir="ltr">
           <button type="button" onClick={() => setImmersive(value => !value)}
             className="reader-icon-button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
             title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>

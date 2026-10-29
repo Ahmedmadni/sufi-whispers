@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWirdSchedule, WIRD_REMINDER_KEY, WIRD_TIMES_KEY, readWirdTimes, updateWirdTimes, testWirdNotification, type WirdTimes } from "@/lib/wird-reminders";
 import { SiteHeader } from "@/components/SiteHeader";
 import { FontSizeControl } from "@/components/FontSizeControl";
+import { BookPageZoomControl } from "@/components/BookPageZoomControl";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
   exportPersonalBackup, parsePersonalBackup, restorePersonalBackup,
@@ -16,6 +17,10 @@ export const Route = createFileRoute("/settings")({
     meta: [
       { title: "الإعدادات والنسخ الاحتياطي — رحاب الخليلية" },
       { name: "description", content: "حفظ واستعادة مواضع القراءة وعدادات الذكر دون حساب أو إنترنت." },
+      { property: "og:title", content: "إعدادات القراءة والنسخ الاحتياطي — رحاب الخليلية" },
+      { property: "og:description", content: "ضبط حجم الخط وصفحات الكتب وحفظ بيانات القراءة والذكر على جهازك." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SettingsPage,
@@ -214,6 +219,11 @@ function SettingsPage() {
             اضبط حجم النصوص والعناصر في واجهة التطبيق. يتم حفظ اختيارك على هذا الجهاز وتطبيقه تلقائيًا عند فتح التطبيق.
           </p>
           <FontSizeControl />
+        </section>
+
+        <section className="space-y-3 border-b border-border py-4" aria-labelledby="book-page-size-heading">
+          <h2 id="book-page-size-heading" className="font-display text-lg text-foreground">حجم صفحات الكتب</h2>
+          <BookPageZoomControl />
         </section>
 
         <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="wird-reminders-heading">
