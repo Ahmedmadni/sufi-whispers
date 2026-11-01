@@ -5,7 +5,6 @@ import { BookQuickIndex } from "@/components/BookQuickIndex";
 import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { availableReaderWidth, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
-import { getBook } from "@/data/books";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { rtlSwipePageDelta, verticalPageTurn, type ScrollViewport } from "@/lib/book-paging";
@@ -262,9 +261,6 @@ export default function OfflineBookPages({ bookId }: Props) {
             {immersive ? <Minimize2 size={19}/> : <Maximize2 size={19}/>}
           </Button>
         </div>
-      <div className="reader-topbar reader-toolbar glass mb-2 flex items-center gap-2 rounded-xl px-2 py-2" dir="rtl">
-        <h2 className="reader-topbar__title font-display" title={getBook(bookId)?.title}>{getBook(bookId)?.title}</h2>
-      </div>
       {error ? (
         <div role="alert" className="glass rounded-xl p-6 text-center text-sm font-body">
           <p>{error}</p>
