@@ -884,12 +884,13 @@
   bottom: calc(100% + 10px);
   right: 0;
   left: auto;
-  inset-inline-start: auto;
+  inset-inline-start: 0;
   width: min(78vw, 280px);
   min-width: 185px;
   max-width: calc(100vw - 40px);
   z-index: 10050;
 }
+
 .reader-page-stepper__popover-body .reader-icon-button {
   display: inline-flex;
   align-items: center;
