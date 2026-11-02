@@ -876,9 +876,9 @@
   opacity: .8;
 }
 .reader-page-stepper__popover {
-  position: relative;
   display: flex;
 }
+
 .reader-page-stepper__popover-body {
   top: auto;
   bottom: calc(100% + 10px);
