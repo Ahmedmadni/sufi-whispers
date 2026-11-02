@@ -4,7 +4,7 @@ import { availableReaderWidth, createContinuousLayout } from "../src/lib/reader-
 const read = (name: string) => readFileSync(name, "utf8");
 
 describe("Seven requested interface revisions", () => {
-  test("site navigation stays at the bottom and only book-page navigation moves to the reader's left", () => {
+  test("site navigation stays at the bottom and book-page navigation floats over the reading surface", () => {
     const nav=read("src/components/BottomNav.tsx");
     const css=read("src/styles.css");
     const mobile=read("mobile/mobile.css");
@@ -16,12 +16,12 @@ describe("Seven requested interface revisions", () => {
     expect(css).not.toContain("body { padding-left: var(--rihab-rail-width)");
     expect(mobile).not.toContain("padding-left: var(--rihab-rail-width");
     expect(mobile).toContain("padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px))");
-    expect(readerCss).toContain(".book-reader-page-rail");
+    expect(readerCss).toContain(".reader-page-stepper");
     expect(readerCss).toContain(".book-reader-workspace");
     for (const path of ["src/components/OfflineBookPages.tsx", "src/components/PdfBookViewer.tsx"]) {
       const source=read(path);
       expect(source).toContain("BookReaderNavigation");
-      expect(source).toContain("book-reader-page-rail");
+      expect(source).toContain("reader-floating-index");
     }
   });
   test("font-size controls live in Settings and the saved scale is applied at startup", () => {
@@ -35,7 +35,7 @@ describe("Seven requested interface revisions", () => {
     expect(font).toContain('aria-label="تكبير الخط"');
     expect(root).toContain("applySavedFontScale()");
   });
-  test("continuous pages fit the full available width and the page rail works in every reader state", () => {
+  test("continuous pages fit the full available width and the floating page control works in every reader state", () => {
     const pdf=read("src/components/PdfBookViewer.tsx");
     const offline=read("src/components/OfflineBookPages.tsx");
     const navigation=read("src/components/BookReaderNavigation.tsx");
@@ -45,9 +45,9 @@ describe("Seven requested interface revisions", () => {
     expect(layout).toContain("max-w-none flex-col");
     expect(route).toContain("book-reading-content");
     expect(pdf).not.toContain("Math.min(900, Math.max(200, w))");
-    const measuredWidth = availableReaderWidth(393 - 22 - 2 - 2, 2, 2);
-    expect(measuredWidth).toBe(363);
-    expect(createContinuousLayout(2, measuredWidth, () => 1.5).heights).toEqual([545, 545]);
+    const measuredWidth = availableReaderWidth(393 - 2 - 2, 2, 2);
+    expect(measuredWidth).toBe(385);
+    expect(createContinuousLayout(2, measuredWidth, () => 1.5).heights).toEqual([578, 578]);
     expect(pdf).toContain("indexMode={printedIndexOpen}");
     expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
     expect(navigation).toContain("indexMode = false");
@@ -57,8 +57,9 @@ describe("Seven requested interface revisions", () => {
       expect(source).toContain("ContinuousBookStack");
       expect(source).toContain("persistReaderMode(bookId, mode)");
     }
-    expect(readerCss).not.toContain(".book-reader--chrome-hidden .book-reader-page-rail {\n  display: none");
-    expect(readerCss).toContain(".book-reader--immersive .book-reader-page-rail__popover");
+    expect(readerCss).not.toContain(".book-reader--chrome-hidden .reader-page-stepper {");
+    expect(readerCss).toContain(".book-reader--chrome-hidden .reader-page-stepper__popover");
+    expect(readerCss).toContain(".book-reader--immersive .reader-page-stepper__popover");
   });
   test("all interface typography uses IBM Plex Sans Arabic with authentic Quran exception", () => {
     const root=read("src/routes/__root.tsx");

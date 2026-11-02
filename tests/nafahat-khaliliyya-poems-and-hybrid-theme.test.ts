@@ -51,18 +51,18 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     expect(toc).toContain("currentReadingSection");
     expect(toc).toContain("item.endPage > item.page");
   });
-  test("keeps the source-grounded poem index and puts page navigation in the left reader rail", () => {
+  test("keeps the source-grounded poem index and puts page navigation in the floating control group", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
     expect(offline).toContain("BookReaderNavigation");
-    expect(offline).toContain("book-reader-page-rail");
+    expect(offline).toContain("reader-floating-index");
     expect(offline).toContain("BookQuickIndex");
     expect(offline).toContain("headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(");
     const pdf = read("src/components/PdfBookViewer.tsx");
     expect(pdf).toContain("BookReaderNavigation");
-    expect(pdf).toContain("book-reader-page-rail");
+    expect(pdf).toContain("reader-floating-index");
     expect(pdf).toContain("headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(");
   });
-  test("printed index is a continuous seven-sheet stack with its own working left rail", () => {
+  test("printed index is a continuous seven-sheet stack with its own floating page control", () => {
     const pdf = read("src/components/PdfBookViewer.tsx");
     const nav = read("src/components/BookReaderNavigation.tsx");
     expect(pdf).toContain("layout={printedIndexLayout}");
