@@ -326,9 +326,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
       label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
-      {/* Index floats outside the toolbar; zoom buttons live only in Settings. */}
+      {/* Page control, index and fullscreen all float over the reading surface;
+          zoom buttons live only in Settings. */}
       <div className="book-reader-workspace" dir="ltr">
-        <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
+        <div className="book-reader-main" dir="rtl">
+        <div className="reader-floating-index">
           <BookReaderNavigation
             bookId={bookId}
             page={printedIndexOpen ? printedIndexSheet - NAFAHAT_INDEX_FIRST + 1 : page}
@@ -343,9 +345,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 }
               : goTo}
           />
-        </aside>
-        <div className="book-reader-main" dir="rtl">
-        <div className="reader-floating-index">
+
           {bookId === "nafahat" ? (
             <Button type="button" variant="outline" size="icon" className="reader-floating-index__button"
               aria-label={printedIndexOpen ? "إغلاق الفهرس" : "فهرس جامع النفحات"}

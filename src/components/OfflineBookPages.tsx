@@ -245,13 +245,12 @@ export default function OfflineBookPages({ bookId }: Props) {
       label="قارئ الكتاب دون إنترنت" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
       <div className="book-reader-workspace" dir="ltr">
-        <aside className="book-reader-page-rail" aria-label="التنقل بين صفحات الكتاب">
+        <div className="book-reader-main" dir="rtl">
+        <div className="reader-floating-index">
           <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
-        </aside>
-        <div className="book-reader-main" dir="rtl">
-        <div className="reader-floating-index">
+
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
