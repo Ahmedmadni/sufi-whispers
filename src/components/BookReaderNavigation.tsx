@@ -19,7 +19,8 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
   return (
     <div className="reader-page-stepper" role="group" dir="rtl" aria-label="التحكم في صفحات الكتاب">
       <button type="button" className="reader-page-stepper__button" disabled={page <= 1}
-        onClick={() => onJump(page - 1)} aria-label="الصفحة السابقة" title="الصفحة السابقة">
+        onClick={() => onJump(Math.min(limits, Math.max(1, page - 1)))} aria-label="الصفحة السابقة" title="الصفحة السابقة">
+
         <ChevronRight size={18} aria-hidden="true" />
       </button>
       <span className="reader-page-stepper__counter tabular-nums" dir="ltr" aria-live="polite"
@@ -27,7 +28,8 @@ export function BookReaderNavigation({ bookId, page, maxPage, immersive = false,
         {page}<small>/{maxPage || "…"}</small>
       </span>
       <button type="button" className="reader-page-stepper__button" disabled={!maxPage || page >= maxPage}
-        onClick={() => onJump(page + 1)} aria-label="الصفحة التالية" title="الصفحة التالية">
+        onClick={() => onJump(Math.min(limits, Math.max(1, page + 1)))} aria-label="الصفحة التالية" title="الصفحة التالية">
+
         <ChevronLeft size={18} aria-hidden="true" />
       </button>
       {!immersive && (
