@@ -51,26 +51,23 @@ describe("Original 70-page Khaliliya Nafahat poetry index", () => {
     expect(toc).toContain("currentReadingSection");
     expect(toc).toContain("item.endPage > item.page");
   });
-  test("keeps the source-grounded poem index and puts page navigation in the floating control group", () => {
+  test("keeps the source-grounded poem index and drops the page stepper from the floating group", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
-    expect(offline).toContain("BookReaderNavigation");
+    expect(offline).not.toContain("BookReaderNavigation");
     expect(offline).toContain("reader-floating-index");
     expect(offline).toContain("BookQuickIndex");
     expect(offline).toContain("headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(");
     const pdf = read("src/components/PdfBookViewer.tsx");
-    expect(pdf).toContain("BookReaderNavigation");
+    expect(pdf).not.toContain("BookReaderNavigation");
     expect(pdf).toContain("reader-floating-index");
     expect(pdf).toContain("headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(");
   });
-  test("printed index is a continuous seven-sheet stack with its own floating page control", () => {
+  test("printed index is a continuous seven-sheet stack with its own floating control", () => {
     const pdf = read("src/components/PdfBookViewer.tsx");
-    const nav = read("src/components/BookReaderNavigation.tsx");
     expect(pdf).toContain("layout={printedIndexLayout}");
     expect(pdf).toContain("onActivePage={indexPage => setPrintedIndexSheet");
-    expect(pdf).toContain("continuousRef.current?.jumpToPage(target)");
-    expect(pdf).toContain("indexMode={printedIndexOpen}");
-    expect(nav).toContain("indexMode = false");
-    expect(nav).toContain("Math.min(limits, Math.max(1, page +");
+    expect(pdf).toContain("setPrintedIndexOpen(false)");
+    expect(pdf).not.toContain("indexMode=");
   });
   test("scanned-book TOC appears on web and Android, not in Jami al-Nafahat reader", () => {
     const offline = read("src/components/OfflineBookPages.tsx");
