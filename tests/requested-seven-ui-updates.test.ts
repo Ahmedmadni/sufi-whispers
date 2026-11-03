@@ -16,11 +16,11 @@ describe("Seven requested interface revisions", () => {
     expect(css).not.toContain("body { padding-left: var(--rihab-rail-width)");
     expect(mobile).not.toContain("padding-left: var(--rihab-rail-width");
     expect(mobile).toContain("padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px))");
-    expect(readerCss).toContain(".reader-page-stepper");
+    expect(readerCss).not.toContain(".reader-page-stepper");
     expect(readerCss).toContain(".book-reader-workspace");
     for (const path of ["src/components/OfflineBookPages.tsx", "src/components/PdfBookViewer.tsx"]) {
       const source=read(path);
-      expect(source).toContain("BookReaderNavigation");
+      expect(source).not.toContain("BookReaderNavigation");
       expect(source).toContain("reader-floating-index");
     }
   });
@@ -35,10 +35,9 @@ describe("Seven requested interface revisions", () => {
     expect(font).toContain('aria-label="تكبير الخط"');
     expect(root).toContain("applySavedFontScale()");
   });
-  test("continuous pages fit the full available width and the floating page control works in every reader state", () => {
+  test("continuous pages fit the full available width and no page stepper remains in any reader state", () => {
     const pdf=read("src/components/PdfBookViewer.tsx");
     const offline=read("src/components/OfflineBookPages.tsx");
-    const navigation=read("src/components/BookReaderNavigation.tsx");
     const layout=read("src/components/BookReaderLayout.tsx");
     const route=read("src/routes/books.$bookId.tsx");
     const readerCss=read("src/printed-pdf-reader.css");
@@ -48,18 +47,15 @@ describe("Seven requested interface revisions", () => {
     const measuredWidth = availableReaderWidth(393 - 2 - 2, 2, 2);
     expect(measuredWidth).toBe(385);
     expect(createContinuousLayout(2, measuredWidth, () => 1.5).heights).toEqual([578, 578]);
-    expect(pdf).toContain("indexMode={printedIndexOpen}");
+    expect(pdf).not.toContain("indexMode={printedIndexOpen}");
     expect(pdf).toContain("NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1");
-    expect(navigation).toContain("indexMode = false");
-    expect(navigation).toContain("!indexMode && bookId === \"nafahat-khaliliyya\"");
     for (const source of [pdf,offline]) {
-      expect(source).toContain("BookReaderNavigation");
+      expect(source).not.toContain("BookReaderNavigation");
       expect(source).toContain("ContinuousBookStack");
       expect(source).toContain("persistReaderMode(bookId, mode)");
     }
-    expect(readerCss).not.toContain(".book-reader--chrome-hidden .reader-page-stepper {");
-    expect(readerCss).toContain(".book-reader--chrome-hidden .reader-page-stepper__popover");
-    expect(readerCss).toContain(".book-reader--immersive .reader-page-stepper__popover");
+    expect(readerCss).not.toContain(".book-reader--chrome-hidden .reader-page-stepper__popover");
+    expect(readerCss).not.toContain(".book-reader--immersive .reader-page-stepper__popover");
   });
   test("all interface typography uses IBM Plex Sans Arabic with authentic Quran exception", () => {
     const root=read("src/routes/__root.tsx");
@@ -75,7 +71,7 @@ describe("Seven requested interface revisions", () => {
   test("book paging rail coexists with gestures without sensitivity sliders or mode toggles", () => {
     for (const path of ["src/components/OfflineBookPages.tsx", "src/components/PdfBookViewer.tsx"]) {
       const source=read(path);
-      expect(source).toContain("BookReaderNavigation");
+      expect(source).not.toContain("BookReaderNavigation");
       expect(source).not.toContain('reader.swipeThreshold');
       expect(source).not.toContain("changeReaderMode(");
       expect(source).not.toContain("setReaderMode(");
