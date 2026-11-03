@@ -4,7 +4,6 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
-import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { availableReaderWidth, sourcePageRatio, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
@@ -326,25 +325,11 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
       onRevealToolbar={() => setToolbarVisible(true)} onExit={() => setImmersive(false)}
       label="قارئ الكتاب" audioPage={bookId === "ward" ? page : undefined}
       onAudioJump={bookId === "ward" ? goTo : undefined}>
-      {/* Page control, index and fullscreen all float over the reading surface;
+      {/* Index and fullscreen float over the reading surface;
           zoom buttons live only in Settings. */}
       <div className="book-reader-workspace" dir="ltr">
         <div className="book-reader-main" dir="rtl">
         <div className="reader-floating-index">
-          <BookReaderNavigation
-            bookId={bookId}
-            page={printedIndexOpen ? printedIndexSheet - NAFAHAT_INDEX_FIRST + 1 : page}
-            maxPage={printedIndexOpen ? NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1 : numPages}
-            immersive={immersive}
-            indexMode={printedIndexOpen}
-            headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
-            onJump={printedIndexOpen
-              ? target => {
-                  setPrintedIndexSheet(NAFAHAT_INDEX_FIRST + target - 1);
-                  continuousRef.current?.jumpToPage(target);
-                }
-              : goTo}
-          />
 
           {bookId === "nafahat" ? (
             <Button type="button" variant="outline" size="icon" className="reader-floating-index__button"

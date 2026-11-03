@@ -822,96 +822,6 @@
   width: 100%;
   min-width: 0;
 }
-/* Floating page control: previous/next, counter and quick jump. It shares the
-   reader's floating control group, so no rail ever takes a screen edge. */
-.reader-page-stepper {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 1px 3px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--card);
-  box-shadow: 0 2px 10px rgb(10 34 24 / .16);
-}
-.reader-page-stepper__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 30px;
-  min-width: 30px;
-  height: 40px;
-  min-height: 40px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--foreground);
-  list-style: none;
-  cursor: pointer;
-}
-.reader-page-stepper__button:hover:not(:disabled),
-.reader-page-stepper__button:focus-visible {
-  background: color-mix(in srgb, var(--gold) 18%, transparent);
-  outline: 2px solid var(--gold);
-  outline-offset: 1px;
-}
-.reader-page-stepper__button:disabled {
-  opacity: .35;
-  cursor: not-allowed;
-}
-.reader-page-stepper__counter {
-  flex: 0 0 auto;
-  min-width: 44px;
-  color: var(--foreground);
-  font: 600 .78rem/1.2 var(--font-body);
-  text-align: center;
-  white-space: nowrap;
-}
-
-.reader-page-stepper__counter > small {
-  font-size: .66rem;
-  font-weight: 500;
-  opacity: .8;
-}
-.reader-page-stepper__popover {
-  display: flex;
-}
-
-.reader-page-stepper__popover-body {
-  top: auto;
-  bottom: calc(100% + 10px);
-  right: 0;
-  left: auto;
-  inset-inline-start: 0;
-  width: min(78vw, 280px);
-  min-width: 185px;
-  max-width: calc(100vw - 40px);
-  z-index: 10050;
-}
-
-.reader-page-stepper__popover-body .reader-icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  min-height: 40px;
-  padding: .2rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--muted);
-  color: var(--foreground);
-}
-.reader-page-stepper__popover-body .reader-icon-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-.reader-page-stepper__popover-body .reader-page-scrubber {
-  display: block;
-  width: 100%;
-  accent-color: var(--gold);
-}
 .book-reader--immersive .book-reader-workspace {
   flex: 1 1 auto;
   min-height: 0;
@@ -921,9 +831,6 @@
   overflow: hidden;
 }
 .book-reader--chrome-hidden .reader-topbar {
-  display: none !important;
-}
-.book-reader--chrome-hidden .reader-page-stepper__popover {
   display: none !important;
 }
 @media (max-width: 620px) {

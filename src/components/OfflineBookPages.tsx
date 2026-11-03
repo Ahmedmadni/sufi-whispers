@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
-import { BookReaderNavigation } from "@/components/BookReaderNavigation";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { availableReaderWidth, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
@@ -247,10 +246,6 @@ export default function OfflineBookPages({ bookId }: Props) {
       <div className="book-reader-workspace" dir="ltr">
         <div className="book-reader-main" dir="rtl">
         <div className="reader-floating-index">
-          <BookReaderNavigation bookId={bookId} page={page} maxPage={maxPage} immersive={immersive}
-            headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
-            onJump={goTo} />
-
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
