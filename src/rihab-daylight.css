@@ -61,7 +61,6 @@
 .light .hero-mandate__frame::before,.light .hero-mandate__frame::after { display: none; }
 .light .hero-mandate__phrase { color: #1e6047; text-shadow: none; line-height: 1.6; }
 .light .hero-mandate__track { animation-duration: 32s; }
-.light .reader-page-scrubber { accent-color: #28634a; width: 100%; height: 30px; cursor: pointer; }
 .light .book-reader-nav { background: white; border: 1px solid #dde7df; border-radius: 15px; padding: .7rem; }
 .light .book-reader-nav button:disabled { opacity: .32; }
 .light .book-reader-nav .reader-icon-button { min-width: 44px; min-height: 44px; border: 1px solid #dce7df; display: inline-flex; align-items: center; justify-content: center; }

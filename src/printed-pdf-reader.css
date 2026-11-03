@@ -859,9 +859,6 @@
   width: 100%;
   max-width: 100%;
 }
-.book-reader--immersive .reader-page-stepper__popover {
-  display: none !important;
-}
 
 /* One measured column, one scrolling surface; do not crop source artwork. */
 body:has(.book-reading-page) { margin: 0; }
