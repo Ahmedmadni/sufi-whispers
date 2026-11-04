@@ -36,7 +36,12 @@ const pdfOptions = {
   cMapUrl: "/pdfjs/cmaps/",
   cMapPacked: true,
   standardFontDataUrl: "/pdfjs/standard_fonts/",
+  // Load only the byte ranges needed for visible pages instead of the whole file.
+  disableAutoFetch: true,
+  rangeChunkSize: 262144,
 };
+// Cap canvas resolution: full device ratio on phones makes each page several times heavier to draw.
+const PAGE_DPR = typeof window === "undefined" ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
 
 type Props = {
   pdfUrl?: string;
@@ -486,7 +491,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                     const viewport = source.getViewport({scale: 1});
                     recordPageRatio(target, viewport.width, viewport.height);
                   }}
-                  renderTextLayer={false} renderAnnotationLayer={false}
+                  renderTextLayer={false} renderAnnotationLayer={false} devicePixelRatio={PAGE_DPR}
                   loading={<Skeleton style={{width:renderedWidth,height:continuousLayout.heights[target-1]}} />}
                   className="reader-paper" />
               )} />
@@ -497,6 +502,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               width={pageWidth * scale}
               renderTextLayer={false}
               renderAnnotationLayer={false}
+              devicePixelRatio={PAGE_DPR}
               loading={
                 <Skeleton
                   className="rounded-lg"
