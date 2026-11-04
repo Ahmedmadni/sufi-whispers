@@ -886,7 +886,7 @@ body:has(.book-reading-page) { margin: 0; }
   align-items: center;
   gap: 8px;
   bottom: max(12px, env(safe-area-inset-bottom));
-  right: max(12px, env(safe-area-inset-right));
+  left: max(12px, env(safe-area-inset-left));
   z-index: 90;
   direction: rtl;
 }
@@ -896,8 +896,8 @@ body:has(.book-reading-page) { margin: 0; }
   border: 1px solid var(--border); background: var(--card); color: var(--foreground);
 }
 .reader-floating-index .reader-index-popover {
-  top: auto; bottom: calc(100% + 8px); right: 0; left: auto;
-  inset-inline-start: 0; width: min(440px, calc(100vw - 54px));
+  top: auto; bottom: calc(100% + 8px); left: 0; right: auto;
+  width: min(440px, calc(100vw - 54px));
   max-height: min(60dvh, 600px);
   border-color: var(--border); background: var(--card); color: var(--foreground);
 }
