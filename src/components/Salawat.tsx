@@ -30,8 +30,33 @@ export function SalawatRotator({
 }
 
 /** Reminds the reader to send salawat every 5 minutes. */
+export const SALAWAT_REMINDER_OFF_KEY = "rihab:salawat-reminder-off";
+export const SALAWAT_REMINDER_EVENT = "rihab:salawat-reminder-change";
+
+export function setSalawatReminderEnabled(enabled: boolean) {
+  if (enabled) localStorage.removeItem(SALAWAT_REMINDER_OFF_KEY);
+  else localStorage.setItem(SALAWAT_REMINDER_OFF_KEY, "1");
+  window.dispatchEvent(new Event(SALAWAT_REMINDER_EVENT));
+}
+
+export function isSalawatReminderEnabled() {
+  return localStorage.getItem(SALAWAT_REMINDER_OFF_KEY) !== "1";
+}
+
 export function SalawatReminder({ everyMs = 5 * 60 * 1000 }: { everyMs?: number }) {
+  const [enabled, setEnabled] = useState(false);
   useEffect(() => {
+    const sync = () => setEnabled(isSalawatReminderEnabled());
+    sync();
+    window.addEventListener(SALAWAT_REMINDER_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(SALAWAT_REMINDER_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+  useEffect(() => {
+    if (!enabled) return;
     let i = 1;
     const id = setInterval(() => {
       const text = SALAWAT_FORMULAS[i % SALAWAT_FORMULAS.length];
@@ -40,10 +65,11 @@ export function SalawatReminder({ everyMs = 5 * 60 * 1000 }: { everyMs?: number 
         description: text,
         duration: 12000,
         action: { label: "صلّيت", onClick: () => undefined },
+        cancel: { label: "إيقاف التذكير", onClick: () => setSalawatReminderEnabled(false) },
       });
     }, everyMs);
     return () => clearInterval(id);
-  }, [everyMs]);
+  }, [everyMs, enabled]);
 
   return null;
 }
