@@ -6,6 +6,24 @@ import { enableWirdReminders, disableWirdReminders, nativeReminders, replaceWird
 import { SiteHeader } from "@/components/SiteHeader";
 import { FontSizeControl } from "@/components/FontSizeControl";
 import { BookPageZoomControl } from "@/components/BookPageZoomControl";
+import { isSalawatReminderEnabled, setSalawatReminderEnabled, SALAWAT_REMINDER_EVENT } from "@/components/Salawat";
+import { useEffect as useSalawatEffect, useState as useSalawatState } from "react";
+
+function SalawatReminderToggle() {
+  const [on, setOn] = useSalawatState(true);
+  useSalawatEffect(() => {
+    const sync = () => setOn(isSalawatReminderEnabled());
+    sync();
+    window.addEventListener(SALAWAT_REMINDER_EVENT, sync);
+    return () => window.removeEventListener(SALAWAT_REMINDER_EVENT, sync);
+  }, []);
+  return (
+    <button type="button" aria-pressed={on} onClick={() => setSalawatReminderEnabled(!on)}
+      className="rounded-xl border border-gold/40 px-4 py-2 text-sm font-body text-foreground hover:bg-gold/10">
+      {on ? "إيقاف تذكيرات الصلاة على النبي ﷺ" : "تشغيل تذكيرات الصلاة على النبي ﷺ"}
+    </button>
+  );
+}
 import { SiteFooter } from "@/components/SiteFooter";
 import {
   exportPersonalBackup, parsePersonalBackup, restorePersonalBackup,
@@ -224,6 +242,12 @@ function SettingsPage() {
         <section className="space-y-3 border-b border-border py-4" aria-labelledby="book-page-size-heading">
           <h2 id="book-page-size-heading" className="font-display text-lg text-foreground">حجم صفحات الكتب</h2>
           <BookPageZoomControl />
+        </section>
+
+        <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="salawat-reminder-heading">
+          <h2 id="salawat-reminder-heading" className="font-display text-lg text-foreground">تذكير الصلاة على النبي ﷺ</h2>
+          <p className="text-sm text-muted-foreground leading-7">يظهر التذكير كل خمس دقائق. يمكنك إيقافه نهائيًا على هذا الجهاز وإعادة تشغيله متى شئت.</p>
+          <SalawatReminderToggle />
         </section>
 
         <section className="glass rounded-2xl p-4 sm:p-6 space-y-3" aria-labelledby="wird-reminders-heading">
