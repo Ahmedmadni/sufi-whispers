@@ -869,6 +869,9 @@ body:has(.book-reading-page) { margin: 0; }
 }
 .book-reading-page > .site-header { flex: 0 0 auto; }
 .book-reading-content { display: flex; min-height: 0; }
+/* Every reading-area state (cover preview, loading, reader) fills the full
+   width so the screen never splits into a narrow card and an empty strip. */
+.book-reading-content > * { flex: 1 1 auto; width: 100%; min-width: 0; }
 .book-reader-layout { min-height: 0; flex: 1 1 auto; }
 .book-reader-workspace {
   grid-template-columns: minmax(0, 1fr);
