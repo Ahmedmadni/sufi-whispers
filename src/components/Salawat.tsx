@@ -65,7 +65,8 @@ export function SalawatReminder({ everyMs = 5 * 60 * 1000 }: { everyMs?: number 
         description: text,
         duration: 12000,
         action: { label: "صلّيت", onClick: () => undefined },
-        cancel: { label: "إيقاف التذكير", onClick: () => setSalawatReminderEnabled(false) },
+        // Clears every reminder currently on screen; the reminder schedule keeps running.
+        cancel: { label: "مسح الإشعارات", onClick: () => toast.dismiss() },
       });
     }, everyMs);
     return () => clearInterval(id);
