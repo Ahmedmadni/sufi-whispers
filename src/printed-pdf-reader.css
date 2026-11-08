@@ -905,8 +905,11 @@ body:has(.book-reading-page) { margin: 0; }
   padding: 0; margin: 0; background: none; border: 0; border-radius: 0;
   box-shadow: none; backdrop-filter: none;
 }
+/* Anchor the list to the whole floating group so it stays on screen. */
+.reader-floating-index .book-quick-index--compact { position: static; }
 .reader-floating-index .reader-index-popover {
   top: auto; bottom: calc(100% + 8px); left: 0; right: auto;
+  box-shadow: 0 12px 32px rgb(0 0 0 / .28);
   width: min(440px, calc(100vw - 54px));
   max-height: min(60dvh, 600px);
   border-color: var(--border); background: var(--card); color: var(--foreground);
