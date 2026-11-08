@@ -83,7 +83,7 @@ export function BookQuickIndex({ maxPage, page, compact = false, headings = [], 
                 </>
               )}
             </div>
-          ) : <p className="p-3 text-sm text-muted-foreground">نسخة الكتاب لا تحتوي فهرسًا إلكترونيًا أصليًا. استخدم شريط الانتقال بين الصفحات أدناه.</p>}
+          ) : <p className="p-3 text-sm text-muted-foreground">نسخة الكتاب لا تحتوي فهرسًا إلكترونيًا أصليًا. مرّر الصفحات للتنقّل داخل الكتاب.</p>}
         </div>
       )}
     </div>
