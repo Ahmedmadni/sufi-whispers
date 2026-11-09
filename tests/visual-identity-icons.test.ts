@@ -51,7 +51,7 @@ describe("Rihab app visual identity v2", () => {
     expect(style).toContain('.rihab-nav-item[data-status="active"] .rihab-nav-item__label');
     expect(style).toContain('.rihab-nav-item[aria-current="page"]');
     expect(style).toContain('min-height: 68px');
-    expect(style).toContain('.rihab-header-action:focus-visible');
+    expect(style).toContain('.rihab-header-link, .rihab-header-action, .site-header__brand):focus-visible');
     expect(style).toContain('.rihab-nav-item:focus-visible');
     expect(style).toContain('.rihab-dialog-close:focus-visible');
     expect(style).toContain('@media (prefers-reduced-motion: reduce)');
