@@ -84,6 +84,11 @@ jobs:
           echo "Android SDK root: $SDK_ROOT"
           yes | "$SDK_MANAGER" --sdk_root="$SDK_ROOT" --licenses >/dev/null || true
           "$SDK_MANAGER" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0" "platform-tools"
+      - name: Cache pinned Gradle wrapper distribution
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/wrapper/dists
+          key: ${{ runner.os }}-rihab-gradle-wrapper-8.14.3
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Check Quran and media validation logic
@@ -98,10 +103,29 @@ jobs:
         run: python scripts/prepare-offline-mushaf.py _verified-mushaf-source mobile/.public/printed-mushaf
       - name: Verify Quran independent source before Android debug build
         run: node scripts/verify-quran-independent-reference.mjs --export-github-env
-      - name: Generate Android project and build debug APK
-        run: bun run mobile:android:apk
+      # The mobile project is prepared once. Network retries must not re-render
+      # the Quran or offline books or bypass integrity checks.
+      - name: Generate Android project and verified mobile assets
+        run: bun run mobile:android:setup
         env:
           CONTENT_ASSET_ORIGIN: https://sufi-whispers.lovable.app
+      - name: Assemble debug APK (retry transient Gradle download errors only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            log="$RUNNER_TEMP/rihab-gradle-debug-attempt-$attempt.log"
+            echo "Gradle debug attempt $attempt / 3"
+            if (cd android && ./gradlew --no-daemon assembleDebug) 2>&1 | tee "$log"; then
+              exit 0
+            fi
+            if [ "$attempt" -ge 3 ] || ! grep -Eqi '(HTTP response code: (429|50[0-4])|HTTPError: Response code (429|50[0-4])|Read timed out|Connection reset|ECONNRESET|ETIMEDOUT)' "$log"; then
+              echo "::error::Gradle failed for a non-transient reason or download retry limit reached."
+              exit 1
+            fi
+            echo "::warning::Transient Gradle download failure, retrying Gradle only."
+            sleep "$((15 * attempt))"
+          done
       # The complete APK is too large to transfer through some connectors.
       # Five verified chunks permit reassembly with the exact APK SHA-256.
       - name: Verify official association launcher icon inside compiled Android APK
