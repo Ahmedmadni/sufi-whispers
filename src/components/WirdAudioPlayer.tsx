@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Headphones, Pause, Play, RotateCcw, RotateCw } from "lucide-react";
 import {
-  WIRD_AUDIO_TRACKS, requestedWirdListening, safeWirdAudioPosition,
+  WIRD_AUDIO_TRACKS, safeWirdAudioPosition,
   wirdAudioPositionKey, wirdPartForPage, type WirdPart,
 } from "@/lib/wird-audio";
 
@@ -17,8 +17,8 @@ function clock(seconds: number): string {
 export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page: number) => void }) {
   const inferred = wirdPartForPage(page);
   const [part, setPart] = useState<WirdPart>(inferred);
-  const [expanded, setExpanded] = useState(() =>
-    typeof window !== "undefined" && requestedWirdListening(window.location));
+  // Compact controls stay visible by default; playback still requires a tap.
+  const [expanded, setExpanded] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -214,9 +214,9 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
               <ChevronUp size={23} aria-hidden="true" />
             </button>
           </div>
-          {error && <p role="alert" className="wird-audio-player__error">{error}</p>}
         </div>
       )}
+      {error && <p role="alert" className="wird-audio-player__error">{error}</p>}
     </section>
   );
 }
