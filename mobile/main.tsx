@@ -10,6 +10,7 @@ import "../src/printed-pdf-reader.css";
 import "./mobile.css";
 import "../src/ios-refinements.css";
 import "../src/rihab-daylight.css";
+import "../src/rihab-identity.css";
 
 const mount = document.getElementById("root");
 if (!mount) throw new Error("Missing #root element for mobile application");
