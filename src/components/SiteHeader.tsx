@@ -45,7 +45,7 @@ export function SiteHeader() {
             title="فيسبوك الجمعية"
             className="rihab-header-action hidden sm:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 text-gold-soft hover:bg-gold/10"
           >
-            <Facebook className="h-5 w-5" strokeWidth={2.3} aria-hidden="true" />
+            <Facebook className="h-5 w-5 text-[#0866FF]" strokeWidth={2.3} aria-hidden="true" />
           </a>
           <Link to="/settings" aria-label="الإعدادات والنسخ الاحتياطي" title="الإعدادات والنسخ الاحتياطي"
             className="rihab-header-action inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 text-gold-soft hover:bg-gold/10">
