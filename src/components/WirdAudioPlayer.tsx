@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ChevronDown, ChevronUp, Headphones, Pause, Play, RotateCcw, RotateCw } from "lucide-react";
 import {
   WIRD_AUDIO_TRACKS, safeWirdAudioPosition,
@@ -29,6 +29,9 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
   const manuallySelected = useRef(false);
   const track = WIRD_AUDIO_TRACKS[part];
   const durationDisplay = duration || track.durationSeconds;
+  const progressPercent = durationDisplay > 0
+    ? Math.min(100, Math.max(0, elapsed / durationDisplay * 100))
+    : 0;
 
   // Only an explicit chapter landing may select another track. Continuous scrolling
   // across page 22 must not interrupt a recording already in progress.
@@ -113,10 +116,12 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
 
   return (
     <section dir="rtl" aria-label="الاستماع إلى ورد الاستغفار"
-      className="wird-audio-player wird-audio-player--compact font-body">
+      className="wird-audio-player wird-audio-player--compact wird-audio-player--dock font-body"
+      data-playing={playing} data-expanded={expanded}>
       <div className="wird-audio-player__header">
         <span className="wird-audio-player__heading">
-          <Headphones size={17} strokeWidth={2.1} aria-hidden="true" />
+          <span className="wird-audio-player__status-dot" aria-hidden="true" />
+          <Headphones size={18} strokeWidth={2.1} aria-hidden="true" />
           <span>ورد الاستغفار</span>
         </span>
         <div className="wird-audio-player__chapters" role="group" aria-label="اختيار الحزب">
@@ -179,7 +184,8 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
             value={Math.min(elapsed, Math.max(1, durationDisplay))} disabled={!duration}
             aria-label={"موضع تشغيل " + track.label}
             onChange={event => seek(Number(event.currentTarget.value))}
-            className="wird-audio-player__progress" dir="ltr" />
+            className="wird-audio-player__progress" dir="ltr"
+            style={{ "--wird-progress": `${progressPercent}%` } as CSSProperties} />
           <div className="wird-audio-player__controls" role="group" aria-label="التحكم في التسجيل">
             <button type="button" aria-label="سرعة التشغيل" title="تغيير سرعة التشغيل"
               onClick={() => {
