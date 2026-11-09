@@ -124,10 +124,12 @@ function HomePage() {
               key={title}
               to={to}
               {...(params ? { params } : {})}
-              className="group rounded-xl border border-gold/15 bg-background/25 p-4 text-right transition-[border-color,background-color,transform] hover:border-gold/50 hover:bg-gold/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+              className="rihab-shortcut-card group rounded-2xl border border-gold/15 bg-background/25 p-4 text-right transition-[border-color,background-color,transform] hover:border-gold/50 hover:bg-gold/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
             >
-              <span className="inline-flex items-center gap-2 text-gold-soft font-display text-sm sm:text-lg">
-                <Icon className="w-4 h-4" />
+              <span className="rihab-shortcut-card__icon" aria-hidden="true">
+                <Icon className="h-[22px] w-[22px]" strokeWidth={2.15} />
+              </span>
+              <span className="mt-3 block font-display text-base text-gold-soft sm:text-lg">
                 {title}
               </span>
               <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground font-body leading-6 sm:leading-7">
@@ -162,7 +164,7 @@ function HomePage() {
               <Link
                 to="/books/$bookId"
                 params={{ bookId: b.id }}
-                className="book-card group flex flex-col items-center text-center"
+                className="book-card rihab-book-tile group flex flex-col items-center text-center"
               >
                 <div className="book-art relative w-full aspect-[3/4] group-active:scale-[0.98]">
                   <BookCover
@@ -189,7 +191,7 @@ function HomePage() {
         <div className="mt-8 flex justify-center">
           <Link
             to="/library"
-            className="inline-flex items-center gap-2 rounded-lg border border-gold/25 px-5 py-2 text-sm font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
+            className="rihab-library-cta inline-flex min-h-12 items-center gap-2 rounded-xl border border-gold/25 px-5 py-2 text-sm font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
           >
             <BookOpen className="w-4 h-4" />
             <span>تصفّح جميع الكتب</span>
