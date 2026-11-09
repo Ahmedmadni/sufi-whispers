@@ -76,7 +76,10 @@ export default function OfflineBookPages({ bookId }: Props) {
       const manifest = await response.json() as Manifest;
       const record = manifest.books?.[bookId];
       if (manifest.version !== 1 || !record || record.pageCount !== record.pages.length ||
-          !record.pages.length || !record.pages.every(item => /^\d{4}\.webp$/.test(item.name))) {
+          !record.pages.length || !record.pages.every(item =>
+            /^\d{4}\.webp$/.test(item.name) &&
+            Number.isSafeInteger(item.width) && item.width > 0 && item.width <= 20000 &&
+            Number.isSafeInteger(item.height) && item.height > 0 && item.height <= 20000)) {
         throw new Error("ملف صفحات الكتاب غير مكتمل داخل التطبيق.");
       }
       if (!controller.signal.aborted) setEntry(record);
@@ -282,7 +285,7 @@ export default function OfflineBookPages({ bookId }: Props) {
                 if(!item)return null;
                 return <img key={item.name} draggable={false}
                   loading="lazy" decoding="async"
-                  src={`/offline-books/${encodeURIComponent(bookId)}/${item.name}`}
+                  src={`/offline-books/${encodeURIComponent(bookId)}/${item.name}${imageRetry ? `?retry=${imageRetry}` : ""}`}
                   alt={`صفحة ${target} من الكتاب`} width={item.width} height={item.height}
                   className="mx-auto block h-auto max-w-none select-none"
                   style={{width:renderedWidth}}

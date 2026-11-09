@@ -48,9 +48,16 @@ export function ContinuousBookStack({layout,width,initialPage,viewportRef,onActi
       const clamped=Math.min(layout.pageCount,Math.max(1,Math.round(initialPageRef.current)));
       el.scrollTop=layout.starts[clamped-1];
     } else if(previousLayout.current!==layout && didInitialJump.current) {
-      el.scrollTop=preserveContinuousScroll(previousLayout.current,layout,snapshot.top);
+      // A scroll event may still be queued in requestAnimationFrame while PDF
+      // metadata, device rotation or pinch changes the layout. The React
+      // snapshot can therefore lag behind the reader's ACTUAL position.
+      // Use the live viewport offset, not the previously rendered snapshot.
+      el.scrollTop=preserveContinuousScroll(previousLayout.current,layout,el.scrollTop);
     }
     previousLayout.current=layout;
+    const currentTop=el.scrollTop, currentHeight=el.clientHeight||760;
+    setSnapshot(previous=>previous.top===currentTop && previous.height===currentHeight
+      ? previous : {top:currentTop,height:currentHeight});
     const update=()=>{
       if(frames.current!==null)cancelAnimationFrame(frames.current);
       frames.current=requestAnimationFrame(()=>{

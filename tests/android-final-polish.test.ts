@@ -43,6 +43,6 @@ describe("Android final UI and offline library gates", () => {
     const path = read("src/routes/shaykh.tsx");
     expect(path).toContain("<DeveloperSignature />");
     expect(read("src/components/DeveloperSignature.tsx")).toContain("https://www.facebook.com/elmadni1998");
-    expect(read("mobile/mobile.css")).toContain("font-size: clamp(14px, 3.65vw, 16px)");
+    expect(read("mobile/mobile.css")).toContain("font-size: clamp(15px, 3.65vw, 16px)");
   });
 });
