@@ -503,3 +503,248 @@ html.light .bottom-nav .rihab-nav-item--featured .bottom-nav-fab {
 @media (prefers-reduced-motion: reduce) {
   .wird-audio-player__icon-button { transition: none; }
 }
+
+
+/* V3: Dock the Wird controls at the BOTTOM of the viewport, immediately above
+   the native five-item nav. The old top-of-reader panel is no longer in flow.
+   The dark floating surface is a player shell; its action buttons stay bare.
+   Original book imagery and Quran markup remain untouched. */
+.wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
+  position: fixed !important;
+  inset-block-start: auto;
+  top: auto;
+  left: 50%;
+  right: auto;
+  bottom: calc(77px + env(safe-area-inset-bottom, 0px));
+  z-index: 150;
+  transform: translateX(-50%);
+  display: block;
+  box-sizing: border-box;
+  width: min(460px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+  max-height: min(42dvh, 204px);
+  margin: 0;
+  padding: 9px 14px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  color: #fff6e6;
+  background: linear-gradient(132deg, rgb(25 68 53 / .98), rgb(12 41 33 / .985) 84%);
+  border: 1px solid rgb(228 191 124 / .38);
+  border-radius: 21px;
+  box-shadow:
+    0 16px 36px -12px rgb(9 31 22 / .44),
+    0 2px 8px rgb(11 32 25 / .18),
+    inset 0 1px 0 rgb(255 250 221 / .14);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  isolation: isolate;
+}
+.wird-audio-player--dock::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(255 230 178 / .48), transparent);
+}
+.wird-audio-player--dock .wird-audio-player__header {
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 2px;
+}
+.wird-audio-player--dock .wird-audio-player__heading {
+  gap: 6px;
+  color: #f9edcf;
+  font-size: .83rem;
+  letter-spacing: 0;
+}
+.wird-audio-player--dock .wird-audio-player__heading svg { color: #e6c281; }
+.wird-audio-player__status-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 999px;
+  background: #b0c7b0;
+  box-shadow: 0 0 0 3px rgb(211 233 193 / .09);
+}
+.wird-audio-player--dock[data-playing="true"] .wird-audio-player__status-dot {
+  background: #e5c47f;
+  box-shadow: 0 0 0 4px rgb(234 196 127 / .14);
+}
+.wird-audio-player--dock .wird-audio-player__chapters { gap: 8px; }
+.wird-audio-player--dock .wird-audio-player__chapter {
+  min-height: 34px;
+  min-width: 34px;
+  font-size: .88rem;
+  color: #baccc0;
+  font-weight: 600;
+}
+.wird-audio-player--dock .wird-audio-player__chapter[aria-pressed="true"] {
+  color: #f8dc9d;
+  font-weight: 800;
+}
+.wird-audio-player--dock .wird-audio-player__chapter[aria-pressed="true"]::after {
+  bottom: 3px;
+  left: 28%;
+  right: 28%;
+  background: #e4bf7f;
+  height: 2px;
+}
+.wird-audio-player--dock .wird-audio-player__body { padding-top: 1px; }
+.wird-audio-player--dock .wird-audio-player__timeline {
+  margin-top: 1px;
+  color: #cedbd1;
+  font-size: .69rem;
+  min-height: 16px;
+}
+.wird-audio-player--dock .wird-audio-player__clock { color: #f2e5c9; }
+.wird-audio-player--dock .wird-audio-player__progress {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  width: 100%;
+  height: 20px;
+  margin: 1px 0 1px;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  accent-color: #e6c386;
+  touch-action: pan-x;
+}
+.wird-audio-player--dock .wird-audio-player__progress::-webkit-slider-runnable-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(to right,
+    #e8c588 0%,
+    #e8c588 var(--wird-progress, 0%),
+    rgb(240 247 232 / .26) var(--wird-progress, 0%),
+    rgb(240 247 232 / .26) 100%);
+}
+.wird-audio-player--dock .wird-audio-player__progress::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -4.5px;
+  border: 2px solid #194432;
+  border-radius: 50%;
+  background: #f1d49b;
+  box-shadow: 0 0 0 2px rgb(241 212 155 / .18);
+}
+.wird-audio-player--dock .wird-audio-player__progress::-moz-range-track {
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(240 247 232 / .26);
+}
+.wird-audio-player--dock .wird-audio-player__progress::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: #e8c588;
+}
+.wird-audio-player--dock .wird-audio-player__progress::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #194432;
+  border-radius: 50%;
+  background: #f1d49b;
+}
+.wird-audio-player--dock .wird-audio-player__controls {
+  justify-content: space-around;
+  gap: 3px;
+  padding-inline: 0;
+  min-height: 48px;
+}
+.wird-audio-player--dock .wird-audio-player__icon-button {
+  color: #ebf0e4;
+  flex-basis: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.wird-audio-player--dock .wird-audio-player__icon-button:hover:not(:disabled),
+.wird-audio-player--dock .wird-audio-player__icon-button:focus-visible {
+  color: #f4d28f;
+}
+.wird-audio-player--dock .wird-audio-player__icon-button:focus-visible,
+.wird-audio-player--dock .wird-audio-player__chapter:focus-visible,
+.wird-audio-player--dock .wird-audio-player__progress:focus-visible {
+  outline: 2px solid #f0d192;
+  outline-offset: -2px;
+}
+.wird-audio-player--dock .wird-audio-player__play {
+  flex-basis: 52px;
+  color: #f1cc88;
+  filter: drop-shadow(0 1px 4px rgb(230 186 116 / .15));
+}
+.wird-audio-player--dock .wird-audio-player__play svg {
+  width: 30px;
+  height: 30px;
+}
+.wird-audio-player--dock .wird-audio-player__speed {
+  color: #e8dbbb;
+  font-size: .82rem;
+}
+.wird-audio-player--dock .wird-audio-player__skip-number {
+  top: 17px;
+  color: #ebf0e4;
+}
+.wird-audio-player--dock .wird-audio-player__error {
+  padding: 6px 8px 3px;
+  color: #ffe1c8;
+  font-size: .72rem;
+}
+
+/* Reserve enough scrollable paper below the last rendered page to reveal it
+   completely ABOVE the dock. Keep floating index/fullscreen controls clickable
+   instead of letting the dock cover them. */
+.book-reader-layout.book-reader--with-wird .book-reader-workspace :where(.book-pdf-stage, .offline-book-stage) {
+  padding-bottom: 190px;
+  scroll-padding-bottom: 175px;
+}
+.book-reader-layout.book-reader--with-wird .reader-floating-index {
+  bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+}
+.book-reader-layout.book-reader--with-wird .reader-index-popover {
+  max-height: min(48dvh, 460px);
+}
+
+/* The full-screen reader is a document.body portal. It must show the audio
+   dock at the physical bottom; the app navigation is behind fullscreen. */
+.book-reader--immersive > .wird-audio-player.wird-audio-player--dock {
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  max-height: min(42dvh, 204px);
+  overflow-x: hidden;
+}
+.book-reader--immersive.book-reader--with-wird .reader-floating-index {
+  bottom: calc(155px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) {
+  .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
+    bottom: 18px;
+    width: min(500px, calc(100vw - 48px));
+  }
+  .book-reader--immersive > .wird-audio-player.wird-audio-player--dock {
+    bottom: 18px;
+  }
+}
+@media (max-width: 359px) {
+  .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
+    width: calc(100vw - 12px);
+    max-width: calc(100vw - 12px);
+    padding-inline: 9px;
+    border-radius: 17px;
+  }
+  .wird-audio-player--dock .wird-audio-player__heading { font-size: .78rem; }
+  .wird-audio-player--dock .wird-audio-player__controls { gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wird-audio-player--dock .wird-audio-player__icon-button { transition: none; }
+}
