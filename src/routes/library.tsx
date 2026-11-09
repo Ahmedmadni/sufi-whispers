@@ -40,16 +40,17 @@ function LibraryPage() {
           </div>
         </header>
         <button type="button" onClick={() => { setQuery(""); setSearchOpen(true); }}
-          className="mx-auto mb-6 flex min-h-12 w-full max-w-xl items-center gap-3 rounded-xl border border-gold/30 bg-background/65 px-4 text-right text-sm text-muted-foreground shadow-sm transition-colors hover:border-gold/60 sm:mb-9"
+          className="rihab-library-search mx-auto mb-6 flex min-h-12 w-full max-w-xl items-center gap-3 rounded-xl border border-gold/30 bg-background/65 px-4 text-right text-sm text-muted-foreground shadow-sm transition-colors hover:border-gold/60 sm:mb-9"
           aria-label="البحث في الكتب">
-          <Search className="h-5 w-5 text-gold-soft" />
-          <span>ابحث عن كتاب...</span>
+          <span className="rihab-library-search__icon" aria-hidden="true"><Search className="h-[22px] w-[22px]" strokeWidth={2.25} /></span>
+          <span className="flex-1">ابحث عن كتاب...</span>
+          <span className="rihab-library-search__count">{books.length} كتب</span>
         </button>
 
         <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:grid-cols-3 sm:gap-x-6 sm:gap-y-8" aria-label="الكتب المتوفرة">
           {books.map(book => (
             <Link key={book.id} to="/books/$bookId" params={{ bookId: book.id }}
-              className="book-card group flex min-w-0 flex-col items-center text-center">
+              className="book-card rihab-book-tile group flex min-w-0 flex-col items-center text-center">
               <div className="book-art relative aspect-[3/4] w-full">
                 <BookCover src={book.cover} alt={book.title} sizes="(max-width: 640px) 47vw, 30vw" />
                 <div className="pointer-events-none absolute inset-0 rounded-lg ring-1 ring-inset ring-gold/25" />
@@ -57,6 +58,7 @@ function LibraryPage() {
               <h2 className="mt-2.5 line-clamp-2 w-full text-balance px-1 font-display text-sm leading-relaxed text-gold-soft sm:text-base">
                 {book.title}
               </h2>
+              <span className="rihab-book-tile__action" aria-hidden="true">قراءة الكتاب</span>
             </Link>
           ))}
         </div>
@@ -67,7 +69,7 @@ function LibraryPage() {
           className="fixed inset-0 z-[100] flex flex-col bg-background/98 px-3 pb-5 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-xl sm:px-6">
           <div className="mx-auto flex w-full max-w-2xl items-center gap-2 border-b border-gold/20 pb-3">
             <button type="button" onClick={() => setSearchOpen(false)}
-              aria-label="إغلاق البحث" className="rounded-lg border border-gold/25 p-2.5 text-gold-soft">
+              aria-label="إغلاق البحث" className="rihab-dialog-close rounded-xl border border-gold/25 p-2.5 text-gold-soft">
               <X className="h-5 w-5" />
             </button>
             <div className="relative min-w-0 flex-1">
