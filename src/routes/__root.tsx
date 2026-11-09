@@ -138,8 +138,10 @@ function RootComponent() {
   // The native SPA has no document transitions unless we supply them.
   // Keep the immersive Mushaf outside animated ancestors, so fixed viewport
   // coordinates and touch panning remain exact.
+  // CSS entrance transforms on Android would anchor fixed audio controls to
+  // the route rather than the viewport; skip that animation for the Wird.
   const animateMobileRoute = import.meta.env.VITE_MOBILE === "true" &&
-    pathname !== "/quran/printed";
+    pathname !== "/quran/printed" && pathname !== "/books/ward";
   return (
     <QueryClientProvider client={queryClient}>
       {animateMobileRoute
