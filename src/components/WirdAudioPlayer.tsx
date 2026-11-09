@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Headphones, Pause, Play, RotateCcw, RotateCw, Volume2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Headphones, Pause, Play, RotateCcw, RotateCw } from "lucide-react";
 import {
-  WIRD_AUDIO_TRACKS, requestedWirdListening, safeWirdAudioPosition,
+  WIRD_AUDIO_TRACKS, safeWirdAudioPosition,
   wirdAudioPositionKey, wirdPartForPage, type WirdPart,
 } from "@/lib/wird-audio";
 
@@ -17,8 +17,8 @@ function clock(seconds: number): string {
 export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page: number) => void }) {
   const inferred = wirdPartForPage(page);
   const [part, setPart] = useState<WirdPart>(inferred);
-  const [expanded, setExpanded] = useState(() =>
-    typeof window !== "undefined" && requestedWirdListening(window.location));
+  // Compact controls stay visible by default; playback still requires a tap.
+  const [expanded, setExpanded] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -113,26 +113,30 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
 
   return (
     <section dir="rtl" aria-label="الاستماع إلى ورد الاستغفار"
-      className="wird-audio-player reader-toolbar mb-2 rounded-2xl border border-gold/25 bg-background/90 p-3 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-2 text-sm font-semibold text-foreground">
-          <Headphones size={18} aria-hidden="true" /> الاستماع إلى ورد الاستغفار
+      className="wird-audio-player wird-audio-player--compact font-body">
+      <div className="wird-audio-player__header">
+        <span className="wird-audio-player__heading">
+          <Headphones size={17} strokeWidth={2.1} aria-hidden="true" />
+          <span>ورد الاستغفار</span>
         </span>
-        <div className="flex flex-wrap gap-2">
-          {(["first", "second"] as const).map((id) => (
+        <div className="wird-audio-player__chapters" role="group" aria-label="اختيار الحزب">
+          {(["first", "second"] as const).map(id => (
             <button key={id} type="button" onClick={() => choose(id)}
-              aria-pressed={expanded && part === id}
-              aria-label={"عرض تسجيل " + WIRD_AUDIO_TRACKS[id].label}
-              className={"inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-3 py-2 text-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary " +
-                (part === id && expanded ? "border-gold/60 bg-primary text-primary-foreground" : "border-border bg-background text-foreground")}>
-              <Headphones size={15} aria-hidden="true" /> {WIRD_AUDIO_TRACKS[id].label}
+              aria-pressed={part === id}
+              aria-label={"اختيار " + WIRD_AUDIO_TRACKS[id].label}
+              title={WIRD_AUDIO_TRACKS[id].label}
+              className="wird-audio-player__chapter">
+              {id === "first" ? "١" : "٢"}
             </button>
           ))}
-          <button type="button" aria-expanded={expanded} onClick={() => setExpanded(v => !v)}
-            className="min-h-11 rounded-lg border border-border px-3 text-xs text-foreground">
-            {expanded ? "إخفاء المشغّل" : "عرض المشغّل"}
-          </button>
         </div>
+        {!expanded && (
+          <button type="button" aria-expanded={false} onClick={() => setExpanded(true)}
+            aria-label="إظهار أدوات الاستماع" title="إظهار المشغل"
+            className="wird-audio-player__icon-button wird-audio-player__expand">
+            <ChevronDown size={21} aria-hidden="true" />
+          </button>
+        )}
       </div>
       <audio key={track.src} ref={audio} src={track.src} preload="metadata"
         onLoadedMetadata={event => {
@@ -166,48 +170,53 @@ export function WirdAudioPlayer({ page, onJump }: { page: number; onJump?: (page
         }}
       />
       {expanded && (
-        <div className="mt-3 space-y-3 border-t border-border pt-3">
-          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span>تسجيل {track.label} — صفحة {track.page}</span>
-            <span dir="ltr" className="tabular-nums">{clock(elapsed)} / {clock(durationDisplay)}</span>
+        <div className="wird-audio-player__body">
+          <div className="wird-audio-player__timeline">
+            <span>ص {track.page}</span>
+            <span dir="ltr" className="wird-audio-player__clock">{clock(elapsed)} / {clock(durationDisplay)}</span>
           </div>
           <input type="range" min={0} max={Math.max(1, durationDisplay)} step={1}
             value={Math.min(elapsed, Math.max(1, durationDisplay))} disabled={!duration}
             aria-label={"موضع تشغيل " + track.label}
             onChange={event => seek(Number(event.currentTarget.value))}
-            className="w-full accent-primary" dir="ltr" />
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <button type="button" onClick={() => seek((audio.current?.currentTime || 0) - 15)}
-              disabled={!duration} aria-label="رجوع 15 ثانية"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg border border-border text-foreground disabled:opacity-40">
-              <RotateCcw size={18} aria-hidden="true" /><span className="text-xs">15</span>
-            </button>
-            <button type="button" onClick={() => void togglePlay()}
-              aria-label={playing ? "إيقاف مؤقت" : "تشغيل " + track.label}
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 font-medium text-primary-foreground">
-              {playing ? <Pause size={19} aria-hidden="true"/> : <Play size={19} aria-hidden="true"/>}
-              {playing ? "إيقاف مؤقت" : "تشغيل"}
-            </button>
-            <button type="button" onClick={() => seek((audio.current?.currentTime || 0) + 15)}
-              disabled={!duration} aria-label="تقديم 15 ثانية"
-              className="inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg border border-border text-foreground disabled:opacity-40">
-              <RotateCw size={18} aria-hidden="true"/><span className="text-xs">15</span>
-            </button>
+            className="wird-audio-player__progress" dir="ltr" />
+          <div className="wird-audio-player__controls" role="group" aria-label="التحكم في التسجيل">
             <button type="button" aria-label="سرعة التشغيل" title="تغيير سرعة التشغيل"
               onClick={() => {
                 const next = speed === 1 ? 1.25 : speed === 1.25 ? .75 : 1;
                 if (audio.current) audio.current.playbackRate = next;
                 setSpeed(next);
-              }} className="min-h-11 rounded-lg border border-border px-3 text-sm text-foreground">
-              <Volume2 size={15} aria-hidden="true" className="inline-block ml-1"/>{speed}×
+              }} className="wird-audio-player__icon-button wird-audio-player__speed">
+              <span dir="ltr">{speed}×</span>
+            </button>
+            <button type="button" onClick={() => seek((audio.current?.currentTime || 0) - 15)}
+              disabled={!duration} aria-label="رجوع 15 ثانية" title="رجوع 15 ثانية"
+              className="wird-audio-player__icon-button wird-audio-player__skip">
+              <RotateCcw size={23} aria-hidden="true" />
+              <span className="wird-audio-player__skip-number" aria-hidden="true">15</span>
+            </button>
+            <button type="button" onClick={() => void togglePlay()}
+              aria-label={playing ? "إيقاف مؤقت" : "تشغيل " + track.label}
+              title={playing ? "إيقاف مؤقت" : "تشغيل"}
+              className="wird-audio-player__icon-button wird-audio-player__play">
+              {playing ? <Pause size={27} fill="currentColor" aria-hidden="true" />
+                : <Play size={27} fill="currentColor" aria-hidden="true" />}
+            </button>
+            <button type="button" onClick={() => seek((audio.current?.currentTime || 0) + 15)}
+              disabled={!duration} aria-label="تقديم 15 ثانية" title="تقديم 15 ثانية"
+              className="wird-audio-player__icon-button wird-audio-player__skip">
+              <RotateCw size={23} aria-hidden="true" />
+              <span className="wird-audio-player__skip-number" aria-hidden="true">15</span>
+            </button>
+            <button type="button" aria-expanded={true} onClick={() => setExpanded(false)}
+              aria-label="تصغير مشغل الورد" title="تصغير المشغل"
+              className="wird-audio-player__icon-button wird-audio-player__collapse">
+              <ChevronUp size={23} aria-hidden="true" />
             </button>
           </div>
-          {error && <p role="alert" className="text-center text-xs text-destructive">{error}</p>}
-          <p className="text-center text-xs text-muted-foreground">
-            يُحفظ موضع الاستماع على جهازك. التشغيل يبدأ باختيارك ولا يبدأ تلقائيًا من الإشعارات.
-          </p>
         </div>
       )}
+      {error && <p role="alert" className="wird-audio-player__error">{error}</p>}
     </section>
   );
 }
