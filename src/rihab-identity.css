@@ -333,182 +333,10 @@ html.light .bottom-nav .rihab-nav-item--featured .bottom-nav-fab {
 }
 
 
-/* Compact Wird audio playback. The Quran pages sit immediately below this
-   transparent bar: no heavy cards, borders, button pills or descriptive copy.
-   All five playback actions remain a bottom row with 44px+ touch targets. */
-.wird-audio-player.wird-audio-player--compact {
-  flex: 0 0 auto;
-  min-width: 0;
-  width: 100%;
-  margin: 0 0 .25rem;
-  padding: .3rem .65rem .45rem;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--foreground);
-  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
-}
-.wird-audio-player__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .35rem;
-  min-height: 34px;
-}
-.wird-audio-player__heading {
-  display: inline-flex;
-  align-items: center;
-  flex: 1 1 auto;
-  gap: .4rem;
-  min-width: 0;
-  font-size: .82rem;
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--foreground);
-}
-.wird-audio-player__heading svg { color: var(--gold-soft); flex: 0 0 auto; }
-.wird-audio-player__chapters {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: .2rem;
-}
-.wird-audio-player__chapter {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  min-width: 36px;
-  min-height: 36px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  font-size: .93rem;
-  font-weight: 600;
-}
-.wird-audio-player__chapter[aria-pressed="true"] {
-  color: var(--foreground);
-  font-weight: 700;
-}
-.wird-audio-player__chapter[aria-pressed="true"]::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 32%;
-  right: 32%;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--gold);
-}
-.wird-audio-player__body { padding-top: .15rem; }
-.wird-audio-player__timeline {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .5rem;
-  min-height: 19px;
-  color: var(--muted-foreground);
-  font-size: .73rem;
-  line-height: 1.4;
-}
-.wird-audio-player__clock { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.wird-audio-player__progress {
-  display: block;
-  width: 100%;
-  height: 18px;
-  margin: .12rem 0 .15rem;
-  padding: 0;
-  cursor: pointer;
-  accent-color: var(--gold);
-  background: transparent;
-}
-.wird-audio-player__progress:disabled { opacity: .45; cursor: not-allowed; }
-.wird-audio-player__progress::-webkit-slider-runnable-track {
-  height: 3px;
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--foreground) 26%, transparent);
-}
-.wird-audio-player__progress::-webkit-slider-thumb { margin-top: -5px; }
-.wird-audio-player__progress::-moz-range-track {
-  height: 3px;
-  border-radius: 99px;
-  background: color-mix(in srgb, var(--foreground) 26%, transparent);
-}
-.wird-audio-player__controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  gap: .15rem;
-  direction: ltr;
-  width: 100%;
-}
-.wird-audio-player__icon-button {
-  position: relative;
-  display: inline-flex;
-  flex: 0 0 44px;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-  color: var(--foreground);
-  cursor: pointer;
-  transition: color .14s ease, opacity .14s ease;
-}
-.wird-audio-player__icon-button svg { display: block; flex-shrink: 0; stroke-width: 2.15; }
-.wird-audio-player__icon-button:hover:not(:disabled) { color: var(--gold-soft); }
-.wird-audio-player__icon-button:focus-visible,
-.wird-audio-player__chapter:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: -2px;
-  border-radius: 7px;
-}
-.wird-audio-player__icon-button:disabled { opacity: .38; cursor: not-allowed; }
-.wird-audio-player__play { color: var(--gold-soft); flex-basis: 52px; }
-.wird-audio-player__play svg { width: 28px; height: 28px; }
-.wird-audio-player__speed {
-  font-size: .79rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.wird-audio-player__skip-number {
-  position: absolute;
-  top: 17px;
-  font-family: system-ui, sans-serif;
-  font-size: 8px;
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -.025em;
-  pointer-events: none;
-}
-.wird-audio-player__expand { flex-basis: 36px; min-width: 36px; }
-.wird-audio-player__error {
-  margin: .1rem 0 0;
-  padding-inline: .3rem;
-  color: var(--destructive);
-  font-size: .76rem;
-  text-align: center;
-}
-@media (max-width: 359px) {
-  .wird-audio-player.wird-audio-player--compact { padding-inline: .35rem; }
-  .wird-audio-player__heading { font-size: .76rem; }
-  .wird-audio-player__controls { gap: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .wird-audio-player__icon-button { transition: none; }
-}
 
-
-/* V3: Dock the Wird controls at the BOTTOM of the viewport, immediately above
-   the native five-item nav. The old top-of-reader panel is no longer in flow.
-   The dark floating surface is a player shell; its action buttons stay bare.
-   Original book imagery and Quran markup remain untouched. */
+/* V4 / ultra-compact Wird dock. Displayed at the physical BOTTOM of the
+   reading screen, above the five-item navigation. No top player. The
+   recording, original pages and the rest of the application are untouched. */
 .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
   position: fixed !important;
   inset-block-start: auto;
@@ -520,231 +348,227 @@ html.light .bottom-nav .rihab-nav-item--featured .bottom-nav-fab {
   transform: translateX(-50%);
   display: block;
   box-sizing: border-box;
-  width: min(460px, calc(100vw - 20px));
+  width: min(420px, calc(100vw - 20px));
   max-width: calc(100vw - 20px);
-  max-height: min(42dvh, 204px);
+  max-height: min(35dvh, 124px);
   margin: 0;
-  padding: 9px 14px 10px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  color: #fff6e6;
-  background: linear-gradient(132deg, rgb(25 68 53 / .98), rgb(12 41 33 / .985) 84%);
-  border: 1px solid rgb(228 191 124 / .38);
-  border-radius: 21px;
-  box-shadow:
-    0 16px 36px -12px rgb(9 31 22 / .44),
-    0 2px 8px rgb(11 32 25 / .18),
-    inset 0 1px 0 rgb(255 250 221 / .14);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  isolation: isolate;
+  padding: 7px 12px 8px;
+  border: 1px solid rgb(231 200 140 / .39);
+  border-radius: 19px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgb(28 70 53 / .98), rgb(15 44 36 / .985));
+  color: #f7f1e3;
+  box-shadow: 0 12px 28px -10px rgb(5 30 21 / .44), inset 0 1px rgb(255 244 212 / .12);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
 }
-.wird-audio-player--dock::before {
-  content: "";
-  position: absolute;
-  pointer-events: none;
-  top: 0;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgb(255 230 178 / .48), transparent);
-}
-.wird-audio-player--dock .wird-audio-player__header {
+
+/* Equal side columns enforce an exactly centered primary playback action,
+   regardless of Arabic label widths or the playback-speed setting. */
+.wird-audio-player--dock .wird-audio-player__minimal-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
   gap: 6px;
-  min-height: 28px;
-  padding: 0 2px;
+  direction: rtl;
+  min-height: 54px;
 }
-.wird-audio-player--dock .wird-audio-player__heading {
-  gap: 6px;
-  color: #f9edcf;
-  font-size: .83rem;
-  letter-spacing: 0;
-}
-.wird-audio-player--dock .wird-audio-player__heading svg { color: #e6c281; }
-.wird-audio-player__status-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 999px;
-  background: #b0c7b0;
-  box-shadow: 0 0 0 3px rgb(211 233 193 / .09);
-}
-.wird-audio-player--dock[data-playing="true"] .wird-audio-player__status-dot {
-  background: #e5c47f;
-  box-shadow: 0 0 0 4px rgb(234 196 127 / .14);
-}
-.wird-audio-player--dock .wird-audio-player__chapters { gap: 8px; }
 .wird-audio-player--dock .wird-audio-player__chapter {
-  min-height: 34px;
-  min-width: 34px;
-  font-size: .88rem;
-  color: #baccc0;
-  font-weight: 600;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 128px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 3px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: #d3ded2;
+  font: 600 clamp(.78rem, 3.15vw, .91rem)/1.45 "IBM Plex Sans Arabic", sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
 }
 .wird-audio-player--dock .wird-audio-player__chapter[aria-pressed="true"] {
-  color: #f8dc9d;
-  font-weight: 800;
+  color: #f5d99b;
+  font-weight: 700;
 }
 .wird-audio-player--dock .wird-audio-player__chapter[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
   bottom: 3px;
-  left: 28%;
-  right: 28%;
-  background: #e4bf7f;
+  width: 25px;
   height: 2px;
+  border-radius: 3px;
+  background: #e9c686;
 }
-.wird-audio-player--dock .wird-audio-player__body { padding-top: 1px; }
-.wird-audio-player--dock .wird-audio-player__timeline {
+.wird-audio-player--dock .wird-audio-player__play {
+  display: inline-grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  padding: 0;
+  border: 1px solid #f9e2ae;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f6dca6, #d8aa61);
+  color: #143e2e;
+  box-shadow: 0 3px 13px rgb(0 0 0 / .2), inset 0 1px rgb(255 248 226 / .65);
+  cursor: pointer;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.wird-audio-player--dock .wird-audio-player__play svg {
+  display: block;
+  width: 25px;
+  height: 25px;
+  stroke-width: 2.3;
+}
+.wird-audio-player--dock .wird-audio-player__play:active { transform: scale(.96); }
+.wird-audio-player--dock[data-playing="true"] .wird-audio-player__play {
+  box-shadow: 0 0 0 3px rgb(245 214 151 / .12), 0 3px 13px rgb(0 0 0 / .2);
+}
+
+/* Playback timeline, seeking and speed all share one narrow lower strip. */
+.wird-audio-player--dock .wird-audio-player__mini-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  direction: ltr;
+  width: 100%;
+  min-height: 29px;
   margin-top: 1px;
-  color: #cedbd1;
-  font-size: .69rem;
-  min-height: 16px;
 }
-.wird-audio-player--dock .wird-audio-player__clock { color: #f2e5c9; }
+.wird-audio-player--dock .wird-audio-player__clock {
+  flex: 0 0 auto;
+  min-width: 67px;
+  color: #e2e9de;
+  font-size: 10px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: left;
+}
 .wird-audio-player--dock .wird-audio-player__progress {
   appearance: none;
   -webkit-appearance: none;
   display: block;
-  width: 100%;
-  height: 20px;
-  margin: 1px 0 1px;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 24px;
+  margin: 0;
   padding: 0;
-  cursor: pointer;
   border: 0;
   background: transparent;
   accent-color: #e6c386;
   touch-action: pan-x;
+  cursor: pointer;
 }
+.wird-audio-player--dock .wird-audio-player__progress:disabled { opacity: .5; cursor: not-allowed; }
 .wird-audio-player--dock .wird-audio-player__progress::-webkit-slider-runnable-track {
-  height: 4px;
-  border: 0;
-  border-radius: 999px;
+  height: 3px;
+  border-radius: 99px;
   background: linear-gradient(to right,
-    #e8c588 0%,
-    #e8c588 var(--wird-progress, 0%),
-    rgb(240 247 232 / .26) var(--wird-progress, 0%),
-    rgb(240 247 232 / .26) 100%);
+    #f1d19a 0%, #f1d19a var(--wird-progress, 0%),
+    rgb(248 245 229 / .3) var(--wird-progress, 0%), rgb(248 245 229 / .3) 100%);
 }
 .wird-audio-player--dock .wird-audio-player__progress::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
   margin-top: -4.5px;
-  border: 2px solid #194432;
+  border: 2px solid #1d4d38;
   border-radius: 50%;
-  background: #f1d49b;
-  box-shadow: 0 0 0 2px rgb(241 212 155 / .18);
+  background: #f8ddac;
 }
 .wird-audio-player--dock .wird-audio-player__progress::-moz-range-track {
-  height: 4px;
-  border: 0;
-  border-radius: 999px;
-  background: rgb(240 247 232 / .26);
+  height: 3px;
+  border-radius: 99px;
+  background: rgb(248 245 229 / .3);
 }
 .wird-audio-player--dock .wird-audio-player__progress::-moz-range-progress {
-  height: 4px;
-  border-radius: 999px;
-  background: #e8c588;
+  height: 3px;
+  border-radius: 99px;
+  background: #f1d19a;
 }
 .wird-audio-player--dock .wird-audio-player__progress::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #194432;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #1d4d38;
   border-radius: 50%;
-  background: #f1d49b;
-}
-.wird-audio-player--dock .wird-audio-player__controls {
-  justify-content: space-around;
-  gap: 3px;
-  padding-inline: 0;
-  min-height: 48px;
-}
-.wird-audio-player--dock .wird-audio-player__icon-button {
-  color: #ebf0e4;
-  flex-basis: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  background: transparent;
-  border: 0;
-  border-radius: 12px;
-  box-shadow: none;
-}
-.wird-audio-player--dock .wird-audio-player__icon-button:hover:not(:disabled),
-.wird-audio-player--dock .wird-audio-player__icon-button:focus-visible {
-  color: #f4d28f;
-}
-.wird-audio-player--dock .wird-audio-player__icon-button:focus-visible,
-.wird-audio-player--dock .wird-audio-player__chapter:focus-visible,
-.wird-audio-player--dock .wird-audio-player__progress:focus-visible {
-  outline: 2px solid #f0d192;
-  outline-offset: -2px;
-}
-.wird-audio-player--dock .wird-audio-player__play {
-  flex-basis: 52px;
-  color: #f1cc88;
-  filter: drop-shadow(0 1px 4px rgb(230 186 116 / .15));
-}
-.wird-audio-player--dock .wird-audio-player__play svg {
-  width: 30px;
-  height: 30px;
+  background: #f8ddac;
 }
 .wird-audio-player--dock .wird-audio-player__speed {
-  color: #e8dbbb;
-  font-size: .82rem;
+  flex: 0 0 44px;
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  color: #f4dab0;
+  font: 700 .83rem/1.4 "IBM Plex Sans Arabic", sans-serif;
+  cursor: pointer;
 }
-.wird-audio-player--dock .wird-audio-player__skip-number {
-  top: 17px;
-  color: #ebf0e4;
+.wird-audio-player--dock .wird-audio-player__speed:hover { color: #fff0d2; }
+.wird-audio-player--dock :where(.wird-audio-player__chapter, .wird-audio-player__play, .wird-audio-player__speed, .wird-audio-player__progress):focus-visible {
+  outline: 2px solid #fff0c3;
+  outline-offset: 1px;
 }
 .wird-audio-player--dock .wird-audio-player__error {
-  padding: 6px 8px 3px;
-  color: #ffe1c8;
-  font-size: .72rem;
+  margin: 1px 0 0;
+  color: #ffe1ca;
+  font-size: .71rem;
+  text-align: center;
 }
 
-/* Reserve enough scrollable paper below the last rendered page to reveal it
-   completely ABOVE the dock. Keep floating index/fullscreen controls clickable
-   instead of letting the dock cover them. */
+/* The dock overlays the book by design. Reserve a readable end-of-book
+   scroll margin and keep the floating index/fullscreen control ABOVE it. */
 .book-reader-layout.book-reader--with-wird .book-reader-workspace :where(.book-pdf-stage, .offline-book-stage) {
-  padding-bottom: 190px;
-  scroll-padding-bottom: 175px;
+  padding-bottom: 170px;
+  scroll-padding-bottom: 165px;
 }
 .book-reader-layout.book-reader--with-wird .reader-floating-index {
-  bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(192px + env(safe-area-inset-bottom, 0px));
 }
 .book-reader-layout.book-reader--with-wird .reader-index-popover {
   max-height: min(48dvh, 460px);
 }
-
-/* The full-screen reader is a document.body portal. It must show the audio
-   dock at the physical bottom; the app navigation is behind fullscreen. */
+/* Fullscreen books use a body portal: the system nav is absent. */
 .book-reader--immersive > .wird-audio-player.wird-audio-player--dock {
   bottom: max(12px, env(safe-area-inset-bottom, 0px));
-  max-height: min(42dvh, 204px);
-  overflow-x: hidden;
+  max-height: min(35dvh, 124px);
 }
 .book-reader--immersive.book-reader--with-wird .reader-floating-index {
-  bottom: calc(155px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(132px + env(safe-area-inset-bottom, 0px));
 }
 @media (min-width: 1024px) {
   .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
     bottom: 18px;
-    width: min(500px, calc(100vw - 48px));
+    width: min(460px, calc(100vw - 48px));
   }
-  .book-reader--immersive > .wird-audio-player.wird-audio-player--dock {
-    bottom: 18px;
-  }
+  .book-reader--immersive > .wird-audio-player.wird-audio-player--dock { bottom: 18px; }
+  .book-reader-layout.book-reader--with-wird .reader-floating-index { bottom: 144px; }
 }
 @media (max-width: 359px) {
   .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
     width: calc(100vw - 12px);
     max-width: calc(100vw - 12px);
-    padding-inline: 9px;
-    border-radius: 17px;
+    padding-inline: 8px;
+    border-radius: 16px;
   }
-  .wird-audio-player--dock .wird-audio-player__heading { font-size: .78rem; }
-  .wird-audio-player--dock .wird-audio-player__controls { gap: 0; }
+  .wird-audio-player--dock .wird-audio-player__minimal-controls { gap: 2px; }
+  .wird-audio-player--dock .wird-audio-player__mini-bottom { gap: 5px; }
+  .wird-audio-player--dock .wird-audio-player__chapter { font-size: .77rem; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .wird-audio-player--dock .wird-audio-player__icon-button { transition: none; }
+  .wird-audio-player--dock .wird-audio-player__play { transition: none; }
 }
