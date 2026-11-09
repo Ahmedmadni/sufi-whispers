@@ -59,8 +59,12 @@ html.light .site-header .site-header__brand > span {
   border-color: #e1bd7c;
 }
 .site-header .rihab-header-action svg { color: currentColor; stroke-width: 2.3; }
+.site-header .rihab-header-action[aria-label="مجموعة الجمعية على فيسبوك"] {
+  background: #fffdf7;
+  border-color: #d9e0db;
+}
 .site-header .rihab-header-action[aria-label="مجموعة الجمعية على فيسبوك"] svg {
-  color: #bcd6ff;
+  color: #0866ff;
 }
 .site-header :where(.rihab-header-link, .rihab-header-action, .site-header__brand):focus-visible {
   outline: 3px solid #f1d48f;
