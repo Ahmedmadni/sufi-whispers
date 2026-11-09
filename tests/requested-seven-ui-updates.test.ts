@@ -57,13 +57,13 @@ describe("Seven requested interface revisions", () => {
     expect(readerCss).not.toContain(".book-reader--chrome-hidden .reader-page-stepper__popover");
     expect(readerCss).not.toContain(".book-reader--immersive .reader-page-stepper__popover");
   });
-  test("all interface typography uses IBM Plex Sans Arabic with authentic Quran exception", () => {
+  test("approved Cairo headings and IBM body preserve the authentic Quran script", () => {
     const root=read("src/routes/__root.tsx");
     const styles=read("src/styles.css");
     const androidSplash=read("mobile/index.html");
-    expect(root).toContain("family=IBM+Plex+Sans+Arabic");
+    expect(root).toContain("family=Cairo:wght@600;700&family=IBM+Plex+Sans+Arabic");
     expect(root).not.toContain("Noto+Kufi+Arabic");
-    expect(styles).toContain('--font-display: "IBM Plex Sans Arabic"');
+    expect(styles).toContain('--font-display: "Cairo", "IBM Plex Sans Arabic"');
     expect(styles).toContain('--font-body: "IBM Plex Sans Arabic"');
     expect(androidSplash).toContain('font-family: "IBM Plex Sans Arabic"');
     expect(styles).toContain('font-family: "UthmanicHafs"');
