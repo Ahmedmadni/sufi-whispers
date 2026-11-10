@@ -2,15 +2,10 @@ import { motion, useReducedMotion } from "framer-motion";
 import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
-import approvedScene0 from "@/assets/approved-poster-scene-part0";
-import approvedScene1 from "@/assets/approved-poster-scene-part1";
-import approvedScene2 from "@/assets/approved-poster-scene-part2";
-import approvedScene3 from "@/assets/approved-poster-scene-part3";
+import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp";
 
 // This is the exact approved description, not a shortened or invented title.
 const SHAYKH_BANNER = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
-// Verified WebP from the approved user poster (scene only); text stays HTML.
-const approvedSceneImage = "data:image/webp;base64," + approvedScene0 + approvedScene1 + approvedScene2 + approvedScene3;
 
 export function HomeHero() {
   const reducedMotion = useReducedMotion();
