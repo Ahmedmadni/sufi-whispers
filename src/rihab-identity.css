@@ -957,3 +957,26 @@ html.light .dhikr-stage .dhikr-dial__button:focus-visible { outline: 3px solid #
 @media (prefers-reduced-motion: reduce) {
   .rihab-shortcut-card, .rihab-book-tile, .wird-audio-player__play { transition: none !important; }
 }
+
+
+/* Keep the approved real-photo hero bright like the reference poster while
+   the NAME remains semantic text, never a flattened AI-generated caption. */
+@media (max-width: 640px) {
+  .hero-sequence--approved-mobile { background-color: var(--rihab-brand-emerald-900); }
+  .hero-sequence--approved-mobile .hero-scene img {
+    filter: saturate(1.08) contrast(1.035);
+  }
+  .hero-sequence--approved-mobile .hero-scene > div {
+    background: linear-gradient(180deg,
+      rgb(7 54 47 / .18), rgb(7 54 47 / .05) 37%, rgb(7 54 47 / .54) 100%);
+  }
+  .hero-sequence--approved-mobile .hero-heading {
+    background: linear-gradient(145deg, rgb(7 54 47 / .965), rgb(4 38 33 / .96));
+    border-color: var(--rihab-brand-gold-400);
+  }
+  .hero-sequence--approved-mobile .hero-mandate__frame,
+  html.light .hero-sequence--approved-mobile .hero-mandate__frame {
+    background: linear-gradient(145deg, rgb(7 54 47 / .975), rgb(5 42 37 / .985));
+    border-color: var(--rihab-brand-gold-400);
+  }
+}
