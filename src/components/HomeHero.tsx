@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
+import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp";
 
 // This is the exact approved description, not a shortened or invented title.
 const SHAYKH_BANNER = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
@@ -24,6 +25,16 @@ export function HomeHero() {
         <div className="absolute inset-0 bg-gradient-to-b from-velvet/80 via-velvet/55 to-velvet/95 sm:bg-gradient-to-l sm:from-velvet/95 sm:via-velvet/70 sm:to-velvet/45" />
       </div>
 
+      <img
+        src={approvedSceneImage}
+        alt=""
+        width={360}
+        height={448}
+        loading="eager"
+        decoding="async"
+        className="hero-approved-scene"
+        aria-hidden="true"
+      />
       <div className="hero-geometry" aria-hidden="true" />
       <div className="hero-glow" aria-hidden="true" />
 
@@ -72,7 +83,11 @@ export function HomeHero() {
         <div className="hero-mandate__frame">
           {/* The chosen mobile layout renders the owner's exact name as real
               selectable Arabic text, not a generated bitmap inscription. */}
-          <p className="hero-mandate__mobile" aria-hidden="true">{SHAYKH_BANNER}</p>
+          <p className="hero-mandate__mobile" aria-hidden="true">
+            <span className="hero-mandate__kicker">تحت لواء فضيلة العارف بالله</span>
+            <span className="hero-mandate__name">سيدي الشيخ صالح أحمد الشافعي</span>
+            <span className="hero-mandate__surname">محمد محمد أبو خليل</span>
+          </p>
           {/* One copy is available to screen readers at every breakpoint. */}
           <p className="sr-only">{SHAYKH_BANNER}</p>
           <div className="hero-mandate__viewport" aria-hidden="true">

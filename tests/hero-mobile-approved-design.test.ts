@@ -8,7 +8,10 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     const exact = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
     expect(hero).toContain(exact);
     expect(hero).toContain('<p className="sr-only">{SHAYKH_BANNER}</p>');
-    expect(hero).toContain('<p className="hero-mandate__mobile" aria-hidden="true">{SHAYKH_BANNER}</p>');
+    expect(hero).toContain('<p className="hero-mandate__mobile" aria-hidden="true">');
+    expect(hero).toContain('<span className="hero-mandate__kicker">تحت لواء فضيلة العارف بالله</span>');
+    expect(hero).toContain('<span className="hero-mandate__name">سيدي الشيخ صالح أحمد الشافعي</span>');
+    expect(hero).toContain('<span className="hero-mandate__surname">محمد محمد أبو خليل</span>');
     expect(hero).toContain('alt="فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(hero).not.toContain("صالح الجعفري الخلوتي");
     expect(hero).not.toContain("المنصة الرسمية لفضيلة الشيخ");
@@ -30,8 +33,11 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     expect(css).toContain("@media (max-width: 640px)");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-intro { display: none; }");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-mandate__viewport { display: none; }");
-    expect(css).toContain("height: clamp(560px, calc(100svh - 116px), 780px)");
-    expect(css).toContain("object-position: 68% center");
+    expect(css).toContain("height: clamp(580px, calc(100svh - 115px), 820px)");
+    expect(css).toContain(".hero-sequence--approved-mobile .hero-approved-scene {");
+    expect(css).toContain("object-position: center 0%;");
+    expect(hero).toContain('className="hero-approved-scene"');
+    expect(hero).toContain("src={approvedSceneImage}");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-scene {");
     expect(css).toContain("animation: none;");
     expect(hero).toContain("hero-mandate__duplicate");
@@ -40,12 +46,14 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
   });
 
   test("Arabic text is an actual Cairo/Ruqaa webfont layout and not AI-written pixels", () => {
-    expect(css).toContain('font-family: "Aref Ruqaa Ink", "Cairo", "IBM Plex Sans Arabic", serif');
+    expect(css).toContain('font-family: "Amiri", "Cairo", serif');
+    expect(css).not.toContain('font-family: "Aref Ruqaa Ink"');
     expect(css).toContain(".hero-sequence--approved-mobile .hero-mandate__mobile");
     expect(css).toContain("text-wrap: balance");
     expect(css).toContain("white-space: normal");
     expect(css).toContain("overflow-wrap: normal");
-    expect(css).toContain("color: #fff2d6");
+    expect(css).toContain("-webkit-text-fill-color: #fff8ec");
+    expect(css).toContain("-webkit-text-fill-color: #f0d79a");
     expect(hero).toContain('id="home-title"');
     expect(readFileSync("src/styles.css", "utf8")).toContain('url("/fonts/aref-ruqaa-ink-regular.ttf")');
   });
