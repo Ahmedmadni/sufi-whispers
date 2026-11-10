@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="480" viewBox="0 0 940 480" preserveAspectRatio="none" aria-hidden="true">
+  <!-- Custom vector recreation of the user's approved ornate cartouche: scalloped pointed sides, enamel-green core, double gilded rim and mirrored palmettes. No generated Arabic text is embedded. -->
+  <defs>
+    <linearGradient id="plaque" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b5548"/><stop offset=".45" stop-color="#003a32"/><stop offset="1" stop-color="#002a25"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#ffecb3"/><stop offset=".23" stop-color="#d6a757"/><stop offset=".5" stop-color="#f9d991"/><stop offset=".75" stop-color="#b67e31"/><stop offset="1" stop-color="#f2c87a"/></linearGradient>
+    <radialGradient id="shine" cx=".45" cy=".15" r=".9"><stop offset="0" stop-color="#21816b" stop-opacity=".31"/><stop offset=".64" stop-color="#006349" stop-opacity=".09"/><stop offset="1" stop-color="#001b17" stop-opacity=".13"/></radialGradient>
+  </defs>
+  <path id="outline" d="M 15 255 L 33 242 C 39 220 52 206 79 204 C 93 174 124 156 199 151 C 210 118 238 105 293 105 L 647 105 C 702 105 731 118 743 151 C 812 153 847 175 862 204 C 888 205 903 223 908 241 L 926 255 L 908 270 C 901 296 891 316 862 319 C 846 349 815 371 743 376 C 732 407 702 417 647 417 L 293 417 C 238 417 210 407 199 376 C 127 372 94 351 79 319 C 50 315 40 297 33 270 Z" fill="url(#plaque)" stroke="#784d20" stroke-width="10" stroke-linejoin="round"/>
+  <use href="#outline" fill="none" stroke="url(#gold)" stroke-width="5"/>
+  <path d="M 15 255 L 33 242 C 39 220 52 206 79 204 C 93 174 124 156 199 151 C 210 118 238 105 293 105 L 647 105 C 702 105 731 118 743 151 C 812 153 847 175 862 204 C 888 205 903 223 908 241 L 926 255 L 908 270 C 901 296 891 316 862 319 C 846 349 815 371 743 376 C 732 407 702 417 647 417 L 293 417 C 238 417 210 407 199 376 C 127 372 94 351 79 319 C 50 315 40 297 33 270 Z" fill="url(#shine)"/>
+  <g stroke="#86561d" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M470 38 C458 58 448 65 455 77 C462 88 469 94 470 103 C472 93 478 87 484 76 C490 65 481 54 470 38 Z" fill="url(#gold)"/>
+  <path d="M463 94 C449 68 425 68 419 83 C410 104 438 111 445 97 C449 88 438 83 433 91" fill="none"/>
+  <path d="M477 94 C491 68 515 68 521 83 C530 104 502 111 495 97 C491 88 502 83 507 91" fill="none"/>
+  <path d="M420 101 C407 93 399 99 405 107 C414 118 435 107 445 103" fill="none"/>
+  <path d="M520 101 C533 93 541 99 535 107 C526 118 505 107 495 103" fill="none"/>
+</g>
+<g stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M470 38 C458 58 448 65 455 77 C462 88 469 94 470 103 C472 93 478 87 484 76 C490 65 481 54 470 38 Z" fill="#004b3c"/>
+  <path d="M463 94 C449 68 425 68 419 83 C410 104 438 111 445 97 C449 88 438 83 433 91" fill="none"/>
+  <path d="M477 94 C491 68 515 68 521 83 C530 104 502 111 495 97 C491 88 502 83 507 91" fill="none"/>
+  <path d="M420 101 C407 93 399 99 405 107 C414 118 435 107 445 103" fill="none"/>
+  <path d="M520 101 C533 93 541 99 535 107 C526 118 505 107 495 103" fill="none"/>
+</g>
+  <g transform="translate(0 480) scale(1 -1)"><g stroke="#86561d" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M470 38 C458 58 448 65 455 77 C462 88 469 94 470 103 C472 93 478 87 484 76 C490 65 481 54 470 38 Z" fill="url(#gold)"/>
+  <path d="M463 94 C449 68 425 68 419 83 C410 104 438 111 445 97 C449 88 438 83 433 91" fill="none"/>
+  <path d="M477 94 C491 68 515 68 521 83 C530 104 502 111 495 97 C491 88 502 83 507 91" fill="none"/>
+  <path d="M420 101 C407 93 399 99 405 107 C414 118 435 107 445 103" fill="none"/>
+  <path d="M520 101 C533 93 541 99 535 107 C526 118 505 107 495 103" fill="none"/>
+</g>
+<g stroke="url(#gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M470 38 C458 58 448 65 455 77 C462 88 469 94 470 103 C472 93 478 87 484 76 C490 65 481 54 470 38 Z" fill="#004b3c"/>
+  <path d="M463 94 C449 68 425 68 419 83 C410 104 438 111 445 97 C449 88 438 83 433 91" fill="none"/>
+  <path d="M477 94 C491 68 515 68 521 83 C530 104 502 111 495 97 C491 88 502 83 507 91" fill="none"/>
+  <path d="M420 101 C407 93 399 99 405 107 C414 118 435 107 445 103" fill="none"/>
+  <path d="M520 101 C533 93 541 99 535 107 C526 118 505 107 495 103" fill="none"/>
+</g></g>
+  <path d="M14 255 L40 242 L30 255 L40 269 Z" fill="url(#gold)" stroke="#875b25" stroke-width="2"/>
+  <path d="M926 255 L900 242 L910 255 L900 269 Z" fill="url(#gold)" stroke="#875b25" stroke-width="2"/>
+  <path d="M14 255 L35 255 M926 255 L905 255" stroke="#fee4a0" stroke-width="2" stroke-linecap="round"/>
+</svg>
