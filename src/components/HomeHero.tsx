@@ -3,6 +3,7 @@ import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
 import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp";
+import approvedNameFrame from "@/assets/rihab-ornate-name-frame.svg";
 
 // This is the exact approved description, not a shortened or invented title.
 const SHAYKH_BANNER = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
@@ -81,6 +82,16 @@ export function HomeHero() {
 
       <div className="hero-mandate absolute inset-x-0 bottom-0 z-30" dir="rtl" aria-label="كلمة التعريف بالشيخ">
         <div className="hero-mandate__frame">
+          {/* Ornament is visually matched to the approved poster; no words
+              are rasterized into this frame, so the name stays accurate. */}
+          <img
+            src={approvedNameFrame}
+            alt=""
+            aria-hidden="true"
+            width={940}
+            height={480}
+            className="hero-mandate__ornate-art"
+          />
           {/* The chosen mobile layout renders the owner's exact name as real
               selectable Arabic text, not a generated bitmap inscription. */}
           <p className="hero-mandate__mobile" aria-hidden="true">
