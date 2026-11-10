@@ -32,6 +32,8 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     expect(css).toContain(".hero-sequence--approved-mobile .hero-mandate__viewport { display: none; }");
     expect(css).toContain("height: clamp(560px, calc(100svh - 116px), 780px)");
     expect(css).toContain("object-position: 68% center");
+    expect(css).toContain(".hero-sequence--approved-mobile .hero-scene {");
+    expect(css).toContain("animation: none;");
     expect(hero).toContain("hero-mandate__duplicate");
     expect(hero).toContain('src={logo}');
     expect(css).toContain('@media (max-width: 359px)');
