@@ -1,12 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
-import chunk0 from "../src/assets/approved-poster-scene-part0";
-import chunk1 from "../src/assets/approved-poster-scene-part1";
-import chunk2 from "../src/assets/approved-poster-scene-part2";
-import chunk3 from "../src/assets/approved-poster-scene-part3";
-
-const poster = Buffer.from(chunk0 + chunk1 + chunk2 + chunk3, "base64");
+const poster = readFileSync("src/assets/rihab-approved-mobile-scene.webp");
 const css = readFileSync("src/rihab-identity.css", "utf8");
 const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 
@@ -19,7 +14,7 @@ describe("approved user-poster actual imagery and text correctness", () => {
       .toBe("c6a290ee5dd29fbb26b49ac9183cac7463c3dcfa6474f0770a796c56be014b79");
     expect(hero).toContain('className="hero-approved-scene"');
     expect(hero).toContain("src={approvedSceneImage}");
-    expect(hero).toContain('"data:image/webp;base64,"');
+    expect(hero).toContain('import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp"');
   });
 
   test("original assets stay intact for desktop and the actual poster is shown on mobile", () => {
