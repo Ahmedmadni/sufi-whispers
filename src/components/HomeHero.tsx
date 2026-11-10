@@ -10,7 +10,7 @@ export function HomeHero() {
   const reducedMotion = useReducedMotion();
 
   return (
-    <section className="hero-sequence hero-sequence--mandate relative isolate min-h-[min(610px,calc(100svh-8rem))] overflow-hidden border-b border-gold/25 bg-velvet sm:min-h-[650px]" aria-labelledby="home-title">
+    <section className="hero-sequence hero-sequence--mandate hero-sequence--approved-mobile relative isolate min-h-[min(610px,calc(100svh-8rem))] overflow-hidden border-b border-gold/25 bg-velvet sm:min-h-[650px]" aria-labelledby="home-title">
       <div className="hero-scene absolute inset-0" aria-hidden="true">
         <img
           src={heroNabawi}
@@ -59,7 +59,7 @@ export function HomeHero() {
 
       <motion.img
         src={shaykhSaleh}
-        alt="فضيلة الشيخ صالح أبو خليل"
+        alt="فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"
         width={848}
         height={1264}
         initial={reducedMotion ? false : { opacity: 0, y: 14 }}
@@ -70,7 +70,10 @@ export function HomeHero() {
 
       <div className="hero-mandate absolute inset-x-0 bottom-0 z-30" dir="rtl" aria-label="كلمة التعريف بالشيخ">
         <div className="hero-mandate__frame">
-          {/* A non-animated, single copy is always available to assistive technologies. */}
+          {/* The chosen mobile layout renders the owner's exact name as real
+              selectable Arabic text, not a generated bitmap inscription. */}
+          <p className="hero-mandate__mobile" aria-hidden="true">{SHAYKH_BANNER}</p>
+          {/* One copy is available to screen readers at every breakpoint. */}
           <p className="sr-only">{SHAYKH_BANNER}</p>
           <div className="hero-mandate__viewport" aria-hidden="true">
             <div className="hero-mandate__track">
