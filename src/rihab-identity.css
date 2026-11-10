@@ -657,7 +657,7 @@ html.light .bottom-nav .rihab-nav-item--featured .bottom-nav-fab {
     margin: 0;
     color: #fff1ca;
     text-align: center;
-    font-family: "Aref Ruqaa Ink", "Cairo", "IBM Plex Sans Arabic", serif;
+    font-family: "Amiri", "Cairo", "IBM Plex Sans Arabic", serif;
     font-weight: 400;
     font-size: clamp(2.1rem, 8.5vw, 3.4rem);
     line-height: 1.5;
@@ -717,7 +717,7 @@ html.light .bottom-nav .rihab-nav-item--featured .bottom-nav-fab {
     display: block;
     width: 100%;
     margin: 0;
-    font-family: "Aref Ruqaa Ink", "Cairo", "IBM Plex Sans Arabic", serif;
+    font-family: "Amiri", "Cairo", "IBM Plex Sans Arabic", serif;
     font-weight: 400;
     font-size: clamp(1.26rem, 5.25vw, 1.78rem);
     line-height: 1.9;
