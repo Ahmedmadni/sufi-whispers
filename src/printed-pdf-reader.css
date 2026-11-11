@@ -896,10 +896,10 @@ body:has(.book-reading-page) { margin: 0; }
 /* When the wird audio player is docked at the bottom, lift the floating
    buttons so they sit directly above the player instead of overlapping it. */
 .book-reader--with-wird .reader-floating-index {
-  bottom: calc(196px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(128px + env(safe-area-inset-bottom, 0px));
 }
 .book-reader--with-wird :where(.book-pdf-stage, .offline-book-stage) {
-  padding-bottom: 250px;
+  padding-bottom: 186px;
 }
 .reader-floating-index :where(.reader-icon-button, .reader-floating-index__button) {
   display: inline-flex; align-items: center; justify-content: center;
