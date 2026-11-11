@@ -86,18 +86,40 @@ function VerseCardDialog({ bookId, page, open, onOpenChange }: Props & { open: b
 
   const save = async () => {
     const blob = await getBlob();
-    if (!blob) return;
-    const file = new File([blob], fileName, { type: "image/png" });
-    // Android apps often ignore downloads; the share sheet offers "Save to gallery".
-    if (import.meta.env.VITE_MOBILE === "true" && navigator.canShare?.({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: title || "بطاقة أبيات" }); } catch { /* cancelled */ }
+    if (!blob) {
+      toast.error("تعذّر تجهيز صورة البطاقة");
       return;
     }
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 2000);
-    toast.success("حُفظت البطاقة على جهازك");
+    const file = new File([blob], fileName, { type: "image/png" });
+    const isAndroid = import.meta.env.VITE_MOBILE === "true";
+    // On Android WebView, file downloads are not guaranteed. Prefer the native
+    // share sheet when the Web Share API supports files: the user can choose a
+    // device-specific Save image / Files destination there.
+    if (isAndroid && navigator.canShare?.({ files: [file] })) {
+      try {
+        await navigator.share({ files: [file], title: title || "بطاقة أبيات" });
+        return;
+      } catch (error) {
+        if ((error as Error)?.name === "AbortError") return;
+        // Some WebViews claim file-share support but cannot start a chooser.
+        // Fall through to the download attempt instead of silently failing.
+      }
+    }
+    try {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 30_000);
+      toast.info(isAndroid
+        ? "تم طلب تنزيل البطاقة. تحقق من التنزيلات؛ إذا لم تظهر فجرب المشاركة."
+        : "بدأ تنزيل البطاقة، تحقق من مجلد التنزيلات.");
+    } catch {
+      toast.error("تعذّر تنزيل البطاقة على هذا الجهاز؛ جرّب المشاركة أو نسخ الأبيات");
+    }
   };
 
   const share = async () => {
