@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { VerseCardButton } from "@/components/VerseCardDialog";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { availableReaderWidth, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
@@ -252,6 +253,7 @@ export default function OfflineBookPages({ bookId }: Props) {
           <BookQuickIndex compact maxPage={maxPage} page={page}
             headings={entry?.toc?.length ? entry.toc : verifiedNafahatKhaliliyyaHeadings(bookId, maxPage, entry?.sourceSha256)}
             onJump={goTo} />
+          <VerseCardButton bookId={bookId} page={page} />
           <Button variant="outline" size="icon" type="button" onClick={() => setImmersive(value => !value)}
             className="reader-floating-index__button" aria-label={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}
             title={immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة"}>
