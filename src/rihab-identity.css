@@ -1263,3 +1263,58 @@ html.light .dhikr-stage .dhikr-dial__button:focus-visible { outline: 3px solid #
     font-size: 1.13rem;
   }
 }
+
+
+/* 2026-11-11 Lovable follow-through: the reader viewport ends ABOVE the
+   global bottom nav, but the Wird dock is positioned relative to the actual
+   viewport. Using position:absolute for the buttons added the 60–75px gap
+   seen in Lovable even when bottom was changed there. Give both surfaces
+   the SAME fixed positioning origin and share the dock geometry. This rule
+   must load after printed-pdf-reader.css and earlier identity overrides. */
+.book-reader-layout.book-reader--with-wird {
+  --wird-dock-viewport-bottom: 77px;
+  --wird-dock-visual-height: 102px;
+  --wird-reader-toolbar-gap: 8px;
+}
+.book-reader-layout.book-reader--with-wird .reader-floating-index {
+  position: fixed;
+  top: auto;
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: calc(
+    var(--wird-dock-viewport-bottom) +
+    var(--wird-dock-visual-height) +
+    var(--wird-reader-toolbar-gap) +
+    env(safe-area-inset-bottom, 0px)
+  );
+  z-index: 160;
+}
+/* Stable dock geometry: 54px controls + 29px seek + 17px chrome = ~100px.
+   The shared 102px value leaves a buffer for fractional font metrics. */
+.book-reader-layout.book-reader--with-wird > .wird-audio-player.wird-audio-player--compact.wird-audio-player--dock {
+  bottom: calc(var(--wird-dock-viewport-bottom) + env(safe-area-inset-bottom, 0px));
+  min-height: var(--wird-dock-visual-height);
+}
+.book-reader-layout.book-reader--with-wird .book-reader-workspace :where(.book-pdf-stage, .offline-book-stage) {
+  padding-bottom: 206px;
+  scroll-padding-bottom: 195px;
+}
+/* The full-screen portal has no bottom navigation, so the same relationship
+   is kept but anchored 12px above the device's gesture/safe area. */
+.book-reader-layout.book-reader--immersive.book-reader--with-wird {
+  --wird-dock-viewport-bottom: 12px;
+}
+@media (min-width: 1024px) {
+  .book-reader-layout.book-reader--with-wird {
+    --wird-dock-viewport-bottom: 18px;
+  }
+  .book-reader-layout.book-reader--immersive.book-reader--with-wird {
+    --wird-dock-viewport-bottom: 18px;
+  }
+}
+/* A popover must appear above the buttons, not below them or under the dock. */
+.book-reader-layout.book-reader--with-wird .reader-floating-index .reader-index-popover {
+  bottom: calc(100% + 8px);
+  max-height: min(46dvh, 440px);
+  overscroll-behavior: contain;
+}
