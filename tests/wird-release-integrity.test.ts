@@ -13,12 +13,12 @@ describe("Wird audio release version and immutable media identity", () => {
       expect(createHash("sha256").update(readFileSync(path)).digest("hex")).toBe(sha);
     }
   });
-  test("corrected reader release uses Android version code 14 and independent Windows 1.0.13 package", () => {
+  test("current Android update uses 1.0.14 code 15 while Windows keeps independent 1.0.13", () => {
     const android = JSON.parse(readFileSync("config/android-release.json", "utf8"));
     const desktop = JSON.parse(readFileSync("desktop/package.json", "utf8"));
     expect(android.applicationId).toBe("com.rihabalkhaliliyya.app");
-    expect(android.versionName).toBe("1.0.13");
-    expect(android.versionCode).toBe(14);
+    expect(android.versionName).toBe("1.0.14");
+    expect(android.versionCode).toBe(15);
     expect(desktop.version).toBe("1.0.13");
   });
   test("release verifiers inspect both tracks inside APK/AAB and desktop files", () => {
