@@ -4,6 +4,7 @@ import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
 import { BookReaderLayout, useBookImmersive, useBookReaderChrome } from "@/components/BookReaderLayout";
 import { BookQuickIndex } from "@/components/BookQuickIndex";
+import { VerseCardButton } from "@/components/VerseCardDialog";
 import { ContinuousBookStack, type ContinuousBookHandle } from "@/components/ContinuousBookStack";
 import { availableReaderWidth, sourcePageRatio, createContinuousLayout, persistReaderMode, type ReaderMode } from "@/lib/reader-continuous";
 import { verifiedNafahatKhaliliyyaHeadings } from "@/lib/nafahat-khaliliyya-index";
@@ -348,6 +349,7 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
               headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
               onJump={goTo} />
           )}
+          <VerseCardButton bookId={bookId} page={page} />
           <Button variant="outline" size="icon"
             type="button"
             onClick={fullscreen}
