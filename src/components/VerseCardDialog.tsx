@@ -137,8 +137,8 @@ function VerseCardDialog({ bookId, page, open, onOpenChange }: Props & { open: b
 
         <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
           <div className="space-y-3">
-            <Textarea value={text} onChange={e => setText(e.target.value)} rows={6} dir="rtl"
-              aria-label="الأبيات" className="min-h-[140px] resize-y text-base leading-loose"
+            <Textarea value={text} onChange={e => setText(e.target.value)} rows={4} dir="rtl"
+              aria-label="الأبيات" className="min-h-[110px] resize-y text-base leading-loose"
               placeholder={"أتاني زماني بما أرتضي | فبالله يا دهر لا تنقضي"} />
             <p className="text-xs text-muted-foreground">
               {hasVerses ? `${lines.length} من ${VERSE_CARD_MAX_LINES} أبيات كحد أقصى` : `حتى ${VERSE_CARD_MAX_LINES} أبيات`}
@@ -168,11 +168,11 @@ function VerseCardDialog({ bookId, page, open, onOpenChange }: Props & { open: b
             </fieldset>
           </div>
 
-          <div className="flex flex-col items-center gap-3">
+          <div className="order-first flex flex-col items-center gap-3 md:order-none">
             <div className="flex w-full items-center justify-center rounded-xl border border-border bg-muted/40 p-2">
               {preview ? (
                 <img src={preview} alt="معاينة بطاقة الأبيات"
-                  className={format === "story" ? "max-h-[46dvh] w-auto rounded-lg" : "w-full max-w-[340px] rounded-lg"} />
+                  className={format === "story" ? "max-h-[42dvh] w-auto rounded-lg" : "w-full max-w-[300px] rounded-lg"} />
               ) : (
                 <div className="aspect-square w-full max-w-[340px] animate-pulse rounded-lg bg-muted" />
               )}
