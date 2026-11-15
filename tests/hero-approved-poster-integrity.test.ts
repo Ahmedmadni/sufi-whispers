@@ -6,14 +6,21 @@ const css = readFileSync("src/rihab-identity.css", "utf8");
 const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 
 describe("approved user-poster actual imagery and text correctness", () => {
-  test("the original user-approved blue-sky and Sheikh-scene raster is faithfully transferred", () => {
-    expect(poster.byteLength).toBe(10456);
+  test("the sharp user-approved Sheikh-scene raster is losslessly transported into GitHub", () => {
+    expect(poster.byteLength).toBe(105244);
     expect(poster.subarray(0, 4).toString()).toBe("RIFF");
     expect(poster.subarray(8, 12).toString()).toBe("WEBP");
+    // Native VP8 width and height prove this is not the original 360px thumbnail.
+    expect(poster.subarray(12, 16).toString()).toBe("VP8 ");
+    expect(poster.readUInt16LE(26) & 0x3fff).toBe(800);
+    expect(poster.readUInt16LE(28) & 0x3fff).toBe(935);
     expect(createHash("sha256").update(poster).digest("hex"))
-      .toBe("c6a290ee5dd29fbb26b49ac9183cac7463c3dcfa6474f0770a796c56be014b79");
+      .toBe("cd20b2fee2ded511f0aea10a0287096a86cd64eb4272ac244fbd957c71fa9bb9");
     expect(hero).toContain('className="hero-approved-scene"');
     expect(hero).toContain("src={approvedSceneImage}");
+    expect(hero).toContain("width={800}");
+    expect(hero).toContain("height={935}");
+    expect(hero).toContain('fetchPriority="high"');
     expect(hero).toContain('import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp"');
   });
 

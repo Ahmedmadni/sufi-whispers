@@ -29,10 +29,11 @@ export function HomeHero() {
       <img
         src={approvedSceneImage}
         alt=""
-        width={360}
-        height={448}
+        width={800}
+        height={935}
         loading="eager"
         decoding="async"
+        fetchPriority="high"
         className="hero-approved-scene"
         aria-hidden="true"
       />
