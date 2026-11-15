@@ -1036,3 +1036,35 @@ html.light .dhikr-stage .dhikr-dial__button:focus-visible { outline: 3px solid #
   max-height: min(46dvh, 440px);
   overscroll-behavior: contain;
 }
+
+
+/* 2026-11-15 — The owner approved the FULL, corrected HD poster including
+   its exact Arabic inscription and decorative gold plaque. Unlike the older
+   scene-only crop, this is one finished artwork. Show the ENTIRE raster on
+   phones, in its natural ratio, with no cropped bottom and no duplicate label.
+   Keep original scenic desktop hero and authentic reading materials intact. */
+@media (max-width: 640px) {
+  .hero-sequence--approved-mobile {
+    min-height: 0 !important;
+    height: auto !important;
+    background: #07362f;
+  }
+  .hero-sequence--approved-mobile::after {
+    content: none !important;
+    display: none !important;
+  }
+  .hero-sequence--approved-mobile .hero-approved-scene {
+    position: relative;
+    inset: auto;
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    aspect-ratio: 941 / 1672;
+    object-fit: contain;
+    object-position: center;
+    opacity: 1;
+    filter: none;
+    image-rendering: auto;
+  }
+}
