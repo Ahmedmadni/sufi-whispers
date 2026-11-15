@@ -22,16 +22,42 @@ export function HomeHero() {
         <div className="absolute inset-0 bg-gradient-to-b from-velvet/80 via-velvet/55 to-velvet/95 sm:bg-gradient-to-l sm:from-velvet/95 sm:via-velvet/70 sm:to-velvet/45" />
       </div>
 
-      <img
-        src={approvedSceneImage}
-        alt="تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"
-        width={941}
-        height={1672}
-        loading="eager"
-        decoding="async"
-        fetchPriority="high"
-        className="hero-approved-scene"
-      />
+      {/* Approved mobile poster with a precise vector patch to the missing
+          dot above خ in «الشيخ». The base image and all other pixels remain
+          unchanged; unlike an approximate rerender, this is deterministic. */}
+      <div className="hero-approved-poster-frame">
+        <img
+          src={approvedSceneImage}
+          alt="تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"
+          width={941}
+          height={1672}
+          loading="eager"
+          decoding="async"
+          fetchPriority="high"
+          className="hero-approved-scene"
+        />
+        <svg
+          className="hero-approved-kha-correction"
+          viewBox="0 0 941 1672"
+          width="941"
+          height="1672"
+          preserveAspectRatio="xMidYMin meet"
+          focusable="false"
+          aria-hidden="true"
+        >
+          <path
+            d="M 586.7 1298.9 L 591.8 1304.3 L 586.7 1309.7 L 581.6 1304.3 Z"
+            fill="#00100e"
+            opacity="0.28"
+          />
+          <path
+            d="M 585.5 1297.6 L 590.6 1303 L 585.5 1308.4 L 580.4 1303 Z"
+            fill="#fcfaf8"
+            stroke="#dcdcd8"
+            strokeWidth="0.45"
+          />
+        </svg>
+      </div>
       <div className="hero-geometry" aria-hidden="true" />
       <div className="hero-glow" aria-hidden="true" />
 
