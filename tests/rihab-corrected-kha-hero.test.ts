@@ -1,48 +1,42 @@
 import { describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 
 const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 const css = readFileSync("src/rihab-identity.css", "utf8");
+const poster = readFileSync("src/assets/rihab-approved-full-mobile-poster.webp");
 
-describe("Approved full-height poster — precise Arabic khāʾ dot", () => {
-  test("the exact approved photo and golden-name plaque stay visible as one 941×1672 image", () => {
+describe("Approved full-height poster — baked Arabic khāʾ correction", () => {
+  test("the corrected graphic is a standalone, lossless 941×1672 WebP asset", () => {
+    expect(poster.length).toBe(1431622);
+    expect(poster.subarray(0, 4).toString()).toBe("RIFF");
+    expect(poster.subarray(8, 12).toString()).toBe("WEBP");
+    expect(poster.subarray(12, 16).toString()).toBe("VP8L");
+    expect((poster.readUInt32LE(21) & 0x3fff) + 1).toBe(941);
+    expect(((poster.readUInt32LE(21) >>> 14) & 0x3fff) + 1).toBe(1672);
+    expect(createHash("sha256").update(poster).digest("hex"))
+      .toBe("3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598");
+  });
+
+  test("the literal approved poster is used as one image, without floating text or correction overlay", () => {
     expect(hero).toContain('import approvedSceneImage from "@/assets/rihab-approved-full-mobile-poster.webp"');
     expect(hero).toContain('src={approvedSceneImage}');
-    expect(hero).toContain('className="hero-approved-poster-frame"');
     expect(hero).toContain('className="hero-approved-scene"');
-    expect(hero).toContain('width={941}');
-    expect(hero).toContain('height={1672}');
+    expect(hero).toContain("width={941}");
+    expect(hero).toContain("height={1672}");
+    expect(hero).toContain("سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل");
+    expect(hero).not.toContain("hero-approved-kha-correction");
+    expect(hero).not.toContain("hero-approved-poster-frame");
     expect(hero).not.toContain("hero-mandate");
+    expect(css).not.toContain(".hero-approved-kha-correction");
+    expect(css).not.toContain(".hero-approved-poster-frame");
     expect(css).toContain("aspect-ratio: 941 / 1672;");
     expect(css).toContain("object-fit: contain;");
   });
 
-  test("ONLY a single scaled point above the actual khāʾ is added without changing original letters", () => {
-    expect(hero).toContain('className="hero-approved-kha-correction"');
-    expect(hero).toContain('viewBox="0 0 941 1672"');
-    expect(hero).toContain('M 585.5 1297.6 L 590.6 1303 L 585.5 1308.4 L 580.4 1303 Z');
-    expect(hero).toContain('fill="#fcfaf8"');
-    expect(hero).toContain('aria-hidden="true"');
-    expect(hero).toContain('تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل');
-    expect(hero).not.toContain("الشيح");
-    expect(css).toContain(".hero-sequence--approved-mobile .hero-approved-kha-correction");
-    expect(css).toContain("pointer-events: none;");
-  });
-
-  test("the optical correction tracks the poster on narrow devices, not the viewport", () => {
-    expect(css).toContain(".hero-approved-poster-frame,");
-    expect(css).toContain(".hero-approved-kha-correction { display: none; }");
-    expect(css).toContain(".hero-sequence--approved-mobile .hero-approved-poster-frame");
-    expect(css).toContain("position: relative;");
-    expect(css).toContain("isolation: isolate;");
-    expect(css).toContain("position: absolute;");
-    expect(css).toContain("height: 100%;");
-    expect(css).toContain("@media (max-width: 640px)");
-  });
-
-  test("no changes to Quran or original book typography", () => {
+  test("the original Quran and scanned book typography are not impacted", () => {
     expect(css).not.toContain(".mushaf-text");
     expect(css).not.toContain(".react-pdf__Page");
-    expect(readFileSync("src/styles.css","utf8")).toContain('--font-uthmani: "UthmanicHafs"');
+    expect(readFileSync("src/styles.css", "utf8")).toContain('--font-uthmani: "UthmanicHafs"');
   });
 });
