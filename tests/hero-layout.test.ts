@@ -8,7 +8,7 @@ describe("Home hero shadow and minimal navigation", () => {
 
   test("keeps the opening free of the name plaque and of duplicated hero wording", () => {
     expect(hero).not.toContain("hero-mandate");
-    expect(hero).not.toContain("تحت لواء فضيلة العارف بالله");
+    expect(hero).toContain('alt="تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(hero).not.toContain("رحاب الخليلية · نور المعرفة وهدوء القراءة");
     expect(hero).not.toContain("المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر.");
   });
