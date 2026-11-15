@@ -7,15 +7,16 @@ const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 
 describe("approved user-poster actual imagery and text correctness", () => {
   test("the exact approved FULL image is stored in the repository with verified transfer hash", () => {
-    expect(poster.byteLength).toBe(373078);
+    expect(poster.byteLength).toBe(1431622);
     expect(poster.subarray(0, 4).toString()).toBe("RIFF");
     expect(poster.subarray(8, 12).toString()).toBe("WEBP");
-    // Native VP8 width and height prove this is not the original 360px thumbnail.
-    expect(poster.subarray(12, 16).toString()).toBe("VP8 ");
-    expect(poster.readUInt16LE(26) & 0x3fff).toBe(941);
-    expect(poster.readUInt16LE(28) & 0x3fff).toBe(1672);
+    // Lossless VP8L encodes the exact approved portrait geometry and the newly baked correction.
+    expect(poster.subarray(12, 16).toString()).toBe("VP8L");
+    expect(poster[20]).toBe(0x2f);
+    expect((poster.readUInt32LE(21) & 0x3fff) + 1).toBe(941);
+    expect(((poster.readUInt32LE(21) >>> 14) & 0x3fff) + 1).toBe(1672);
     expect(createHash("sha256").update(poster).digest("hex"))
-      .toBe("5f7e66db7cb444b7b987d7c653619cc8b173a6ebf7c1e3dc095cb90687ca7eeb");
+      .toBe("3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598");
     expect(hero).toContain('className="hero-approved-scene"');
     expect(hero).toContain("src={approvedSceneImage}");
     expect(hero).toContain("width={941}");
