@@ -6,7 +6,7 @@ const css = readFileSync("src/rihab-identity.css", "utf8");
 describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () => {
   test("the opening scene carries no name plaque; the portrait keeps its full caption", () => {
     expect(hero).not.toContain("hero-mandate");
-    expect(hero).not.toContain("تحت لواء فضيلة العارف بالله");
+    expect(hero).toContain('alt="تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(hero).toContain('alt="فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(hero).not.toContain("صالح الجعفري الخلوتي");
     expect(hero).not.toContain("المنصة الرسمية لفضيلة الشيخ");
@@ -22,7 +22,7 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     expect(existsSync("public/fonts/aref-ruqaa-ink-regular.ttf")).toBe(true);
   });
 
-  test("mobile shows the approved poster at its own ratio with no plaque strip", () => {
+  test("mobile shows the full approved 941x1672 poster and its inscription without a second plaque", () => {
     expect(hero).toContain("hero-sequence--approved-mobile");
     expect(css).toContain("@media (max-width: 640px)");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-intro { display: none; }");
@@ -32,14 +32,20 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     expect(css).toContain("object-position: center 0%;");
     expect(hero).toContain('className="hero-approved-scene"');
     expect(hero).toContain("src={approvedSceneImage}");
+    expect(hero).toContain('import approvedSceneImage from "@/assets/rihab-approved-full-mobile-poster.webp"');
+    expect(hero).toContain("width={941}");
+    expect(hero).toContain("height={1672}");
+    expect(css).toContain("aspect-ratio: 941 / 1672;");
+    expect(css).toContain("object-fit: contain;");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-scene {");
     expect(css).toContain("animation: none;");
     expect(hero).toContain('src={logo}');
     expect(css).toContain('@media (max-width: 359px)');
   });
 
-  test("Arabic text stays a real webfont layout and never AI-written pixels", () => {
+  test("the approved poster includes its own inscription, with semantic alt and no duplicate HTML", () => {
     expect(css).not.toContain('font-family: "Aref Ruqaa Ink"');
+    expect(hero).not.toContain("hero-mandate");
     expect(hero).toContain('id="home-title"');
     expect(readFileSync("src/styles.css", "utf8")).toContain('url("/fonts/aref-ruqaa-ink-regular.ttf")');
   });

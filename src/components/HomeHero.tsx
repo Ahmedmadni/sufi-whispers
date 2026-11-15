@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
-import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp";
+import approvedSceneImage from "@/assets/rihab-approved-full-mobile-poster.webp";
 
 export function HomeHero() {
   const reducedMotion = useReducedMotion();
@@ -24,14 +24,13 @@ export function HomeHero() {
 
       <img
         src={approvedSceneImage}
-        alt=""
-        width={800}
-        height={935}
+        alt="تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"
+        width={941}
+        height={1672}
         loading="eager"
         decoding="async"
         fetchPriority="high"
         className="hero-approved-scene"
-        aria-hidden="true"
       />
       <div className="hero-geometry" aria-hidden="true" />
       <div className="hero-glow" aria-hidden="true" />
