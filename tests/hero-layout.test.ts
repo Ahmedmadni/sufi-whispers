@@ -6,28 +6,19 @@ const polish = readFileSync("src/premium-ui.css", "utf8");
 
 describe("Home hero shadow and minimal navigation", () => {
 
-  test("keeps the exact Sheikh attribution once for accessibility and duplicates only the visual ticker", () => {
-    expect(hero).toContain("تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل");
-    expect(hero).toContain('<p className="sr-only">{SHAYKH_BANNER}</p>');
-    expect(hero).toContain('className="hero-mandate__viewport" aria-hidden="true"');
-    expect(hero).toContain("hero-mandate__duplicate");
-    expect(hero).toContain('dir="rtl"');
+  test("keeps the opening free of the name plaque and of duplicated hero wording", () => {
+    expect(hero).not.toContain("hero-mandate");
+    expect(hero).not.toContain("تحت لواء فضيلة العارف بالله");
     expect(hero).not.toContain("رحاب الخليلية · نور المعرفة وهدوء القراءة");
     expect(hero).not.toContain("المصحف الشريف، وكتب الطريق الخليلي، والأوراد والذكر.");
   });
 
-  test("automatically scrolls the full-width framed phrase and respects reduced-motion", () => {
+  test("grounds the title and the portrait at the foot of the scene", () => {
     const style = readFileSync("src/visual-experience.css", "utf8");
-    expect(style).toContain(".hero-mandate__frame");
-    expect(style).toContain("width: 100%");
-    expect(style).toContain("animation: hero-mandate-flow 32s linear infinite");
-    expect(style).toContain("to { transform: translate3d(-50%, 0, 0); }");
-    expect(style).toContain("font-family: \"IBM Plex Sans Arabic\", sans-serif");
-    expect(style).toContain(".hero-mandate__track {");
-    expect(style).toContain("animation: none !important");
-    expect(style).toContain(".hero-mandate__duplicate { display: none; }");
-    expect(style).toContain(".hero-shaykh");
-    expect(hero).toContain("id=\"home-title\"");
+    expect(style).toContain(".hero-heading {\n  top: auto;\n  bottom: 0;");
+    expect(style).toContain(".hero-shaykh {\n  left: 2%;\n  bottom: 0;");
+    expect(style).not.toContain("hero-mandate");
+    expect(hero).toContain('id="home-title"');
   });
 
   test("retains cinematic background and original portrait without altering image assets", () => {

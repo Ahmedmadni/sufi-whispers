@@ -346,15 +346,14 @@
   .hero-scene { opacity: 1; }
 }
 
-
-/* Home hero: name aligned to the right immediately ABOVE the moving banner;
-   leave the dark scenic portrait and all image assets unchanged. */
-.hero-sequence--mandate { min-height: min(640px, calc(100svh - 6rem)); --hero-mandate-height: 76px; }
+/* Home hero: the title sits at the bottom of the scenic frame; the dark
+   portrait and all image assets stay unchanged. */
+.hero-sequence--mandate { min-height: min(640px, calc(100svh - 6rem)); }
 .hero-heading {
   top: auto;
-  bottom: var(--hero-mandate-height);
+  bottom: 0;
   padding-top: 1.5rem;
-  padding-bottom: .6rem;
+  padding-bottom: 1.1rem;
   background: linear-gradient(to top, rgb(8 29 23 / .82), rgb(8 29 23 / .38) 58%, transparent);
   pointer-events: none;
 }
@@ -368,104 +367,25 @@
 }
 .hero-shaykh {
   left: 2%;
-  bottom: 78px;
+  bottom: 0;
   height: min(77%, 560px);
   max-width: 57%;
   filter: drop-shadow(0 8px 28px rgb(0 0 0 / .42));
   -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
   mask-image: linear-gradient(to right, #000 85%, transparent);
 }
-.hero-mandate { color: #fff0cb; }
-.hero-mandate__frame {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: var(--hero-mandate-height);
-  padding-block: .8rem;
-  overflow: hidden;
-  border-top: 1px solid rgb(229 192 123 / .7);
-  border-bottom: 1px solid rgb(229 192 123 / .36);
-  background: linear-gradient(110deg, rgb(7 30 27 / .97), rgb(26 62 48 / .96) 48%, rgb(7 30 27 / .97));
-  box-shadow: inset 0 4px 0 rgb(211 171 98 / .06), 0 -10px 38px rgb(0 0 0 / .24);
-}
-.hero-mandate__frame::before,
-.hero-mandate__frame::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  height: 1px;
-  pointer-events: none;
-  opacity: .75;
-  background: linear-gradient(90deg, transparent, #bc914a 35%, #f0d59e 50%, #bc914a 65%, transparent);
-}
-.hero-mandate__frame::before { top: 5px; }
-.hero-mandate__frame::after { bottom: 5px; }
-.hero-mandate__viewport {
-  width: 100%;
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
-}
-.hero-mandate__track {
-  display: flex;
-  direction: ltr;
-  width: max-content;
-  animation: hero-mandate-flow 32s linear infinite;
-  will-change: transform;
-}
-.hero-mandate__phrase {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  direction: rtl;
-  flex: none;
-  min-width: 100vw;
-  width: max-content;
-  padding-inline: clamp(3rem, 9vw, 7rem);
-  font-family: "IBM Plex Sans Arabic", sans-serif;
-  font-size: clamp(1.05rem, 2.4vw, 1.65rem);
-  font-weight: 600;
-  font-feature-settings: "kern" 1, "calt" 1, "liga" 1;
-  line-height: 2.1;
-  white-space: nowrap;
-  text-align: center;
-  text-shadow: 0 2px 10px rgb(0 0 0 / .45);
-}
-@keyframes hero-mandate-flow {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-50%, 0, 0); }
-}
 @media (hover: hover) {
-  .hero-mandate__frame:hover .hero-mandate__track { animation-play-state: paused; }
 }
 @media (max-width: 640px) {
-  .hero-sequence--mandate { min-height: min(620px, calc(100svh - 4rem)); --hero-mandate-height: 72px; }
-  .hero-heading { padding-top: 1rem; padding-bottom: .5rem; }
+  .hero-sequence--mandate { min-height: min(620px, calc(100svh - 4rem)); }
+  .hero-heading { padding-top: 1rem; padding-bottom: .8rem; }
   .hero-heading h1 { font-size: clamp(1.6rem, 6.9vw, 2.35rem); line-height: 1.55; }
   .hero-shaykh {
     left: -3%;
-    bottom: 72px;
+    bottom: 0;
     height: min(72%, 490px);
     max-width: 84%;
   }
-  .hero-mandate__frame { min-height: 72px; padding-block: .9rem; }
-  .hero-mandate__phrase { font-size: clamp(.98rem, 4.2vw, 1.2rem); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-mandate__track {
-    width: 100%;
-    animation: none !important;
-    transform: none !important;
-    will-change: auto;
-  }
-  .hero-mandate__phrase {
-    width: 100%;
-    min-width: 0;
-    white-space: normal;
-    padding-inline: 1.25rem;
-  }
-  .hero-mandate__duplicate { display: none; }
 }
 
 /* Decorated turned-wood tasbih counter: concentric engraved brass details and

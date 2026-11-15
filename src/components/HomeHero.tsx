@@ -3,10 +3,6 @@ import logo from "@/assets/rihab-logo-clean.png";
 import heroNabawi from "@/assets/green-dome.jpg";
 import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png";
 import approvedSceneImage from "@/assets/rihab-approved-mobile-scene.webp";
-import approvedNameFrame from "@/assets/rihab-ornate-name-frame.svg";
-
-// This is the exact approved description, not a shortened or invented title.
-const SHAYKH_BANNER = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
 
 export function HomeHero() {
   const reducedMotion = useReducedMotion();
@@ -80,36 +76,6 @@ export function HomeHero() {
         transition={{ delay: reducedMotion ? 0 : 0.55, duration: 0.65 }}
         className="hero-shaykh absolute z-10 w-auto object-contain object-bottom drop-shadow-2xl"
       />
-
-      <div className="hero-mandate absolute inset-x-0 bottom-0 z-30" dir="rtl" aria-label="كلمة التعريف بالشيخ">
-        <div className="hero-mandate__frame">
-          {/* Ornament is visually matched to the approved poster; no words
-              are rasterized into this frame, so the name stays accurate. */}
-          <img
-            src={approvedNameFrame}
-            alt=""
-            aria-hidden="true"
-            width={940}
-            height={480}
-            className="hero-mandate__ornate-art"
-          />
-          {/* The chosen mobile layout renders the owner's exact name as real
-              selectable Arabic text, not a generated bitmap inscription. */}
-          <p className="hero-mandate__mobile" aria-hidden="true">
-            <span className="hero-mandate__kicker">تحت لواء فضيلة العارف بالله</span>
-            <span className="hero-mandate__name">سيدي الشيخ صالح أحمد الشافعي</span>
-            <span className="hero-mandate__surname">محمد محمد أبو خليل</span>
-          </p>
-          {/* One copy is available to screen readers at every breakpoint. */}
-          <p className="sr-only">{SHAYKH_BANNER}</p>
-          <div className="hero-mandate__viewport" aria-hidden="true">
-            <div className="hero-mandate__track">
-              <span className="hero-mandate__phrase">{SHAYKH_BANNER}</span>
-              <span className="hero-mandate__phrase hero-mandate__duplicate">{SHAYKH_BANNER}</span>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

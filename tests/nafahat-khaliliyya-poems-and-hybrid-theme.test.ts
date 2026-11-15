@@ -87,7 +87,7 @@ describe("Hybrid daylight identity and hero title placement", () => {
     const css = read("src/visual-experience.css");
     expect(hero).toContain('className="hero-heading absolute inset-x-0 z-20');
     expect(hero).not.toContain("hero-heading absolute inset-x-0 top-0");
-    expect(css).toContain("bottom: var(--hero-mandate-height)");
+    expect(css).toContain("bottom: 0;");
     expect(css).toContain("text-align: right;");
     expect(hero).toContain('id="home-title"');
   });
@@ -98,7 +98,7 @@ describe("Hybrid daylight identity and hero title placement", () => {
     expect(css).toContain(".light .bottom-nav {");
     expect(css).toContain(".light .library-banner {");
     expect(css).toContain(".light .reader-surface { background: #f4eee1; }");
-    expect(css).toContain(".light .hero-mandate__frame {");
+    expect(css).toContain(".light .hero-heading {");
     const toggle = read("src/components/SiteHeader.tsx");
     expect(toggle).not.toContain("ThemeToggle");
   });

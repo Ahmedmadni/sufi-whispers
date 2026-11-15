@@ -81,7 +81,7 @@ describe("Approved Rihab brand V3: mobile-first and high-contrast", () => {
     const hero = read("src/components/HomeHero.tsx");
     expect(hero).toContain('import shaykhSaleh from "@/assets/shaykh-saleh-cutout.png"');
     expect(hero).toContain('import heroNabawi from "@/assets/green-dome.jpg"');
-    expect(hero).toContain("تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل");
+    expect(hero).not.toContain("hero-mandate");
     expect(css).toContain(".hero-sequence--approved-mobile");
     expect(read("src/styles.css")).toContain('--font-uthmani: "UthmanicHafs"');
     expect(css).not.toContain(".mushaf-text");

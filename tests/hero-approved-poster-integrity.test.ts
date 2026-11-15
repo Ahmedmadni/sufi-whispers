@@ -34,23 +34,18 @@ describe("approved user-poster actual imagery and text correctness", () => {
     expect(css).toContain(".hero-sequence--approved-mobile .hero-heading,");
   });
 
-  test("red embedded-color Ink Ruqaa is replaced by monochrome Amiri with explicit ivory/gold", () => {
+  test("red embedded-color Ink Ruqaa is replaced by monochrome Amiri", () => {
     expect(css).not.toContain('font-family: "Aref Ruqaa Ink"');
-    expect(css).toContain('font-family: "Amiri", "Cairo", serif;');
-    expect(css).toContain("-webkit-text-fill-color: #f0d79a");
-    expect(css).toContain("-webkit-text-fill-color: #fff8ec");
     expect(readFileSync("src/routes/__root.tsx", "utf8"))
       .toContain("family=Amiri:wght@400;700");
     expect(readFileSync("scripts/prepare-android-fonts.mjs", "utf8"))
       .toContain('"amiri-regular.ttf"');
   });
 
-  test("exact, accessible Sheikh name stays real text and no typography touches the Quran", () => {
-    expect(hero).toContain("تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل");
-    expect(hero).toContain('<p className="sr-only">{SHAYKH_BANNER}</p>');
-    expect(hero).toContain("hero-mandate__kicker");
-    expect(hero).toContain("hero-mandate__name");
-    expect(hero).toContain("hero-mandate__surname");
+  test("the opening no longer renders the name plaque and no typography touches the Quran", () => {
+    expect(hero).not.toContain("hero-mandate");
+    expect(hero).not.toContain("تحت لواء فضيلة العارف بالله");
+    expect(hero).toContain('alt="فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(css).not.toContain(".mushaf-text");
     expect(css).not.toContain(".react-pdf__Page");
     expect(readFileSync("src/styles.css", "utf8")).toContain('--font-uthmani: "UthmanicHafs"');

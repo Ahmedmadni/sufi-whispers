@@ -4,14 +4,9 @@ const hero = readFileSync("src/components/HomeHero.tsx", "utf8");
 const css = readFileSync("src/rihab-identity.css", "utf8");
 
 describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () => {
-  test("the Sheikh's exact original full name remains unchanged and screen-reader readable", () => {
-    const exact = "تحت لواء فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل";
-    expect(hero).toContain(exact);
-    expect(hero).toContain('<p className="sr-only">{SHAYKH_BANNER}</p>');
-    expect(hero).toContain('<p className="hero-mandate__mobile" aria-hidden="true">');
-    expect(hero).toContain('<span className="hero-mandate__kicker">تحت لواء فضيلة العارف بالله</span>');
-    expect(hero).toContain('<span className="hero-mandate__name">سيدي الشيخ صالح أحمد الشافعي</span>');
-    expect(hero).toContain('<span className="hero-mandate__surname">محمد محمد أبو خليل</span>');
+  test("the opening scene carries no name plaque; the portrait keeps its full caption", () => {
+    expect(hero).not.toContain("hero-mandate");
+    expect(hero).not.toContain("تحت لواء فضيلة العارف بالله");
     expect(hero).toContain('alt="فضيلة العارف بالله سيدي الشيخ صالح أحمد الشافعي محمد محمد أبو خليل"');
     expect(hero).not.toContain("صالح الجعفري الخلوتي");
     expect(hero).not.toContain("المنصة الرسمية لفضيلة الشيخ");
@@ -27,33 +22,24 @@ describe("Approved hero 02 — authentic Sheikh and mobile-first rendering", () 
     expect(existsSync("public/fonts/aref-ruqaa-ink-regular.ttf")).toBe(true);
   });
 
-  test("mobile portrait gets a static full caption; desktop keeps prior ticker and logo", () => {
+  test("mobile shows the approved poster at its own ratio with no plaque strip", () => {
     expect(hero).toContain("hero-sequence--approved-mobile");
-    expect(hero).toContain("hero-mandate__mobile");
     expect(css).toContain("@media (max-width: 640px)");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-intro { display: none; }");
-    expect(css).toContain(".hero-sequence--approved-mobile .hero-mandate__viewport { display: none; }");
-    expect(css).toContain("height: clamp(580px, calc(100svh - 115px), 820px)");
+    expect(css).toContain("min-height: 0;\n    height: auto;");
+    expect(css).toContain("height: auto;\n    max-height: none;");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-approved-scene {");
     expect(css).toContain("object-position: center 0%;");
     expect(hero).toContain('className="hero-approved-scene"');
     expect(hero).toContain("src={approvedSceneImage}");
     expect(css).toContain(".hero-sequence--approved-mobile .hero-scene {");
     expect(css).toContain("animation: none;");
-    expect(hero).toContain("hero-mandate__duplicate");
     expect(hero).toContain('src={logo}');
     expect(css).toContain('@media (max-width: 359px)');
   });
 
-  test("Arabic text is an actual Cairo/Ruqaa webfont layout and not AI-written pixels", () => {
-    expect(css).toContain('font-family: "Amiri", "Cairo", serif');
+  test("Arabic text stays a real webfont layout and never AI-written pixels", () => {
     expect(css).not.toContain('font-family: "Aref Ruqaa Ink"');
-    expect(css).toContain(".hero-sequence--approved-mobile .hero-mandate__mobile");
-    expect(css).toContain("text-wrap: balance");
-    expect(css).toContain("white-space: normal");
-    expect(css).toContain("overflow-wrap: normal");
-    expect(css).toContain("-webkit-text-fill-color: #fff8ec");
-    expect(css).toContain("-webkit-text-fill-color: #f0d79a");
     expect(hero).toContain('id="home-title"');
     expect(readFileSync("src/styles.css", "utf8")).toContain('url("/fonts/aref-ruqaa-ink-regular.ttf")');
   });
