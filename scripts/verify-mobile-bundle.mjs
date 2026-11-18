@@ -67,7 +67,7 @@ if (!existsSync(jsDir) ||
 // The exact corrected poster must be part of the OFFLINE Android WebView assets,
 // not merely referenced in web source or served by Lovable at runtime.
 const approvedPoster = readdirSync(jsDir).filter(name =>
-  /^rihab-approved-full-mobile-poster-[A-Za-z0-9_-]+\\.webp$/.test(name));
+  /^rihab-approved-full-mobile-poster-[A-Za-z0-9_-]+\.webp$/.test(name));
 if (approvedPoster.length !== 1) {
   throw new Error("Android bundle must contain exactly one full Sheikh poster");
 }
