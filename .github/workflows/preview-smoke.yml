@@ -12,6 +12,8 @@ on:
       - "vite.config.ts"
       - "package.json"
       - "bun.lock"
+      # Android release must also prove the current web source renders.
+      - "config/android-release.json"
       - ".github/workflows/preview-smoke.yml"
   push:
     branches: [main]
@@ -22,6 +24,8 @@ on:
       - "vite.config.ts"
       - "package.json"
       - "bun.lock"
+      # Android release must also prove the current web source renders.
+      - "config/android-release.json"
       - ".github/workflows/preview-smoke.yml"
 
 permissions:

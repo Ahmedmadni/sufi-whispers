@@ -114,7 +114,14 @@ jobs:
           APK=android/app/build/outputs/apk/release/app-release.apk
           AAB=android/app/build/outputs/bundle/release/app-release.aab
           SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
-          "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          # Certificate fingerprint is from the published 1.0.14 signed APK.
+          # It is PUBLIC, not a secret, and prevents an un-installable update
+          # signed by a different key with the same human-readable alias.
+          "$SDK_ROOT/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK" | tee android/release-certificate.txt
+          grep -Fqx "Signer #1 certificate SHA-256 digest: 93aa5aba07800c1b8da3aac64b5c789f2c2b632a8aa6cd026a27ae1f47bcd145" android/release-certificate.txt || {
+            echo "FAIL: release signing certificate changed since 1.0.14; update install would be incompatible."
+            exit 1
+          }
           jarsigner -verify "$AAB" | grep -F 'jar verified.'
           python scripts/verify-android-release.py "$APK" "$AAB"
           python - <<'PY'

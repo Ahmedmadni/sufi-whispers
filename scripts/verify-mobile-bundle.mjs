@@ -64,6 +64,24 @@ if (!existsSync(jsDir) ||
     !readdirSync(jsDir).some((name) => name.endsWith(".js"))) {
   throw new Error("Mobile Javascript output is missing");
 }
+// The exact corrected poster must be part of the OFFLINE Android WebView assets,
+// not merely referenced in web source or served by Lovable at runtime.
+const approvedPoster = readdirSync(jsDir).filter(name =>
+  /^rihab-approved-full-mobile-poster-[A-Za-z0-9_-]+\.webp$/.test(name));
+if (approvedPoster.length !== 1) {
+  throw new Error("Android bundle must contain exactly one full Sheikh poster");
+}
+const posterBytes = readFileSync(join(jsDir, approvedPoster[0]));
+const expectedPosterSha = "3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598";
+if (posterBytes.length !== 1431622 ||
+    createHash("sha256").update(posterBytes).digest("hex") !== expectedPosterSha ||
+    posterBytes.toString("ascii", 0, 4) !== "RIFF" ||
+    posterBytes.toString("ascii", 8, 12) !== "WEBP" ||
+    posterBytes.toString("ascii", 12, 16) !== "VP8L") {
+  throw new Error("Android bundle has an outdated or corrupted approved Sheikh poster");
+}
+console.log("Verified full corrected 941x1672 Sheikh poster bundled for offline Android.");
+
 const manifest = JSON.parse(readFileSync(join(assetDir, "manifest.json"), "utf8"));
 if (manifest.format !== 2 || !Array.isArray(manifest.assets)) {
   throw new Error("Mobile content integrity manifest format is unsupported");

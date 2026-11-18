@@ -51,6 +51,32 @@ def verify(archive_path: Path, prefix: str) -> None:
             item = quran["pages"].get(str(page))
             if not item or prefix + "printed-mushaf/pages/" + item["name"] not in names:
                 raise RuntimeError(f"Missing original Mushaf page {page}")
+        # The full corrected Sheikh poster is user-approved artwork. Unlike
+        # the Quran/page corpus, older releases did not verify its pixels.
+        # Fail closed if the APK/AAB contains an outdated or substituted poster.
+        poster_assets = [
+            name for name in names
+            if name.startswith(prefix + "assets/rihab-approved-full-mobile-poster-")
+            and name.endswith(".webp")
+        ]
+        if len(poster_assets) != 1:
+            raise RuntimeError(
+                f"Expected exactly one approved Sheikh poster in {archive_path.name}, "
+                f"found {len(poster_assets)}"
+            )
+        poster = archive.read(poster_assets[0])
+        expected = "3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598"
+        if hashlib.sha256(poster).hexdigest() != expected:
+            raise RuntimeError("Approved Sheikh poster pixel checksum mismatch")
+        if (len(poster) != 1431622 or poster[:4] != b"RIFF" or
+                poster[8:12] != b"WEBP" or poster[12:16] != b"VP8L"):
+            raise RuntimeError("Approved Sheikh poster size or WebP format mismatch")
+        geometry = int.from_bytes(poster[21:25], "little")
+        width = (geometry & 0x3FFF) + 1
+        height = ((geometry >> 14) & 0x3FFF) + 1
+        if (width, height) != (941, 1672):
+            raise RuntimeError("Approved Sheikh poster dimensions mismatch")
+        print(f"PASS {archive_path.name}: owner-approved corrected Sheikh poster, 941×1672, exact pixel checksum.")
         verify_wird_audio_archive(archive, prefix)
         corrupted = archive.testzip()
         if corrupted:
