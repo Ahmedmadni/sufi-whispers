@@ -25,6 +25,8 @@ describe("Android 1.0.15 release quality gates", () => {
     const signed = read(".github/workflows/android-release.yml");
     expect(signed).toContain("python scripts/verify-android-release.py");
     expect(signed).toContain("apksigner");
+    expect(signed).toContain("93aa5aba07800c1b8da3aac64b5c789f2c2b632a8aa6cd026a27ae1f47bcd145");
+    expect(signed).toContain("release signing certificate changed since 1.0.14");
     expect(signed).toContain("jarsigner");
     expect(signed).toContain("Verify release signature, identity and bundled content");
     expect(signed).toContain("Enforce release APK security flags and minimal permissions");
