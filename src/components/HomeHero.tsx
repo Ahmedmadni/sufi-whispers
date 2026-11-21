@@ -34,6 +34,14 @@ export function HomeHero() {
         fetchPriority="high"
         className="hero-approved-scene"
       />
+      {/* The approved poster stays intact in portrait. A secondary *native-only*
+          landscape caption keeps the exact inscription legible beside the
+          original image when a phone or tablet rotates to a short viewport. */}
+      <div className="hero-landscape-caption" aria-hidden="true" dir="rtl">
+        <span className="hero-landscape-caption__overline">تحت لواء فضيلة العارف بالله</span>
+        <span className="hero-landscape-caption__name">سيدي الشيخ صالح أحمد الشافعي</span>
+        <span className="hero-landscape-caption__line">محمد محمد أبو خليل</span>
+      </div>
       <div className="hero-geometry" aria-hidden="true" />
       <div className="hero-glow" aria-hidden="true" />
 
