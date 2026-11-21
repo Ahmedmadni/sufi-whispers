@@ -12,7 +12,7 @@ import "../src/ios-refinements.css";
 import "../src/rihab-daylight.css";
 import "../src/rihab-identity.css";
 
-const mount = document.getElementById("root");
+// Native-only responsive layout rules must never change the Lovable web preview.\ndocument.documentElement.classList.add("rihab-android");\n\nconst mount = document.getElementById("root");
 if (!mount) throw new Error("Missing #root element for mobile application");
 
 // Keep the splash visible until React has actually rendered a route (not until
