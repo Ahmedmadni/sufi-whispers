@@ -7,6 +7,10 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/android-debug.yml"
+      - ".github/workflows/android-release.yml"
+      - ".github/workflows/preview-smoke.yml"
+      - "config/android-release.json"
+      - "scripts/audit-android-apk.py"
       - "scripts/android-dev.mjs"
       - "scripts/android-orientation.mjs"
       - "scripts/android-manifest-permissions.mjs"
@@ -27,6 +31,10 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/android-debug.yml"
+      - ".github/workflows/android-release.yml"
+      - ".github/workflows/preview-smoke.yml"
+      - "config/android-release.json"
+      - "scripts/audit-android-apk.py"
       - "scripts/android-dev.mjs"
       - "scripts/android-orientation.mjs"
       - "scripts/android-manifest-permissions.mjs"
