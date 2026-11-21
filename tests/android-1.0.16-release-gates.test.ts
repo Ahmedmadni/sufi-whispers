@@ -73,6 +73,16 @@ describe("Android 1.0.16 release quality gates", () => {
     expect(cards).toContain("navigator.canShare");
     expect(cards).toContain("toast.info(isAndroid");
   });
+  test("web smoke must run on every release source SHA, even for Android-only changes", () => {
+    const preview = read(".github/workflows/preview-smoke.yml");
+    const publisher = read(".github/workflows/publish-signed-android-v1.0.16.yml");
+    expect(preview).toContain("Web Preview Smoke");
+    expect(preview).toContain("push:");
+    expect(preview).toContain("pull_request:");
+    expect(preview).toContain("branches: [main]");
+    expect(preview).not.toContain("paths:");
+    expect(publisher).toContain('for required in "Quality checks" "Web Preview Smoke" "Android Debug APK"');
+  });
   test("new publisher refuses an old build, missing QA, bad signing or version regression", () => {
     const publisher = read(".github/workflows/publish-signed-android-v1.0.16.yml");
     expect(publisher).toContain("v1.0.16-android-rc1");
