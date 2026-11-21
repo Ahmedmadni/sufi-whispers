@@ -1,32 +1,15 @@
 name: Web Preview Smoke
 
 # Detect real SSR/preview failures that TypeScript and optimized builds miss.
+# Release publisher requires this smoke check on the EXACT Android signing SHA.
+# Run on every main push / PR, including Android-only or workflow changes,
+# otherwise an already-vetted APK can never be published.
 on:
   workflow_dispatch:
   pull_request:
     branches: [main]
-    paths:
-      - "src/**"
-      - "scripts/smoke-web-preview.mjs"
-      - "scripts/smoke-printed-image-cdn.mjs"
-      - "vite.config.ts"
-      - "package.json"
-      - "bun.lock"
-      # Android release must also prove the current web source renders.
-      - "config/android-release.json"
-      - ".github/workflows/preview-smoke.yml"
   push:
     branches: [main]
-    paths:
-      - "src/**"
-      - "scripts/smoke-web-preview.mjs"
-      - "scripts/smoke-printed-image-cdn.mjs"
-      - "vite.config.ts"
-      - "package.json"
-      - "bun.lock"
-      # Android release must also prove the current web source renders.
-      - "config/android-release.json"
-      - ".github/workflows/preview-smoke.yml"
 
 permissions:
   contents: read
