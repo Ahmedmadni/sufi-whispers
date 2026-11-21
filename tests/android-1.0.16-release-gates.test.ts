@@ -73,6 +73,16 @@ describe("Android 1.0.16 release quality gates", () => {
     expect(cards).toContain("navigator.canShare");
     expect(cards).toContain("toast.info(isAndroid");
   });
+  test("debug and signed Android builds are triggered by the same release workflow changes", () => {
+    const signed = read(".github/workflows/android-release.yml");
+    const debug = read(".github/workflows/android-debug.yml");
+    for (const workflow of [signed, debug]) {
+      expect(workflow).toContain('".github/workflows/preview-smoke.yml"');
+      expect(workflow).toContain('".github/workflows/android-release.yml"');
+      expect(workflow).toContain('".github/workflows/android-debug.yml"');
+      expect(workflow).toContain('"config/android-release.json"');
+    }
+  });
   test("web smoke must run on every release source SHA, even for Android-only changes", () => {
     const preview = read(".github/workflows/preview-smoke.yml");
     const publisher = read(".github/workflows/publish-signed-android-v1.0.16.yml");
