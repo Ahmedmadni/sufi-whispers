@@ -44,6 +44,12 @@ describe("Android 1.0.16 portrait AND landscape on phone and tablet", () => {
     const write = script.indexOf("writeFileSync(manifestFile, manifest)", orientation);
     expect(sync).toBeGreaterThan(0);
     expect(orientation).toBeGreaterThan(sync);
+    // An earlier build contained literal \\n inside a // comment, so a
+    // substring assertion alone passed although the patch never executed.
+    expect(script).toMatch(/\nmanifest = enableAdaptiveAndroidOrientation\(manifest\);\n/);
+    expect(script).toMatch(/\nmanifest = enforceInexactAndroidReminders\(manifest\);\n/);
+    expect(script).not.toContain('cap sync.\\nmanifest');
+
     expect(write).toBeGreaterThan(orientation);
     expect(script.indexOf('run(gradle, ["assembleRelease", "bundleRelease"]')).toBeGreaterThan(orientation);
     expect(script.indexOf('run(gradle, ["assembleDebug"]')).toBeGreaterThan(orientation);
