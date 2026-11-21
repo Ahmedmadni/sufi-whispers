@@ -72,6 +72,20 @@ class ApkSecurityAuditTests(unittest.TestCase):
             with self.subTest(expected=expected), self.assertRaisesRegex(ValueError, expected):
                 audit.check_report(PERMISSIONS, metadata, "", cert, "release")
 
+    def test_release_17_requires_compiled_full_user_rotation(self):
+        rotated = (
+            " E: activity (line=41)\n"
+            "   A: android:name(0x01010003)=\"com.rihabalkhaliliyya.app.MainActivity\"\n"
+            "   A: android:screenOrientation(0x0101001e)=(type 0x10)0xd\n"
+        )
+        metadata = dict(METADATA, versionCode="17", versionName="1.0.16")
+        self.assertTrue(audit.has_full_user_orientation(rotated))
+        report = audit.check_report(PERMISSIONS, metadata, rotated, GOOD_CERT, "release")
+        self.assertTrue(report["fullUserOrientation"])
+        for bad in ["", rotated.replace("0xd", "0x1"), rotated.replace("0xd", "0x0")]:
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, "fullUser"):
+                audit.check_report(PERMISSIONS, metadata, bad, GOOD_CERT, "release")
+
     def test_debug_diagnostics_do_not_falsely_claim_release_signing(self):
         report = audit.check_report(
             PERMISSIONS, dict(METADATA, debuggable=True),
