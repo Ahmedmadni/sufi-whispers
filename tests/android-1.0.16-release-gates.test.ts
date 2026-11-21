@@ -8,13 +8,13 @@ const exactPoster = readFileSync("src/assets/rihab-approved-full-mobile-poster.w
 const sha256 = createHash("sha256").update(exactPoster).digest("hex");
 const expected = "3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598";
 
-describe("Android 1.0.15 release quality gates", () => {
+describe("Android 1.0.16 release quality gates", () => {
   test("app updates in place, never changes package/signing identity", () => {
     expect(meta).toEqual({
       appName: "رحاب الخليلية",
       applicationId: "com.rihabalkhaliliyya.app",
-      versionName: "1.0.15",
-      versionCode: 16,
+      versionName: "1.0.16",
+      versionCode: 17,
       signing: {
         keystoreFileName: "rihab-production.jks",
         keyAlias: "rihab-production",
@@ -74,9 +74,9 @@ describe("Android 1.0.15 release quality gates", () => {
     expect(cards).toContain("toast.info(isAndroid");
   });
   test("new publisher refuses an old build, missing QA, bad signing or version regression", () => {
-    const publisher = read(".github/workflows/publish-signed-android-v1.0.15.yml");
-    expect(publisher).toContain("v1.0.15-android-rc1");
-    expect(publisher).toContain('test "$(jq -r \'.versionCode\' <<<"$metadata")" = "16"');
+    const publisher = read(".github/workflows/publish-signed-android-v1.0.16.yml");
+    expect(publisher).toContain("v1.0.16-android-rc1");
+    expect(publisher).toContain('test "$(jq -r \'.versionCode\' <<<"$metadata")" = "17"');
     expect(publisher).toContain("Quality checks");
     expect(publisher).toContain("Web Preview Smoke");
     expect(publisher).toContain("Android Debug APK");
@@ -85,8 +85,8 @@ describe("Android 1.0.15 release quality gates", () => {
     expect(publisher).toContain("Verify release signature, identity and bundled content");
     expect(publisher).toContain("Enforce release APK security flags and minimal permissions");
     expect(publisher).toContain("python scripts/verify-android-release.py");
-    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.15.apk");
-    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.15.aab");
+    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.16.apk");
+    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.16.aab");
     expect(publisher).toContain("Immutable release already exists; leaving original assets unchanged.");
     expect(publisher).not.toContain("Rihab-Al-Khaliliyya-1.0.14.apk");
   });

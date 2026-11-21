@@ -101,6 +101,19 @@ def manifest_flag(xmltree: str, name: str) -> bool | None:
     raise ValueError(f"Cannot interpret Android manifest flag: {name}")
 
 
+
+def has_full_user_orientation(xmltree: str) -> bool:
+    """Check compiled Android manifest's screenOrientation=fullUser (13).
+
+    aapt prints this as (type 0x10)0xd or 0x0000000d. We check the
+    actual APK; merely checking a generated source manifest is not enough.
+    """
+    return bool(re.search(
+        r"(?m)^\s*A:\s+android:screenOrientation\b[^\n]*"
+        r"(?:\(type 0x10\)0x0*d\b|fullUser\b)",
+        xmltree, flags=re.IGNORECASE,
+    ))
+
 def check_report(
     permissions: list[str], metadata: dict, xmltree: str,
     signing_report: str, mode: str,
@@ -125,6 +138,8 @@ def check_report(
         raise ValueError("APK has no validated SHA-256 signing certificate")
     cert = re.search(r"Signer #1 certificate SHA-256 digest:\s*([0-9a-fA-F]{64})", signing_report)
     if mode == "release":
+        if int(metadata["versionCode"]) >= 17 and not has_full_user_orientation(xmltree):
+            raise ValueError("Android 1.0.16+ release must permit user-controlled phone/tablet landscape (fullUser)")
         if metadata["debuggable"] or manifest_flag(xmltree, "debuggable") is True:
             raise ValueError("Production release must not be debuggable")
         if metadata["testOnly"] or manifest_flag(xmltree, "testOnly") is True:
@@ -142,6 +157,7 @@ def check_report(
         "debuggable": metadata["debuggable"] or manifest_flag(xmltree, "debuggable") is True,
         "certificateSha256": cert.group(1).lower(),
         "permissions": permissions,
+        "fullUserOrientation": has_full_user_orientation(xmltree),
         "blockedPermissionCount": 0,
         "status": "PASS",
         "limitations": (

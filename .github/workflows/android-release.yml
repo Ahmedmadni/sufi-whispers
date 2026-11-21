@@ -18,6 +18,7 @@ on:
       - "public/audio/wird/**"
       - "config/android-release.json"
       - "scripts/android-dev.mjs"
+      - "scripts/android-orientation.mjs"
       - "scripts/prepare-android-fonts.mjs"
       - "scripts/audit-android-apk.py"
   # The owner only runs the secure signing bootstrap once; if it succeeds,
