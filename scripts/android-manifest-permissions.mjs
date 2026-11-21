@@ -21,7 +21,7 @@ export function enforceInexactAndroidReminders(xml) {
   for (const name of EXACT_ALARMS) {
     const escaped = name.replace(/\./g, "\\.");
     const declaration = new RegExp(
-      `<uses-permission(?:-sdk-23)?\\b(?=[^>]*\\bandroid:name\\s*=\\s*["']${escaped}["'])[^>]*(?:\\/>|>[\\s\\S]*?<\\/uses-permission\\s*>)`,
+      `(?:\\r?\\n[ \\t]*)?<uses-permission(?:-sdk-23)?\\b(?=[^>]*\\bandroid:name\\s*=\\s*["']${escaped}["'])[^>]*(?:\\/>|>[\\s\\S]*?<\\/uses-permission\\s*>)`,
       "g",
     );
     cleaned = cleaned.replace(declaration, "");
