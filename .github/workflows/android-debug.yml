@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/android-debug.yml"
       - "scripts/android-dev.mjs"
+      - "scripts/android-orientation.mjs"
       - "scripts/prepare-mobile-assets.mjs"
       - "scripts/prepare-offline-books.py"
       - "scripts/split-android-apk.py"
@@ -26,6 +27,7 @@ on:
     paths:
       - ".github/workflows/android-debug.yml"
       - "scripts/android-dev.mjs"
+      - "scripts/android-orientation.mjs"
       - "scripts/prepare-mobile-assets.mjs"
       - "scripts/prepare-offline-books.py"
       - "scripts/split-android-apk.py"
