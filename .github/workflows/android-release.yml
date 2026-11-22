@@ -14,6 +14,7 @@ on:
       - ".github/workflows/android-release.yml"
       - ".github/workflows/android-debug.yml"
       - ".github/workflows/preview-smoke.yml"
+      - ".github/workflows/publish-signed-android-v1.0.16.yml"
       - "scripts/verify-android-launcher-icons.py"
       - "src/**"
       - "mobile/**"
