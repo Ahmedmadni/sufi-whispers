@@ -40,13 +40,14 @@ try {
     const consoleErrors = [];
     page.on("pageerror", e => consoleErrors.push("pageerror: " + (e.stack || e.message)));
     page.on("console", m => { if(m.type() === "error") consoleErrors.push("console: " + m.text()); });
-    // Same mounted application across navigation, then reload a deep link to
-    // verify back/forward and Capacitor-style hash history.
+    // IMPORTANT: use real TanStack Link clicks. A direct page.goto reloads
+    // the entire SPA and can hide reader chunk failures during in-app navigation.
     await page.goto(BASE + "/#/library", { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.locator('a[href*="books/"]').first().waitFor({ timeout: 30000 });
     for (const book of BOOKS) {
       consoleErrors.length = 0;
-      await page.goto(BASE + "/#/books/" + book, { waitUntil: "domcontentloaded", timeout: 30000 });
+      const link = page.locator('a[href$="/books/' + book + '"]').first();
+      await link.click({ timeout: 30000 });
       await page.waitForTimeout(3800);
       const state = await page.evaluate(() => ({
         title: document.title,
@@ -64,6 +65,10 @@ try {
         await page.screenshot({ path, fullPage: false }).catch(()=>{});
         console.error(`FAIL ${book} at ${size.width}x${size.height}: route error or no reader`);
       }
+      // Return through the actual navigation bar; never a hard browser reload.
+      const libraryLink = page.locator('a[href$="/library"]').first();
+      await libraryLink.click({ timeout: 30000 });
+      await page.locator('a[href$="/books/' + book + '"]').first().waitFor({ timeout: 30000 });
     }
     await page.close();
   }
