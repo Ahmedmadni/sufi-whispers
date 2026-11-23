@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "../src/router";
+import { freshMobileAppUrl } from "../src/lib/mobile-route-recovery";
 import { listenForWirdOpens } from "../src/lib/wird-reminders";
 import "../src/styles.css";
 import "../src/visual-experience.css";
@@ -14,6 +15,19 @@ import "../src/rihab-identity.css";
 
 // Native-only responsive layout rules must never change the Lovable web preview.
 document.documentElement.classList.add("rihab-android");
+
+// Vite reports failed async chunks here. They can occur after an APK upgrade
+// when WebView has cached the previous bundle; refresh the app assets at most
+// once, preserving the current book hash and all locally saved progress.
+window.addEventListener("vite:preloadError", (event: Event) => {
+  event.preventDefault();
+  try {
+    const next = freshMobileAppUrl(window.location.href, "android-1.0.18");
+    if (next) window.location.replace(next);
+  } catch (error) {
+    console.warn("Cannot recover a stale Android module import", error);
+  }
+});
 
 const mount = document.getElementById("root");
 if (!mount) throw new Error("Missing #root element for mobile application");
