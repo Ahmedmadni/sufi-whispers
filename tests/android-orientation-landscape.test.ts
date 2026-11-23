@@ -65,8 +65,8 @@ describe("Android 1.0.16 portrait AND landscape on phone and tablet", () => {
     const hero = read("src/components/HomeHero.tsx");
     // Match executable statements on their own lines: an earlier \\n-escaped
     // source comment hid both the Capacitor bootstrap and the Android class.
-    expect(mobile).toMatch(/^document\\.documentElement\\.classList\\.add\\("rihab-android"\\);$/m);
-    expect(mobile).toMatch(/^const mount = document\\.getElementById\\("root"\\);$/m);
+    expect(mobile).toMatch(/^document[.]documentElement[.]classList[.]add[(]"rihab-android"[)];$/m);
+    expect(mobile).toMatch(/^const mount = document[.]getElementById[(]"root"[)];$/m);
     expect(mobile).not.toContain('\\\\ndocument.documentElement.classList.add');
     expect(css).toContain("@media (orientation: landscape) and (min-width: 540px)");
     expect(css).toContain("@media (orientation: landscape) and (max-height: 680px)");
