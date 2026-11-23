@@ -64,6 +64,21 @@ if (!existsSync(jsDir) ||
     !readdirSync(jsDir).some((name) => name.endsWith(".js"))) {
   throw new Error("Mobile Javascript output is missing");
 }
+// A syntactically valid APK can still be blank if mobile/main.tsx accidentally
+// comments out the React bootstrap. Inspect the compiled JavaScript, not just
+// source text: this guard also proves the Android-specific responsive class
+// is activated at startup (landscape/tablet styles would otherwise be inert).
+const compiledNativeBootstrap = readdirSync(jsDir)
+  .filter((name) => name.endsWith(".js"))
+  .some((name) => {
+    const js = readFileSync(join(jsDir, name), "utf8");
+    return /classList[.]add[(]["']rihab-android["'][)]/.test(js);
+  });
+if (!compiledNativeBootstrap) {
+  throw new Error("Android bundle missing executable native bootstrap: responsive class is not activated");
+}
+console.log("Verified executable Android bootstrap and portrait/landscape layout activation.");
+
 // The exact corrected poster must be part of the OFFLINE Android WebView assets,
 // not merely referenced in web source or served by Lovable at runtime.
 const approvedPoster = readdirSync(jsDir).filter(name =>
