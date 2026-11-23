@@ -39,17 +39,23 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_4
-          ram-size: 2048M
-          disk-size: 4096M
+          ram-size: 4096M
+          disk-size: 8192M
           heap-size: 512M
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           script: |
             set -e
             adb install -r _android-apk/app-debug.apk
+            adb logcat -c || true
             adb shell am start -n com.rihabalkhaliliyya.app/.MainActivity
-            sleep 16
+            sleep 8
             PID=$(adb shell pidof com.rihabalkhaliliyya.app | tr -d '\r' | awk '{print $1}')
-            test -n "$PID"
+            if [ -z "$PID" ]; then
+              echo "::error::Native app process exited before book navigation; collecting the actual in-emulator crash report."
+              timeout 10s adb logcat -d -t 1500 | grep -Ei 'FATAL EXCEPTION|AndroidRuntime|OutOfMemory|chromium|WebView|Capacitor|com.rihabalkhaliliyya.app' | tail -150 || true
+              exit 1
+            fi
+            echo "Native app PID: $PID"
             adb forward tcp:9222 localabstract:webview_devtools_remote_$PID
             echo "Android WebView provider:"
             adb shell dumpsys webviewupdate | head -45
