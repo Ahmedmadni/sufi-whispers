@@ -1,0 +1,60 @@
+name: Android real WebView book diagnosis
+# Reuse the already-built 1.0.17 debug APK; inspect JavaScript failures on
+# actual Android WebView, not Chromium desktop emulation.
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "scripts/smoke-android-webview.py"
+      - ".github/workflows/android-book-webview.yml"
+permissions:
+  contents: read
+  actions: read
+jobs:
+  android-webview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded WebView protocol client
+        run: python -m pip install websocket-client==1.8.0
+      - name: Download the Android 1.0.17 debug APK for exact reproduction
+        uses: actions/download-artifact@v4
+        with:
+          name: rihab-android-debug-apk
+          repository: Ahmedmadni/sufi-whispers
+          run-id: 45120914541
+          github-token: ${{ github.token }}
+          path: _android-apk
+      - name: Enable KVM acceleration on hosted runner
+        run: |
+          sudo chmod 666 /dev/kvm
+      - name: Run 1.0.17 inside Android 12 WebView and inspect eight books
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 32
+          target: google_apis
+          arch: x86_64
+          profile: pixel_4
+          ram-size: 2048M
+          disk-size: 4096M
+          heap-size: 512M
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
+          script: |
+            set -e
+            adb install -r _android-apk/app-debug.apk
+            adb shell am start -n com.rihabalkhaliliyya.app/.MainActivity
+            sleep 16
+            PID=$(adb shell pidof com.rihabalkhaliliyya.app | tr -d '\r' | awk '{print $1}')
+            test -n "$PID"
+            adb forward tcp:9222 localabstract:webview_devtools_remote_$PID
+            echo "Android WebView provider:"
+            adb shell dumpsys webviewupdate | head -45
+            python scripts/smoke-android-webview.py
+      - name: Print diagnostic Android WebView errors
+        if: failure()
+        run: |
+          adb logcat -d -t 2000 2>/dev/null | grep -Ei "chromium|crash|exception|capacitor|webview|failed to fetch" | tail -180 || true
