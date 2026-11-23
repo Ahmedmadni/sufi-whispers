@@ -14,7 +14,13 @@ export function readBookZoom(storage: Pick<Storage, "getItem">): number {
 export function useBookZoomPreference() {
   const [zoom, setZoom] = useState(1);
   useEffect(() => {
-    setZoom(readBookZoom(window.localStorage));
+    // Reading window.localStorage can itself throw SecurityError in restricted
+    // Android WebViews. The book must remain readable with default zoom.
+    try {
+      setZoom(readBookZoom(window.localStorage));
+    } catch {
+      setZoom(1);
+    }
   }, []);
   return [zoom, setZoom] as const;
 }
