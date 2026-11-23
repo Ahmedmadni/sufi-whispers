@@ -1,0 +1,166 @@
+name: Publish Rihab Android 1.0.17 Signed Files
+
+# Only an independently audited, production-signed build on the latest main
+# may be published. This workflow never obtains or handles signing secrets.
+on:
+  workflow_run:
+    workflows: ["Android Signed Release Candidate"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: rihab-android-v1-0-17-prerelease
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'Ahmedmadni/sufi-whispers' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SOURCE_RUN: ${{ github.event.workflow_run.id }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+      RELEASE_TAG: v1.0.17-android-rc1
+    steps:
+      - name: Verify trusted signed source, monotonic version and full CI audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          details="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN")"
+          test "$(jq -r '.name' <<<"$details")" = "Android Signed Release Candidate"
+          test "$(jq -r '.conclusion' <<<"$details")" = "success"
+          test "$(jq -r '.status' <<<"$details")" = "completed"
+          test "$(jq -r '.head_sha' <<<"$details")" = "$SOURCE_SHA"
+          test "$(jq -r '.head_branch' <<<"$details")" = "main"
+          test "$(jq -r '.head_repository.full_name' <<<"$details")" = "$GITHUB_REPOSITORY"
+          # Never publish an outdated build if main has advanced while signing.
+          test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')" = "$SOURCE_SHA"
+          metadata="$(gh api "repos/$GITHUB_REPOSITORY/contents/config/android-release.json?ref=$SOURCE_SHA" --jq '.content' | base64 -d)"
+          test "$(jq -r '.applicationId' <<<"$metadata")" = "com.rihabalkhaliliyya.app"
+          test "$(jq -r '.versionName' <<<"$metadata")" = "1.0.17"
+          test "$(jq -r '.versionCode' <<<"$metadata")" = "18"
+          test "$(jq -r '.signing.keyAlias' <<<"$metadata")" = "rihab-production"
+          jobs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$SOURCE_RUN/jobs?per_page=30")"
+          jq -e '.jobs | any(.name == "signed-release" and .conclusion == "success" and
+            (.steps | any(.name == "Verify independently archived Quran source and load pinned digest" and .conclusion == "success")) and
+            (.steps | any(.name == "Verify release signature, identity and bundled content" and .conclusion == "success")) and
+            (.steps | any(.name == "Enforce release APK security flags and minimal permissions" and .conclusion == "success")))' <<<"$jobs" >/dev/null
+          # The signed APK alone cannot substitute for frontend/mobile code QA.
+          # Require completed quality, web rendering and debug APK runs on
+          # this very SHA before publishing any user-downloadable binaries.
+          # workflow_run for the signed APK can finish BEFORE Android Debug;
+          # previously this immediately failed on a healthy, still-running job.
+          # Wait for the exact-SHA quality gates, fail closed on a real failure,
+          # and never accept results from any older/other commit.
+          qa_passed=false
+          for attempt in $(seq 1 40); do
+            test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')" = "$SOURCE_SHA" || {
+              echo "BLOCKED: main advanced during QA wait; cannot publish stale APK."
+              exit 1
+            }
+            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$SOURCE_SHA&per_page=100")"
+            all_passed=true
+            for required in "Quality checks" "Web Preview Smoke" "Android Debug APK"; do
+              if jq -e --arg name "$required" --arg sha "$SOURCE_SHA" '
+                [.workflow_runs[]
+                  | select(.name == $name and .head_sha == $sha and
+                           .status == "completed" and .conclusion == "success")]
+                | length > 0
+              ' <<<"$runs" >/dev/null; then
+                continue
+              fi
+              # A completed failed/cancelled/neutral run is a real blocker.
+              # Waiting only applies to absent, queued or running jobs.
+              if jq -e --arg name "$required" --arg sha "$SOURCE_SHA" '
+                [.workflow_runs[]
+                  | select(.name == $name and .head_sha == $sha and
+                           .status == "completed" and .conclusion != "success")]
+                | length > 0
+              ' <<<"$runs" >/dev/null; then
+                echo "BLOCKED: $required completed without success on $SOURCE_SHA"
+                exit 1
+              fi
+              all_passed=false
+              echo "WAITING: $required not yet successful on $SOURCE_SHA (attempt $attempt/40)"
+            done
+            if [ "$all_passed" = true ]; then
+              qa_passed=true
+              break
+            fi
+            sleep 30
+          done
+          if [ "$qa_passed" != true ]; then
+            echo "BLOCKED: timed out waiting for all required exact-SHA quality gates."
+            exit 1
+          fi
+          echo "PASS: quality, web preview and debug APK all passed on the exact signed SHA."
+          echo "PASS: secure 1.0.17 signing provenance, version 18, and Quran/security gates."
+      - name: Check out the exact verified release source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Download production-signed APK and AAB without rebuilding
+        uses: actions/download-artifact@v4
+        with:
+          name: rihab-android-signed-release-candidate
+          repository: Ahmedmadni/sufi-whispers
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: signed-artifact
+      - name: Verify signed package contents and produce checksum manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$(find signed-artifact -type f -name app-release.apk -print -quit)"
+          aab="$(find signed-artifact -type f -name app-release.aab -print -quit)"
+          test -n "$apk" && test -n "$aab"
+          test "$(find signed-artifact -type f -name app-release.apk | wc -l)" -eq 1
+          test "$(find signed-artifact -type f -name app-release.aab | wc -l)" -eq 1
+          test "$(stat -c%s "$apk")" -gt 100000000
+          test "$(stat -c%s "$aab")" -gt 100000000
+          unzip -tq "$apk" >/dev/null
+          unzip -tq "$aab" >/dev/null
+          python scripts/verify-android-release.py "$apk" "$aab"
+          mkdir -p signed-public
+          cp "$apk" signed-public/Rihab-Al-Khaliliyya-1.0.17.apk
+          cp "$aab" signed-public/Rihab-Al-Khaliliyya-1.0.17.aab
+          (cd signed-public && sha256sum Rihab-Al-Khaliliyya-1.0.17.apk Rihab-Al-Khaliliyya-1.0.17.aab > SHA256SUMS.txt)
+      - name: Publish immutable signed prerelease APK and AAB
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release-notes.md <<'NOTES'
+          رحاب الخليلية Android 1.0.17 — إصلاح تشغيل واجهة Android الأصلية وضمان تفعيل تنسيقات الهاتف والتابلت في الوضعين الأفقي والرأسي.
+
+          - إصلاح ملف بدء Android الذي كان يحتوي على رموز أسطر حرفية داخل تعليق وقد يمنع تشغيل التطبيق بالكامل، مع فحص حزمة JavaScript المبنية.
+          - تفعيل تدوير الشاشة رأسيًا وأفقيًا للهاتف والتابلت؛ يحترم التطبيق إعداد التدوير التلقائي (fullUser).
+          - توزيع هيرو الشيخ المعتمد وخط الاسم الصحيح على وضع الشاشة الأفقي، دون تغيير صورة النسخة الرأسية.
+          - تحسين ارتفاع شريط التنقل ومكان مشغل الورد وأزرار القارئ في الوضع الأفقي، ودعم مساحات الأمان.
+          - تحسين موضع أزرار الفهرس وبطاقة الأبيات وملء الشاشة مباشرة فوق مشغل الورد الصوتي، في الوضعين العادي والغامر.
+          - إضافة محرر بطاقة الأبيات بمقاسي مربع وستوري وألوان الهوية، وخيارات مشاركة الصورة أو نسخ النص.
+          - تنبيه واضح عند طلب تنزيل الصورة في WebView؛ خيار تنزيل الصورة قد يختلف بحسب جهاز Android.
+          - الحفاظ على 604 صفحة مصحف أصلية و1040 صفحة للكتب الأخرى، وخط المصحف، والتسجيلات، والتذكيرات، والنسخ الاحتياطية.
+          - معرّف التطبيق ثابت والتوقيع الإنتاجي الأصلي محفوظ؛ versionCode=18، ترقية فوق 1.0.16.
+          - لا تحذف النسخة السابقة قبل أخذ نسخة احتياطية. يتطلب الاعتماد النهائي اختبار اللمس والصوت والحفظ على هاتف حقيقي.
+          - APK للتثبيت المباشر؛ AAB لرفع المطوّر إلى Google Play.
+          NOTES
+          # Never silently replace binaries belonging to an existing release tag.
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Immutable release already exists; leaving original assets unchanged."
+            exit 0
+          fi
+          gh release create "$RELEASE_TAG" signed-public/* --repo "$GITHUB_REPOSITORY" \
+            --target "$SOURCE_SHA" \
+            --title "رحاب الخليلية — Android 1.0.17 (Signed RC)" \
+            --notes-file release-notes.md --prerelease
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json url,assets \
+            --jq '{url: .url, assets: [.assets[] | {name: .name, url: .url}]}'
