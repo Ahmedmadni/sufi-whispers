@@ -17,11 +17,14 @@ concurrency:
 
 jobs:
   publish:
+    # Historical publisher remains immutable for the existing 1.0.16 release.
+    # Never try to publish 1.0.17 with 1.0.16 version gates.
     if: >-
       github.repository == 'Ahmedmadni/sufi-whispers' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers'
+      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers' &&
+      github.event.workflow_run.head_sha == '7e77b72d2e67ba8058c08251fd17356d63ceb8c4'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
