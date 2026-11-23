@@ -46,6 +46,8 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const isAndroid = import.meta.env.VITE_MOBILE === "true";
+  const diagnostic = error instanceof Error ? `${error.name}: ${error.message}` : String(error ?? "Unknown reader error");
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md text-center glass rounded-2xl p-10">
@@ -53,9 +55,17 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
         <p className="mt-2 text-sm text-muted-foreground font-body">
           لم نتمكن من تحميل هذه الصفحة.
         </p>
+        {isAndroid && (
+          <details className="mt-4 rounded-lg border border-gold/20 px-3 py-2 text-right">
+            <summary className="cursor-pointer text-xs text-gold-soft">تفاصيل الخطأ للمساعدة في إصلاح القارئ</summary>
+            <p className="mt-2 break-all text-left text-xs text-muted-foreground" dir="ltr" data-testid="rihab-reader-error-detail">
+              {diagnostic.slice(0, 400)}
+            </p>
+          </details>
+        )}
         <div className="mt-6 flex justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => { if (isAndroid) window.location.reload(); else { router.invalidate(); reset(); } }}
             className="rounded-lg glass-gold px-4 py-2 text-sm text-gold-soft"
           >
             إعادة المحاولة

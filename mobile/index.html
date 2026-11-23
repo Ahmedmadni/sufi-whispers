@@ -36,6 +36,16 @@
       @media (prefers-reduced-motion: reduce) { .rihab-boot__track::before { animation: none; width: 100%; } .rihab-boot { transition: none; } }
     </style>
     <script>
+      // Older Android System WebViews lack Promise.withResolvers, which PDF.js
+      // requires when the user opens the original Jami al-Nafahat book.
+      // This MUST execute before the type=module React bundle and lazy imports.
+      if (typeof Promise.withResolvers !== "function") {
+        Promise.withResolvers = function() {
+          var resolve, reject;
+          var promise = new this(function(done, fail) { resolve = done; reject = fail; });
+          return { promise: promise, resolve: resolve, reject: reject };
+        };
+      }
       try {
         document.documentElement.classList.add("light");
       } catch (_) { document.documentElement.classList.add("light"); }
