@@ -44,7 +44,11 @@ describe("Android 1.0.18 book reader WebView recovery", () => {
 
   test("zoom fallback catches blocked Android WebView storage access", () => {
     const code = read("src/lib/book-zoom-preference.ts");
-    expect(code).toContain("try {\\n      setZoom(readBookZoom(window.localStorage));\\n    } catch {\\n      setZoom(1);");
+    const attempt = code.indexOf("setZoom(readBookZoom(window.localStorage))");
+    const handler = code.indexOf("} catch {", attempt);
+    expect(attempt).toBeGreaterThan(0);
+    expect(handler).toBeGreaterThan(attempt);
+    expect(code.slice(handler, handler + 50)).toContain("setZoom(1)");
     expect(code).toContain('try { window.localStorage.setItem(BOOK_ZOOM_KEY');
   });
 
