@@ -2,9 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 
 const read = (p: string) => readFileSync(p, "utf8");
-const publisher = read(".github/workflows/publish-signed-android-v1.0.16.yml");
+const publisher = read(".github/workflows/publish-signed-android-v1.0.17.yml");
 
-describe("Android 1.0.16 release publisher synchronization", () => {
+describe("Android 1.0.17 release publisher synchronization", () => {
   test("waits for exact-source-SHA quality gates instead of racing Android Debug", () => {
     expect(publisher).toContain("for attempt in $(seq 1 40); do");
     expect(publisher).toContain("sleep 30");
@@ -28,22 +28,22 @@ describe("Android 1.0.16 release publisher synchronization", () => {
   });
 
   test("every publisher-only edit triggers a matching debug and signed build on main", () => {
-    const path = '".github/workflows/publish-signed-android-v1.0.16.yml"';
+    const path = '".github/workflows/publish-signed-android-v1.0.17.yml"';
     const debug = read(".github/workflows/android-debug.yml");
     const signed = read(".github/workflows/android-release.yml");
     expect(debug.split(path).length - 1).toBe(2);
     expect(signed.split(path).length - 1).toBe(1);
     expect(read(".github/workflows/preview-smoke.yml")).not.toContain("paths:");
-    expect(publisher).toContain('RELEASE_TAG: v1.0.16-android-rc1');
+    expect(publisher).toContain('RELEASE_TAG: v1.0.17-android-rc1');
     expect(publisher).toContain("Immutable release already exists; leaving original assets unchanged.");
   });
 
-  test("release metadata stays compatible with the already installed 1.0.15", () => {
+  test("release metadata stays compatible with the already installed 1.0.16", () => {
     const meta = JSON.parse(read("config/android-release.json"));
     expect(meta).toMatchObject({
       applicationId: "com.rihabalkhaliliyya.app",
-      versionName: "1.0.16",
-      versionCode: 17,
+      versionName: "1.0.17",
+      versionCode: 18,
       signing: { keyAlias: "rihab-production" },
     });
     expect(read("scripts/android-orientation.mjs")).toContain('export const ANDROID_ORIENTATION = "fullUser"');
