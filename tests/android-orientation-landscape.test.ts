@@ -8,7 +8,7 @@ const read = (p: string) => readFileSync(p, "utf8");
 const mainActivity = '<activity android:name=".MainActivity" android:configChanges="orientation|screenSize" android:exported="true">';
 const pluginActivity = '<activity android:name="com.example.OtherActivity" android:screenOrientation="portrait">';
 
-describe("Android 1.0.16 portrait AND landscape on phone and tablet", () => {
+describe("Android 1.0.17 portrait AND landscape on phone and tablet", () => {
   test("fullUser honors auto-rotation and allows all four physical directions", () => {
     expect(ANDROID_ORIENTATION).toBe("fullUser");
     const source = '<manifest><application>' + mainActivity + pluginActivity + '</application></manifest>';
@@ -88,10 +88,10 @@ describe("Android 1.0.16 portrait AND landscape on phone and tablet", () => {
 
   test("new release preserves signing identity and is strictly newer than 1.0.15", () => {
     const metadata = JSON.parse(read("config/android-release.json"));
-    expect(metadata.versionName).toBe("1.0.16");
-    expect(metadata.versionCode).toBe(17);
+    expect(metadata.versionName).toBe("1.0.17");
+    expect(metadata.versionCode).toBe(18);
     expect(metadata.applicationId).toBe("com.rihabalkhaliliyya.app");
     expect(metadata.signing.keyAlias).toBe("rihab-production");
-    expect(read(".github/workflows/publish-signed-android-v1.0.16.yml")).toContain("v1.0.16-android-rc1");
+    expect(read(".github/workflows/publish-signed-android-v1.0.17.yml")).toContain("v1.0.17-android-rc1");
   });
 });
