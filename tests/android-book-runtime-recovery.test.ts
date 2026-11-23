@@ -42,6 +42,12 @@ describe("Android 1.0.18 book reader WebView recovery", () => {
     expect(root).toContain("diagnostic.slice(0, 400)");
   });
 
+  test("zoom fallback catches blocked Android WebView storage access", () => {
+    const code = read("src/lib/book-zoom-preference.ts");
+    expect(code).toContain("try {\\n      setZoom(readBookZoom(window.localStorage));\\n    } catch {\\n      setZoom(1);");
+    expect(code).toContain('try { window.localStorage.setItem(BOOK_ZOOM_KEY');
+  });
+
   test("all eight original source books and safety gates remain unchanged", () => {
     const books = read("src/data/books.ts");
     for (const id of ["nafahat", "ward", "sirah", "kashf", "nafahat-khaliliyya", "murabbi", "manaqib", "manahil"]) {
