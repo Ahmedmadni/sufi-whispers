@@ -57,4 +57,4 @@ jobs:
       - name: Print diagnostic Android WebView errors
         if: failure()
         run: |
-          adb logcat -d -t 2000 2>/dev/null | grep -Ei "chromium|crash|exception|capacitor|webview|failed to fetch" | tail -180 || true
+          timeout 12s adb logcat -d -t 500 2>/dev/null | grep -Ei "chromium|crash|exception|capacitor|webview|failed to fetch" | tail -90 || true
