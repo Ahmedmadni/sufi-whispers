@@ -66,7 +66,9 @@ try {
         console.error(`FAIL ${book} at ${size.width}x${size.height}: route error or no reader`);
       }
       // Return through the actual navigation bar; never a hard browser reload.
-      const libraryLink = page.locator('a[href$="/library"]').first();
+      // The desktop header link exists in the DOM on phones but is hidden.
+      // Choose the *visible* link for the current viewport, just as a user would.
+      const libraryLink = page.locator('a[href$="/library"]:visible').first();
       await libraryLink.click({ timeout: 30000 });
       await page.locator('a[href$="/books/' + book + '"]').first().waitFor({ timeout: 30000 });
     }
