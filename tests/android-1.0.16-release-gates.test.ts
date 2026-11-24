@@ -8,13 +8,13 @@ const exactPoster = readFileSync("src/assets/rihab-approved-full-mobile-poster.w
 const sha256 = createHash("sha256").update(exactPoster).digest("hex");
 const expected = "3987f7f4fe27eaf9c68f677c91c09526f5f9854fbab252d402b413bc75b87598";
 
-describe("Android 1.0.19 release quality gates", () => {
+describe("Android 1.0.20 release quality gates", () => {
   test("app updates in place, never changes package/signing identity", () => {
     expect(meta).toEqual({
       appName: "رحاب الخليلية",
       applicationId: "com.rihabalkhaliliyya.app",
-      versionName: "1.0.19",
-      versionCode: 20,
+      versionName: "1.0.20",
+      versionCode: 21,
       signing: {
         keystoreFileName: "rihab-production.jks",
         keyAlias: "rihab-production",
@@ -85,7 +85,7 @@ describe("Android 1.0.19 release quality gates", () => {
   });
   test("web smoke must run on every release source SHA, even for Android-only changes", () => {
     const preview = read(".github/workflows/preview-smoke.yml");
-    const publisher = read(".github/workflows/publish-signed-android-v1.0.19.yml");
+    const publisher = read(".github/workflows/publish-signed-android-v1.0.20.yml");
     expect(preview).toContain("Web Preview Smoke");
     expect(preview).toContain("push:");
     expect(preview).toContain("pull_request:");
@@ -94,9 +94,9 @@ describe("Android 1.0.19 release quality gates", () => {
     expect(publisher).toContain('for required in "Quality checks" "Web Preview Smoke" "Android Debug APK" "Android book reader runtime smoke"');
   });
   test("new publisher refuses an old build, missing QA, bad signing or version regression", () => {
-    const publisher = read(".github/workflows/publish-signed-android-v1.0.19.yml");
-    expect(publisher).toContain("v1.0.19-android-rc1");
-    expect(publisher).toContain('test "$(jq -r \'.versionCode\' <<<"$metadata")" = "20"');
+    const publisher = read(".github/workflows/publish-signed-android-v1.0.20.yml");
+    expect(publisher).toContain("v1.0.20-android-rc1");
+    expect(publisher).toContain('test "$(jq -r \'.versionCode\' <<<"$metadata")" = "21"');
     expect(publisher).toContain("Quality checks");
     expect(publisher).toContain("Web Preview Smoke");
     expect(publisher).toContain("Android Debug APK");
@@ -105,8 +105,8 @@ describe("Android 1.0.19 release quality gates", () => {
     expect(publisher).toContain("Verify release signature, identity and bundled content");
     expect(publisher).toContain("Enforce release APK security flags and minimal permissions");
     expect(publisher).toContain("python scripts/verify-android-release.py");
-    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.19.apk");
-    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.19.aab");
+    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.20.apk");
+    expect(publisher).toContain("Rihab-Al-Khaliliyya-1.0.20.aab");
     expect(publisher).toContain("Immutable release already exists; leaving original assets unchanged.");
     expect(publisher).not.toContain("Rihab-Al-Khaliliyya-1.0.14.apk");
   });
