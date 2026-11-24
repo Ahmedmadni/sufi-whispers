@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { clampPage, parseSavedPage } from "@/lib/reading-page";
 import { loadLocalBookPdf } from "@/lib/book-pdf-source";
@@ -96,6 +96,9 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     setPageRatios(previous => previous[target] === ratio ? previous : {...previous, [target]: ratio});
   }, []);
   const continuousRef = useRef<ContinuousBookHandle>(null);
+  // Selection from the seven original printed index sheets must survive the
+  // unmount of the index stack and the mount of the book stack.
+  const pendingPrintedIndexJump = useRef<number | null>(null);
   const [pageWidth, setPageWidth] = useState(360);
   const renderedWidth = Math.max(1, Math.floor(pageWidth * scale));
   const continuousLayout=useMemo(()=>createContinuousLayout(numPages,renderedWidth,target=>pageRatios[target] ?? 1.415,12),[numPages,renderedWidth,pageRatios]);
@@ -186,6 +189,41 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
     },
     [numPages,mode,printedIndexOpen]
   );
+
+  // Selecting an original printed reference switches between two virtualized
+  // stacks. React batches both changes; the old index stack is still mounted
+  // during the click, so jumping through its ref would target index page 1.
+  // Instead commit the destination after the reading stack has mounted and
+  // laid out, then let its normal continuous-scroll tracking resume.
+  const jumpFromPrintedIndex = useCallback((target: number) => {
+    if (numPages < 1) return;
+    const destination = clampPage(target, numPages);
+    pendingPrintedIndexJump.current = destination;
+    setPage(destination);
+    setPrintedIndexOpen(false);
+  }, [numPages]);
+
+  useLayoutEffect(() => {
+    const target = pendingPrintedIndexJump.current;
+    if (printedIndexOpen || target === null || numPages < 1) return;
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      if (pendingPrintedIndexJump.current !== target) return;
+      continuousRef.current?.jumpToPage(target);
+      // Run once more after PDF.js has had an opportunity to apply canvas
+      // geometry; do not mistake the index scroll offset for the book page.
+      secondFrame = requestAnimationFrame(() => {
+        if (pendingPrintedIndexJump.current !== target) return;
+        continuousRef.current?.jumpToPage(target);
+        pendingPrintedIndexJump.current = null;
+        setPage(target);
+      });
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      if (secondFrame) cancelAnimationFrame(secondFrame);
+    };
+  }, [printedIndexOpen, numPages, continuousLayout]);
 
   // Match the printed Arabic Mushaf: swipe RIGHT for the next page;
   // swipe LEFT for previous. Keep existing up/down gestures as secondary controls.
@@ -477,16 +515,16 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
                 <NafahatPrintedIndex
                   sheet={NAFAHAT_INDEX_FIRST + indexPage - 1}
                   width={printedIndexWidth}
-                  onJump={target => {
-                    goTo(target);
-                    setPrintedIndexOpen(false);
-                  }}
+                  onJump={jumpFromPrintedIndex}
                 />
               )}
             />
           ) : mode==="continuous" && numPages>0 ? (
             <ContinuousBookStack key="book-pages" ref={continuousRef} layout={continuousLayout} width={renderedWidth}
-              initialPage={page} overscan={scale < 1.75 ? 1 : 0} viewportRef={viewerRef} onActivePage={setPage}
+              initialPage={page} overscan={scale < 1.75 ? 1 : 0} viewportRef={viewerRef}
+              onActivePage={active => {
+                if (pendingPrintedIndexJump.current === null) setPage(active);
+              }}
               renderPage={(target)=>(
                 <Page key={target} pageNumber={target} width={renderedWidth}
                   onLoadSuccess={source => {
