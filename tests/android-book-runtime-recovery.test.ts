@@ -4,7 +4,7 @@ import { freshMobileAppUrl, isModuleLoadFailure } from "../src/lib/mobile-route-
 
 const read = (path: string) => readFileSync(path, "utf8");
 
-describe("Android 1.0.19 book reader WebView recovery", () => {
+describe("Android 1.0.20 book reader WebView recovery", () => {
   test("detects failed dynamic imports and preserves other failures for diagnostics", () => {
     expect(isModuleLoadFailure(new TypeError("Failed to fetch dynamically imported module"))).toBe(true);
     expect(isModuleLoadFailure(new Error("Importing a module script failed."))).toBe(true);
@@ -14,17 +14,17 @@ describe("Android 1.0.19 book reader WebView recovery", () => {
 
   test("cache bust is bounded and preserves the active offline book hash", () => {
     const source = "https://localhost/#/books/ward?wird=4";
-    const retry = freshMobileAppUrl(source, "android-1.0.19");
-    expect(retry).toBe("https://localhost/?rihab-assets=android-1.0.19#/books/ward?wird=4");
-    expect(freshMobileAppUrl(retry!, "android-1.0.19")).toBeNull();
-    expect(freshMobileAppUrl("file:///books/ward", "android-1.0.19")).toBeNull();
+    const retry = freshMobileAppUrl(source, "android-1.0.20");
+    expect(retry).toBe("https://localhost/?rihab-assets=android-1.0.20#/books/ward?wird=4");
+    expect(freshMobileAppUrl(retry!, "android-1.0.20")).toBeNull();
+    expect(freshMobileAppUrl("file:///books/ward", "android-1.0.20")).toBeNull();
   });
 
   test("Capacitor bootstrap recovers a failed preload only once", () => {
     const script = read("mobile/main.tsx");
     expect(script).toContain('window.addEventListener("vite:preloadError"');
     expect(script).toContain('window.location.replace(next)');
-    expect(script).toContain('freshMobileAppUrl(window.location.href, "android-1.0.19")');
+    expect(script).toContain('freshMobileAppUrl(window.location.href, "android-1.0.20")');
     expect(script).toMatch(/^document[.]documentElement[.]classList[.]add[(]"rihab-android"[)];$/m);
   });
 
@@ -63,7 +63,7 @@ describe("Android 1.0.19 book reader WebView recovery", () => {
       expect(yaml).toContain('"scripts/smoke-mobile-books.mjs"');
       expect(yaml).toContain('".github/workflows/android-book-smoke.yml"');
     }
-    expect(read(".github/workflows/publish-signed-android-v1.0.19.yml")).toContain('"Android book reader runtime smoke"');
+    expect(read(".github/workflows/publish-signed-android-v1.0.20.yml")).toContain('"Android book reader runtime smoke"');
   });
 
   test("all eight original source books and safety gates remain unchanged", () => {

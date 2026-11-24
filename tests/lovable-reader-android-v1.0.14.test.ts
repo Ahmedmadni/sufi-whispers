@@ -69,14 +69,14 @@ describe("Lovable 2026-11-11 Android follow-through", () => {
   test("next Android version is a compatible upgrade preserving signing identity", () => {
     const oldTag = read(".github/workflows/publish-signed-android-v1.0.13.yml");
     const metadata = JSON.parse(read("config/android-release.json"));
-    expect(metadata.versionName).toBe("1.0.19");
-    expect(metadata.versionCode).toBe(20);
+    expect(metadata.versionName).toBe("1.0.20");
+    expect(metadata.versionCode).toBe(21);
     expect(metadata.applicationId).toBe("com.rihabalkhaliliyya.app");
     expect(metadata.signing.keyAlias).toBe("rihab-production");
     expect(metadata.signing.keystoreFileName).toBe("rihab-production.jks");
     expect(oldTag).toContain("false &&");
-    const publisher = read(".github/workflows/publish-signed-android-v1.0.19.yml");
-    expect(publisher).toContain("v1.0.19-android-rc1");
+    const publisher = read(".github/workflows/publish-signed-android-v1.0.20.yml");
+    expect(publisher).toContain("v1.0.20-android-rc1");
     expect(publisher).toContain("workflow_run:");
     expect(publisher).toContain("head_branch == 'main'");
     expect(publisher).toContain("signed-release");

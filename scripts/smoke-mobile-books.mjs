@@ -66,25 +66,41 @@ try {
         console.error(`FAIL ${book} at ${size.width}x${size.height}: route error or no reader`);
       }
       if (book === "nafahat") {
-        // Reproduce the user's exact bug: tap a poem in Jami al-Nafahat's
-        // ORIGINAL scanned seven-sheet index, not a synthetic outline.
-        await page.getByRole("button", { name: "فهرس جامع النفحات" }).click();
-        const poem = page.getByRole("button", { name: "فتح العنوان المطبوع في صفحة 42" }).first();
-        await poem.click({ timeout: 30000 });
-        await page.waitForTimeout(1150);
-        const position = await page.evaluate(() => ({
-          saved: localStorage.getItem("reader.page.nafahat"),
-          selected: !!document.querySelector('.continuous-book-stack [role="listitem"][aria-label="صفحة 42 من 432"]'),
-          openIndex: !!document.querySelector('[aria-label^="الفهرس المطبوع الأصلي"]'),
-          scrollTop: document.querySelector(".book-pdf-stage")?.scrollTop || 0,
-          readerError: document.body.innerText.includes("لم نتمكن من تحميل هذه الصفحة"),
-        }));
-        console.log(JSON.stringify({ size, check: "nafahat-printed-index-jump", expected: 42, ...position }));
-        if (position.saved !== "42" || !position.selected || position.openIndex || position.readerError || position.scrollTop < 1000) {
-          errorsFound++;
-          await page.screenshot({ path: join(out, `failed-nafahat-index-${size.width}.png`), fullPage: false });
-          console.error(`FAIL Jami al-Nafahat index tap at ${size.width}x${size.height}: selected 42 but reader did not jump`);
+        // Check original first, middle and LAST printed TOC sheets, with
+        // distinct source pages. Reopening the TOC must preserve the sheet.
+        for (const { sheet, target } of [
+          { sheet: 425, target: 42 },
+          { sheet: 427, target: 181 },
+          { sheet: 431, target: 420 },
+        ]) {
+          await page.getByRole("button", { name: "فهرس جامع النفحات" }).click();
+          const chooser = page.getByRole("combobox", { name: "صفحة فهرس جامع النفحات" });
+          await chooser.selectOption(String(sheet));
+          await page.getByRole("button", { name: "فتح العنوان المطبوع في صفحة " + target }).first().click({ timeout: 30000 });
+          await page.waitForTimeout(1200);
+          const position = await page.evaluate((expected) => ({
+            saved: localStorage.getItem("reader.page.nafahat"),
+            selected: !!document.querySelector('.continuous-book-stack [role="listitem"][aria-label="صفحة ' + expected + ' من 432"]'),
+            openIndex: !!document.querySelector('[aria-label^="الفهرس المطبوع الأصلي"]'),
+            scrollTop: document.querySelector(".book-pdf-stage")?.scrollTop || 0,
+            readerError: document.body.innerText.includes("لم نتمكن من تحميل هذه الصفحة"),
+          }), target);
+          console.log(JSON.stringify({ size, check: "nafahat-printed-index-jump", sheet, expected: target, ...position }));
+          if (position.saved !== String(target) || !position.selected || position.openIndex || position.readerError || position.scrollTop < 1000) {
+            errorsFound++;
+            await page.screenshot({ path: join(out, `failed-nafahat-index-${size.width}-${sheet}.png`), fullPage: false });
+            console.error(`FAIL Jami al-Nafahat sheet ${sheet} page ${target} at ${size.width}x${size.height}`);
+          }
         }
+        // Page 431 (the last sheet) should still be selected on reopening,
+        // rather than silently returning to index page 425.
+        await page.getByRole("button", { name: "فهرس جامع النفحات" }).click();
+        const remembered = await page.getByRole("combobox", { name: "صفحة فهرس جامع النفحات" }).inputValue();
+        if (remembered !== "431") {
+          errorsFound++;
+          console.error("FAIL: printed index did not remember its last sheet", remembered);
+        }
+        await page.getByRole("button", { name: "إغلاق الفهرس" }).click();
       }
       // Return through the actual navigation bar; never a hard browser reload.
       // The desktop header link exists in the DOM on phones but is hidden.
