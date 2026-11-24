@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Facebook, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
+import { FacebookGroupIcon } from "@/components/FacebookGroupIcon";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Ornament } from "@/components/Decorations";
@@ -144,7 +145,7 @@ function ShaykhPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 text-sm font-body text-foreground/85 hover:text-gold-soft hover:border-gold/60 transition-colors"
             >
-              <Facebook className="w-4 h-4 text-[#0866FF]" aria-hidden="true" />
+              <FacebookGroupIcon className="h-5 w-5" />
               <span>مجموعة الجمعية على فيسبوك</span>
             </a>
           </div>
