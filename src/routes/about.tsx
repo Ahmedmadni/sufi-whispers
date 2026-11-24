@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Facebook } from "lucide-react";
+import { FacebookGroupIcon } from "@/components/FacebookGroupIcon";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -71,7 +71,7 @@ function AboutPage() {
             aria-label="تواصل مع المطور عبر فيسبوك"
             className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg border border-gold/25 px-4 py-2 font-body text-sm text-foreground/90 transition-colors hover:border-gold/50 hover:bg-gold/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           >
-            <Facebook className="h-5 w-5 text-[#0866FF]" aria-hidden="true" />
+            <FacebookGroupIcon className="h-5 w-5" />
             تواصل مع المطور
           </a>
         </section>

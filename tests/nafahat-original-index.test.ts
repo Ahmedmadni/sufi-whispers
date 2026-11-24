@@ -38,6 +38,10 @@ describe("Phase 34: genuine complete Jami al-Nafahat printed index", () => {
     expect(reader).toContain("NafahatPrintedIndex");
     expect(reader).toContain('bookId === "nafahat" && printedIndexOpen');
     expect(reader).toContain("setPrintedIndexOpen(false)");
+    expect(reader).toContain("pendingPrintedIndexJump.current = destination");
+    expect(reader).toContain("onJump={jumpFromPrintedIndex}");
+    expect(reader).toContain("continuousRef.current?.jumpToPage(target)");
+    expect(reader).toContain("if (pendingPrintedIndexJump.current === null) setPage(active)");
     expect(reader).toContain("NAFAHAT_INDEX_REFERENCES");
   });
   test("no fake quarter/half index; full PDF bookmark titles are not cut to 60", () => {

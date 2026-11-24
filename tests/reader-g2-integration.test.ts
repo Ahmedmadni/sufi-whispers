@@ -15,7 +15,7 @@ describe("G2 continuous mode integration in eight books",()=>{
     expect(view).not.toContain("changeReaderMode(");
     expect(view).toContain('mode==="continuous"');
     expect(view).toContain("<ContinuousBookStack");
-    expect(view).toContain("onActivePage={setPage}");
+    expect(view).toContain("onActivePage");
     expect(view).toContain("continuousRef.current?.jumpToPage");
   }
   expect(books).toHaveLength(8);
