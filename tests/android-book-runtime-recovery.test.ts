@@ -52,6 +52,20 @@ describe("Android 1.0.18 book reader WebView recovery", () => {
     expect(code).toContain('try { window.localStorage.setItem(BOOK_ZOOM_KEY');
   });
 
+  test("smoke clicks visible library link and runs for every signed Android source", () => {
+    const smoke = read("scripts/smoke-mobile-books.mjs");
+    expect(smoke).toContain('a[href$="/library"]:visible');
+    expect(smoke).not.toContain("page.locator('a[href$=\"/library\"]').first()");
+    expect(smoke).toContain("await link.click({ timeout: 30000 })");
+    expect(smoke).toContain("await libraryLink.click({ timeout: 30000 })");
+    for (const workflow of [".github/workflows/android-release.yml", ".github/workflows/android-debug.yml"]) {
+      const yaml = read(workflow);
+      expect(yaml).toContain('"scripts/smoke-mobile-books.mjs"');
+      expect(yaml).toContain('".github/workflows/android-book-smoke.yml"');
+    }
+    expect(read(".github/workflows/publish-signed-android-v1.0.18.yml")).toContain('"Android book reader runtime smoke"');
+  });
+
   test("all eight original source books and safety gates remain unchanged", () => {
     const books = read("src/data/books.ts");
     for (const id of ["nafahat", "ward", "sirah", "kashf", "nafahat-khaliliyya", "murabbi", "manaqib", "manahil"]) {
