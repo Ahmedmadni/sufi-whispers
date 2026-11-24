@@ -17,6 +17,8 @@ on:
       - ".github/workflows/publish-signed-android-v1.0.16.yml"
       - ".github/workflows/publish-signed-android-v1.0.17.yml"
       - ".github/workflows/publish-signed-android-v1.0.18.yml"
+      - ".github/workflows/android-book-smoke.yml"
+      - "scripts/smoke-mobile-books.mjs"
       - "scripts/verify-android-launcher-icons.py"
       - "src/**"
       - "mobile/**"
