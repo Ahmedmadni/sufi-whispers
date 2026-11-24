@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook } from "lucide-react";
+import { FacebookGroupIcon } from "@/components/FacebookGroupIcon";
 import { SalawatRotator } from "@/components/Salawat";
 
 
@@ -40,7 +40,7 @@ export function SiteFooter() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 text-foreground/75 hover:text-gold-soft transition-colors"
           >
-            <Facebook className="w-3.5 h-3.5 text-[#0866FF]" aria-hidden="true" />
+            <FacebookGroupIcon className="h-[18px] w-[18px]" />
             فيسبوك
           </a>
         </nav>
