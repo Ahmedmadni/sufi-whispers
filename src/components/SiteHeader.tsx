@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Settings2 } from "lucide-react";
+import { Settings2 } from "lucide-react";
+import { FacebookGroupIcon } from "@/components/FacebookGroupIcon";
 import logo from "@/assets/rihab-logo-clean.png";
 
 const linkClass =
@@ -43,9 +44,9 @@ export function SiteHeader() {
             rel="noopener noreferrer"
             aria-label="مجموعة الجمعية على فيسبوك"
             title="فيسبوك الجمعية"
-            className="rihab-header-action hidden sm:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 text-gold-soft hover:bg-gold/10"
+            className="rihab-header-action inline-flex h-9 w-9 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 bg-card/65 transition-colors hover:border-[#0866FF]/60 hover:bg-[#0866FF]/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0866FF]"
           >
-            <Facebook className="h-5 w-5 text-[#0866FF]" strokeWidth={2.3} aria-hidden="true" />
+            <FacebookGroupIcon className="h-[22px] w-[22px] sm:h-6 sm:w-6" />
           </a>
           <Link to="/settings" aria-label="الإعدادات والنسخ الاحتياطي" title="الإعدادات والنسخ الاحتياطي"
             className="rihab-header-action inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-gold/20 text-gold-soft hover:bg-gold/10">
