@@ -22,7 +22,7 @@ document.documentElement.classList.add("rihab-android");
 window.addEventListener("vite:preloadError", (event: Event) => {
   event.preventDefault();
   try {
-    const next = freshMobileAppUrl(window.location.href, "android-1.0.19");
+    const next = freshMobileAppUrl(window.location.href, "android-1.0.20");
     if (next) window.location.replace(next);
   } catch (error) {
     console.warn("Cannot recover a stale Android module import", error);
