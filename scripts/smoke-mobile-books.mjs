@@ -65,6 +65,27 @@ try {
         await page.screenshot({ path, fullPage: false }).catch(()=>{});
         console.error(`FAIL ${book} at ${size.width}x${size.height}: route error or no reader`);
       }
+      if (book === "nafahat") {
+        // Reproduce the user's exact bug: tap a poem in Jami al-Nafahat's
+        // ORIGINAL scanned seven-sheet index, not a synthetic outline.
+        await page.getByRole("button", { name: "فهرس جامع النفحات" }).click();
+        const poem = page.getByRole("button", { name: "فتح العنوان المطبوع في صفحة 42" }).first();
+        await poem.click({ timeout: 30000 });
+        await page.waitForTimeout(1150);
+        const position = await page.evaluate(() => ({
+          saved: localStorage.getItem("reader.page.nafahat"),
+          selected: !!document.querySelector('.continuous-book-stack [role="listitem"][aria-label="صفحة 42 من 432"]'),
+          openIndex: !!document.querySelector('[aria-label^="الفهرس المطبوع الأصلي"]'),
+          scrollTop: document.querySelector(".book-pdf-stage")?.scrollTop || 0,
+          readerError: document.body.innerText.includes("لم نتمكن من تحميل هذه الصفحة"),
+        }));
+        console.log(JSON.stringify({ size, check: "nafahat-printed-index-jump", expected: 42, ...position }));
+        if (position.saved !== "42" || !position.selected || position.openIndex || position.readerError || position.scrollTop < 1000) {
+          errorsFound++;
+          await page.screenshot({ path: join(out, `failed-nafahat-index-${size.width}.png`), fullPage: false });
+          console.error(`FAIL Jami al-Nafahat index tap at ${size.width}x${size.height}: selected 42 but reader did not jump`);
+        }
+      }
       // Return through the actual navigation bar; never a hard browser reload.
       // The desktop header link exists in the DOM on phones but is hidden.
       // Choose the *visible* link for the current viewport, just as a user would.
