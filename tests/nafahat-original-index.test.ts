@@ -44,6 +44,24 @@ describe("Phase 34: genuine complete Jami al-Nafahat printed index", () => {
     expect(reader).toContain("if (pendingPrintedIndexJump.current === null) setPage(active)");
     expect(reader).toContain("NAFAHAT_INDEX_REFERENCES");
   });
+  test("sheet selector retains its location and keeps 458 original source references intact", () => {
+    const reader = read("src/components/PdfBookViewer.tsx");
+    expect(reader).toContain('aria-label="صفحة فهرس جامع النفحات"');
+    expect(reader).toContain("printedIndexSheets.map((sheet, index)");
+    expect(reader).toContain("selectPrintedIndexSheet(Number(event.currentTarget.value))");
+    expect(reader).toContain("continuousRef.current?.jumpToPage(sheet - NAFAHAT_INDEX_FIRST + 1)");
+    expect(reader).toContain("onClick={() => setPrintedIndexOpen(v => !v)}");
+    expect(reader).not.toContain("setPrintedIndexSheet(NAFAHAT_INDEX_FIRST); setPrintedIndexOpen(v => !v)");
+    const smoke = read("scripts/smoke-mobile-books.mjs");
+    for (const sheet of [425, 427, 431]) {
+      expect(smoke).toContain(`sheet: ${sheet}`);
+    }
+    for (const target of [42, 181, 420]) {
+      expect(smoke).toContain(`target: ${target}`);
+    }
+    expect(smoke).toContain('remembered !== "431"');
+  });
+
   test("no fake quarter/half index; full PDF bookmark titles are not cut to 60", () => {
     expect(summarizedBookIndex(432)).toEqual([]);
     const headings = Array.from({ length: 96 }, (_, i) => ({ title: `العنوان ${i + 1}`, page: i + 1 }));
