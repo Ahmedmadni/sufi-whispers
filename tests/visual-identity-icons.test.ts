@@ -32,6 +32,20 @@ describe("Rihab app visual identity v2", () => {
     expect(header).toContain('h-11 w-11');
   });
 
+  test("Facebook group uses a clear filled mark across phone, tablet and website", () => {
+    const icon = read("src/components/FacebookGroupIcon.tsx");
+    expect(icon).toContain('fill="#0866FF"');
+    expect(icon).toContain('fill="#fff"');
+    for (const file of ["src/components/SiteHeader.tsx", "src/components/SiteFooter.tsx", "src/routes/index.tsx"]) {
+      expect(read(file)).toContain("<FacebookGroupIcon");
+      expect(read(file)).not.toContain("<Facebook ");
+    }
+    const header = read("src/components/SiteHeader.tsx");
+    expect(header).toContain('aria-label="مجموعة الجمعية على فيسبوك"');
+    expect(header).toContain("inline-flex h-9 w-9 sm:h-11 sm:w-11");
+    expect(header).toContain('https://www.facebook.com/groups/alkhaleelih/');
+  });
+
   test("web SSR and packaged Android load the same offline-safe style last", () => {
     const root = read("src/routes/__root.tsx");
     const mobile = read("mobile/main.tsx");
