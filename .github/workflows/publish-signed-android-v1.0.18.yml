@@ -21,7 +21,8 @@ jobs:
       github.repository == 'Ahmedmadni/sufi-whispers' &&
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main' &&
-      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers'
+      github.event.workflow_run.head_repository.full_name == 'Ahmedmadni/sufi-whispers' &&
+      github.event.workflow_run.head_sha == 'c58db96e383d5efb0a1e82c4c6933f216fc40e5d'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
