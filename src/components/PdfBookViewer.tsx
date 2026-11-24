@@ -43,6 +43,10 @@ const pdfOptions = {
 };
 // Cap canvas resolution: full device ratio on phones makes each page several times heavier to draw.
 const PAGE_DPR = typeof window === "undefined" ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
+const printedIndexSheets = Array.from(
+  { length: NAFAHAT_INDEX_LAST - NAFAHAT_INDEX_FIRST + 1 },
+  (_, offset) => NAFAHAT_INDEX_FIRST + offset,
+);
 
 type Props = {
   pdfUrl?: string;
@@ -195,6 +199,15 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
   // during the click, so jumping through its ref would target index page 1.
   // Instead commit the destination after the reading stack has mounted and
   // laid out, then let its normal continuous-scroll tracking resume.
+  // Jump within the genuine seven-sheet printed TOC without leaving the index
+  // or loading extra PDF canvases. The virtualized stack remains mounted.
+  const selectPrintedIndexSheet = useCallback((sheet: number) => {
+    if (!printedIndexOpen || !Number.isSafeInteger(sheet) ||
+        sheet < NAFAHAT_INDEX_FIRST || sheet > NAFAHAT_INDEX_LAST) return;
+    setPrintedIndexSheet(sheet);
+    continuousRef.current?.jumpToPage(sheet - NAFAHAT_INDEX_FIRST + 1);
+  }, [printedIndexOpen]);
+
   const jumpFromPrintedIndex = useCallback((target: number) => {
     if (numPages < 1) return;
     const destination = clampPage(target, numPages);
@@ -379,13 +392,27 @@ export default function PdfBookViewer({ pdfUrl = "/book.pdf", bookId = "nafahat"
             <Button type="button" variant="outline" size="icon" className="reader-floating-index__button"
               aria-label={printedIndexOpen ? "إغلاق الفهرس" : "فهرس جامع النفحات"}
               title="فهرس جامع النفحات" aria-expanded={printedIndexOpen}
-              onClick={() => { setPrintedIndexSheet(NAFAHAT_INDEX_FIRST); setPrintedIndexOpen(v => !v); }}>
+              onClick={() => setPrintedIndexOpen(v => !v)}>
               {printedIndexOpen ? <X size={19}/> : <List size={19}/>}
             </Button>
           ) : (
             <BookQuickIndex compact maxPage={numPages} page={page}
               headings={outline.length ? outline : verifiedNafahatKhaliliyyaHeadings(bookId, numPages)}
               onJump={goTo} />
+          )}
+          {bookId === "nafahat" && printedIndexOpen && (
+            <select
+              aria-label="صفحة فهرس جامع النفحات"
+              title="الانتقال بين صفحات الفهرس المطبوع"
+              dir="rtl"
+              value={printedIndexSheet}
+              onChange={event => selectPrintedIndexSheet(Number(event.currentTarget.value))}
+              className="h-11 max-w-[128px] rounded-full border border-gold/30 bg-card px-2 text-xs font-body text-foreground shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+            >
+              {printedIndexSheets.map((sheet, index) => (
+                <option key={sheet} value={sheet}>الفهرس {index + 1} من {printedIndexSheets.length}</option>
+              ))}
+            </select>
           )}
           <VerseCardButton bookId={bookId} page={page} />
           <Button variant="outline" size="icon"
