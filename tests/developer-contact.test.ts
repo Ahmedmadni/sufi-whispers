@@ -17,7 +17,7 @@ describe("Developer contact and brand-consistent Facebook icons", () => {
     expect(about).toContain('aria-label="تواصل مع المطور عبر فيسبوك"');
   });
 
-  test("all visible Facebook icons use official blue and retain links", () => {
+  test("all Facebook links use the shared recognizable blue and white glyph", () => {
     const files = [
       "src/components/DeveloperSignature.tsx",
       "src/components/SiteHeader.tsx",
@@ -26,14 +26,14 @@ describe("Developer contact and brand-consistent Facebook icons", () => {
       "src/routes/shaykh.tsx",
       "src/routes/about.tsx",
     ];
+    const mark = read("src/components/FacebookGroupIcon.tsx");
+    expect(mark).toContain('fill="#0866FF"');
+    expect(mark).toContain('fill="#fff"');
     for (const file of files) {
       const source = read(file);
-      const icons = source.match(/<Facebook\b[^>]*\/>/g) ?? [];
+      const icons = source.match(/<FacebookGroupIcon\b[^>]*\/>/g) ?? [];
       expect(icons.length).toBeGreaterThan(0);
-      for (const icon of icons) {
-        expect(icon).toContain("text-[#0866FF]");
-        expect(icon).toContain('aria-hidden="true"');
-      }
+      expect(source).not.toMatch(/<Facebook\b/);
       expect(source).toContain("facebook.com");
     }
   });
